@@ -1,0 +1,11 @@
+<!-- event-item.component.html -->
+<a href="#" class="block transform transition duration-300 hover:scale-105 hover:bg-blue-50 rounded-lg overflow-hidden shadow-lg hover:shadow-xl" routerLinkActive="active" [routerLink]="[event.id]">
+  <div class="event-info bg-white p-4">
+    <h4 class="text-lg text-blue-600 font-semibold">{{ event.date | date:'mediumDate' }}</h4>
+    <h5 class="text-xl font-bold text-gray-800 mt-1">{{ event.name }}</h5>
+    <h5 class="text-md text-gray-600 mt-1">{{ event.location }}</h5>
+  </div>
+  <div class="w-full h-48">
+    <img class="w-full h-full object-cover" src="{{event.imageUrl}}" alt="{{ event.name }} Image">
+  </div>
+</a>
