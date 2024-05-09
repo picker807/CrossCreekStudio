@@ -1,0 +1,17 @@
+<!-- event-registration.component.html -->
+<form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="firstName">First Name:</label>
+    <input id="firstName" formControlName="firstName" placeholder="First Name">
+  </div>
+  <div>
+    <label for="lastName">Last Name:</label>
+    <input id="lastName" formControlName="lastName" placeholder="Last Name">
+  </div>
+  <div>
+    <label for="email">Email:</label>
+    <input id="email" type="email" formControlName="email" placeholder="Email">
+  </div>
+  <button type="submit" [disabled]="!registrationForm.valid">Register</button>
+</form>
+

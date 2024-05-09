@@ -1,3 +1,6 @@
+import { Gallery } from "../gallery/gallery.model";
+import { User } from "../user.model";
+
 export class Event {
   constructor(
     public id: string,
@@ -6,9 +9,9 @@ export class Event {
     public isVirtual: boolean,
     public location: string,
     public description: string,
-    public attendees: string[],
+    public attendees: User[],
     public isRegistrationOpen: boolean,
-    public imageUrl: string,
+    public images: Gallery[]
     
   ) {}
 }

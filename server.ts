@@ -1,56 +1,74 @@
-import { APP_BASE_HREF } from '@angular/common';
-import { CommonEngine } from '@angular/ssr';
-import express from 'express';
-import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
-import AppServerModule from './src/main.server';
+// Get dependencies
+var express = require('express');
+var path = require('path');
+var http = require('http');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var mongoose = require('mongoose');
+require('dotenv').config();
 
-// The Express app is exported so that it can be used by serverless Functions.
-export function app(): express.Express {
-  const server = express();
-  const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-  const browserDistFolder = resolve(serverDistFolder, '../browser');
-  const indexHtml = join(serverDistFolder, 'index.server.html');
+const mongoUri = process.env.MONGO_URI;
 
-  const commonEngine = new CommonEngine();
+// import the routing file to handle the default (index) route
+//var index = require('./server/routes/app');
+//const inventoryRoutes = require('./server/routes/inventory');
+//const locationRoutes = require('./server/routes/locations');
 
-  server.set('view engine', 'html');
-  server.set('views', browserDistFolder);
+var app = express(); // create an instance of express
 
-  // Example Express Rest API endpoints
-  // server.get('/api/**', (req, res) => { });
-  // Serve static files from /browser
-  server.get('*.*', express.static(browserDistFolder, {
-    maxAge: '1y'
-  }));
 
-  // All regular routes use the Angular engine
-  server.get('*', (req, res, next) => {
-    const { protocol, originalUrl, baseUrl, headers } = req;
+// Tell express to use the following parsers for POST data
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(cookieParser());
 
-    commonEngine
-      .render({
-        bootstrap: AppServerModule,
-        documentFilePath: indexHtml,
-        url: `${protocol}://${headers.host}${originalUrl}`,
-        publicPath: browserDistFolder,
-        providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
-      })
-      .then((html) => res.send(html))
-      .catch((err) => next(err));
-  });
+app.use(logger('dev')); // Tell express to use the Morgan logger
 
-  return server;
-}
+// Add support for CORS
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PATCH, PUT, DELETE, OPTIONS'
+  );
+  next();
+});
 
-function run(): void {
-  const port = process.env['PORT'] || 4000;
+// Tell express to use the specified director as the
+// root directory for your web site
+app.use(express.static(path.join(__dirname, 'dist/cc/browser')));
 
-  // Start up the Node server
-  const server = app();
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
-}
+// Tell express to map the default route ('/') to the index route
+//app.use('/', index);
+//app.use('/inventory', inventoryRoutes);
+//app.use('/locations', locationRoutes);
 
-run();
+// Tell express to map all other non-defined routes back to the index page
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/cc/browser/index.html'));
+});
+
+
+// establish a connection to the mongo database
+mongoose.connect(mongoUri)
+.then(() => console.log('Connected to database!'))
+.catch(err => console.error('Connection failed:', err));
+
+// Define the port address and tell express to use this port
+const port = process.env.PORT || '3000';
+app.set('port', port);
+
+// Create HTTP server.
+const server = http.createServer(app);
+
+// Tell the server to start listening on the provided port
+server.listen(port, function() {
+  console.log('API running on localhost: ' + port)
+});

@@ -1,0 +1,11 @@
+/* In your styles.css or a component-scoped CSS file */
+.modal-content {
+  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto z-50 flex items-center justify-center;
+}
+
+
+.main-content {
+  @apply flex-grow bg-white p-4;
+}
+
+

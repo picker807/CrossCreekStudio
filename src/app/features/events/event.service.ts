@@ -1,18 +1,19 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Event } from './event.model';
-import { Subject, catchError, tap, throwError } from 'rxjs';
+import { Observable, Subject, catchError, of, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { GalleryCategory } from '../gallery/gallery.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventService {
   events: Event[] = [];
-  //maxEventId: number;
+  maxEventId: number = 100;
   //eventSelectedEvent: EventEmitter<Event> = new EventEmitter<Event>();
-  eventListChangedEvent = new Subject<Event []>();
+  eventListChangedEvent = new Subject<Event[]>();
   url: string = 'mongo uri here';
-  mockEvents = [
+  mockEvents= [
     {
       "id": "1",
       "name": "Tech Conference 2024",
@@ -20,9 +21,19 @@ export class EventService {
       "isVirtual": true,
       "location": "Online",
       "description": "A comprehensive tech conference covering all the latest in software development.",
-      "attendees": ["John Doe", "Jane Smith"],
+      "attendees": [
+        { id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }
+      ],
       "isRegistrationOpen": true,
-      "imageUrl": "../../../assets/images/mexiduck.png"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "2",
@@ -31,9 +42,19 @@ export class EventService {
       "isVirtual": false,
       "location": "Central Park",
       "description": "Explore local art and artists at our annual festival in the park.",
-      "attendees": ["Emily Johnson", "Chris Lee"],
+      "attendees": [
+        { id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }
+      ],
       "isRegistrationOpen": true,
-      "imageUrl": "../../../assets/images/IMG_1892.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "3",
@@ -42,9 +63,17 @@ export class EventService {
       "isVirtual": false,
       "location": "Downtown Club",
       "description": "Enjoy a night of fantastic live music from top bands.",
-      "attendees": ["Michael Brown", "Sarah Davis"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": false,
-      "imageUrl": "../../../assets/images/IMG_1837.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "4",
@@ -53,9 +82,17 @@ export class EventService {
       "isVirtual": true,
       "location": "Online",
       "description": "Learn to code from scratch in our intensive, month-long virtual bootcamp.",
-      "attendees": ["Alice Johnson", "David Wilson"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": true,
-      "imageUrl": "https://example.com/images/event4.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "5",
@@ -64,9 +101,17 @@ export class EventService {
       "isVirtual": false,
       "location": "Convention Center",
       "description": "Discover the latest in health and wellness at our annual expo.",
-      "attendees": ["Patricia Taylor", "Barbara Brown"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": true,
-      "imageUrl": "https://example.com/images/event5.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "6",
@@ -75,9 +120,17 @@ export class EventService {
       "isVirtual": false,
       "location": "Riverfront Theater",
       "description": "Join us for a celebration of international cinema.",
-      "attendees": ["Robert Jones", "Jennifer Garcia"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": false,
-      "imageUrl": "https://example.com/images/event6.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "7",
@@ -86,9 +139,17 @@ export class EventService {
       "isVirtual": false,
       "location": "Hotel Grand Ballroom",
       "description": "Expand your professional network at our quarterly business event.",
-      "attendees": ["William Martinez", "Elizabeth Anderson"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": true,
-      "imageUrl": "https://example.com/images/event7.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "8",
@@ -97,9 +158,17 @@ export class EventService {
       "isVirtual": true,
       "location": "Online",
       "description": "Learn about sustainable practices and how to implement them in your daily life.",
-      "attendees": ["Joseph Thomas", "Sandra Hernandez"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": true,
-      "imageUrl": "https://example.com/images/event8.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "9",
@@ -108,9 +177,17 @@ export class EventService {
       "isVirtual": false,
       "location": "City Hall",
       "description": "Support a good cause at our glamorous annual charity ball.",
-      "attendees": ["Charles Moore", "Lisa Jackson"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": false,
-      "imageUrl": "https://example.com/images/event9.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        }, ]
     },
     {
       "id": "10",
@@ -119,25 +196,38 @@ export class EventService {
       "isVirtual": false,
       "location": "Skyline Rooftop",
       "description": "Ring in the new year with an unforgettable night of celebration.",
-      "attendees": ["Mary White", "James Harris"],
+      "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
+      { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
+      { id: '4', firstName: 'Jack', lastName: 'Daniels', email: 'jack.daniels@example.com' },
+      { id: '5', firstName: 'Johnny', lastName: 'Walker', email: 'johnny.walker@example.com' }],
       "isRegistrationOpen": true,
-      "imageUrl": "https://example.com/images/event10.jpg"
+      "images": [
+        { id: '10', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Summer
+        },
+        { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Winter
+        }, ]
     }
   ]
   
 
-  constructor(  /*private http: HttpClient*/  ) { }
+  //constructor( private http: HttpClient ) { }
 
+  get eventsChanged(): Observable<Event[]> {
+    return this.eventListChangedEvent.asObservable();
+  }
 
   getEvents(): void {
-    console.log('Attempting to fetch events');
 
-    this.events = this.mockEvents.map(event => ({
+    if (this.events.length === 0) {
+      this.events = this.mockEvents.map(event => ({
       ...event,
       date: new Date(event.date)
     }));
-    console.log('Fetched events:', this.events);
+    }
+
     this.sortAndSend();
+
     /*
     this.http.get<Event[]>(this.url)
       .pipe(
@@ -152,11 +242,14 @@ export class EventService {
         })
       )
       .subscribe();
+
       */
   }
 
   getEventById(id: string): Event {
+    
     const event = this.events.find(event => event.id === id);
+    
     return event;
   }
 
@@ -165,4 +258,44 @@ export class EventService {
     this.eventListChangedEvent.next(this.events.slice());
   }
 
-}
+  createEvent(event: Event): void {
+    event.id = this.maxEventId.toString();
+    this.maxEventId += 1;
+    console.log("max Event Id: ", this.maxEventId);
+    this.events.push(event);
+    console.log("New Event: ", event);
+    this.sortAndSend();
+    
+  }
+
+  updateEvent(originalEvent: Event, newEvent: Event): void {
+    console.log("Event service updateEvent - newEvent: ", newEvent)
+    if (originalEvent === undefined || originalEvent === null || newEvent === undefined || newEvent === null) {
+      return;
+    }
+
+    const pos = this.events.indexOf(originalEvent);
+    if (pos < 0) {
+      return;
+    }
+
+    newEvent.id = originalEvent.id;
+    this.events[+pos] = newEvent;
+
+    console.log("Event service - after vent added: ", this.events[+pos]);
+
+    this.sortAndSend();
+    //return this.http.put<Event>(`${this.url}/${event.id}`, event);
+  }
+
+  deleteEvent(id: string): void {
+    const index = this.events.findIndex(event => event.id === id);
+    if (index !== -1) {
+      this.events.splice(index, 1);
+    } else {
+      console.error('Event not found');
+    }
+  }
+    //return this.http.delete(`${this.url}/${id}`);
+  }
+

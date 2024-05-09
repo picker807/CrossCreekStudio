@@ -1,9 +1,16 @@
-<!-- app.component.html -->
 <div class="app-container flex flex-col min-h-screen">
   <header class="bg-gray-800 text-white">
-    <nav class="container mx-auto px-4 sm:px-6 py-3">
+    <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+      <!-- Logo and Title -->
+      <div class="flex items-center">
+        <img src="../../assets/images/mexiduck.png" alt="Cross Creek Creates Logo" class="h-16 mr-3">
+        <span class="text-xl font-bold">Cross Creek Creates</span>
+      </div>
+      <!-- Navigation Links -->
       <ul class="flex justify-between sm:space-x-4">
+        <li><a routerLink="/home" class="hover:text-gray-300">Home</a></li>
         <li><a routerLink="/events" class="hover:text-gray-300">Events</a></li>
+        <li><a routerLink="/gallery" class="hover:text-gray-300">Gallery</a></li>
         <li><a routerLink="/admin" class="hover:text-gray-300">Admin</a></li>
       </ul>
     </nav>
