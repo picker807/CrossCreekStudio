@@ -5,7 +5,10 @@
 
 
 .main-content {
-  @apply flex-grow bg-white p-4;
+  @apply flex-grow bg-white items-center;
+  width: 80%;
+  margin: auto;
 }
+
 
 

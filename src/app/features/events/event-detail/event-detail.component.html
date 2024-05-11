@@ -1,8 +1,11 @@
 <div class="max-w-4xl mx-auto p-4">
   <h1 class="text-3xl font-bold text-gray-800">{{ event.name }}</h1>
-  <div *ngFor="let image of event.images" class="w-full h-48">
-    <img class="w-full h-full object-cover" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
+  <div class="flex flex-wrap justify-center">
+    <div *ngFor="let image of event.images" class="m-2 max-w-xs">
+      <img class="max-h-64 w-full object-contain" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
+    </div>
   </div>
+  
   <p class="mt-2 text-lg"><strong>Date:</strong> {{ event.date | date:'fullDate' }}</p>
   <p class="text-lg"><strong>Location:</strong> {{ event.location }}</p>
   <p class="text-lg mb-4"><strong>Description:</strong> {{ event.description }}</p>

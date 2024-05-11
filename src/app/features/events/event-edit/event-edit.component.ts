@@ -61,7 +61,7 @@ export class EventEditComponent {
       isVirtual: [false],
       attendees: this.fb.array([]),
       isRegistrationOpen: [false],
-      imageUrl: ['']
+      images: this.fb.array([])
     });
 
     this.newAttendeeForm = this.fb.group({
@@ -104,9 +104,10 @@ export class EventEditComponent {
       //attendees: this.originalEvent.attendees,
       isVirtual: this.originalEvent.isVirtual,
       isRegistrationOpen: this.originalEvent.isRegistrationOpen,
-      images: this.originalEvent.images
+      //images: this.originalEvent.images
     });
     this.setAttendees();
+    this.setImages();
   }
     
     
@@ -125,6 +126,18 @@ export class EventEditComponent {
     });
     console.log("End setAttendees - attendeesFormArray: ", attendeesFormArray);
   }
+
+  setImages(): void {
+    const imagesFormArray = this.images;
+    imagesFormArray.clear();
+    this.originalEvent.images.forEach(gallery => {
+      const imageGroup = this.fb.group({
+        id: [gallery.id],
+        imageUrl: [gallery.imageUrl]
+      });
+      imagesFormArray.push(imageGroup);
+    });
+  }
     
 
   submitEdit(): void {
@@ -132,7 +145,11 @@ export class EventEditComponent {
     if (this.editForm.valid) {
       console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
+      const fullGalleryItems = value.images.map(image => this.galleryService.getItemById(image.id));
       const newEvent: Event = {
+        ...value,
+        images: fullGalleryItems
+        /*
         id: '',
         name: value.name,
         date: value.date,
@@ -142,6 +159,7 @@ export class EventEditComponent {
         attendees: value.attendees,
         isRegistrationOpen: value.isRegistrationOpen,
         images: value.images
+        */
       };
 
       
@@ -163,9 +181,13 @@ export class EventEditComponent {
     };
     
 
-    get attendees(): FormArray {
-      return this.editForm.get('attendees') as FormArray;
-    }
+  get attendees(): FormArray {
+    return this.editForm.get('attendees') as FormArray;
+  }
+
+  get images(): FormArray {
+    return this.editForm.get('images') as FormArray;
+  }
 
   cancelEdit(): void {
     this.router.navigate(['/events', this.originalEvent.id]);
@@ -196,6 +218,20 @@ export class EventEditComponent {
   removeAttendee(index: string) {
     this.attendees.removeAt(+index);
   } 
+
+  removeImage(index: string) {
+    this.images.removeAt(+index);
+  }
     
+  drop(event: CdkDragDrop<Gallery[]>): void {
+    if (event.previousContainer !== event.container) {
+      const gallery = event.previousContainer.data[event.previousIndex];
+      const imagesFormArray = this.editForm.get('images') as FormArray;
+      imagesFormArray.push(this.fb.group({
+        id: [gallery.id, Validators.required],
+        imageUrl: [gallery.imageUrl, Validators.required]
+      }));
+    }
+  }
 }
 
