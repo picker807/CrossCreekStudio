@@ -13,11 +13,13 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./gallery-edit.component.css']
 })
 export class GalleryEditComponent implements OnInit {
+  imageSrc: string;
   isAdmin: boolean = false;
   galleryForm: FormGroup;
   GalleryCategory = GalleryCategory;
   editMode: boolean = false;
   originalItem: Gallery;
+  currentImageUrl: string;
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -47,6 +49,7 @@ export class GalleryEditComponent implements OnInit {
           this.originalItem = list.find(item => item.id === id);
           if (this.originalItem) {
             this.editMode = true;
+            this.currentImageUrl = this.originalItem.imageUrl;
             this.updateForm();
           } else {
             this.editMode = false;
@@ -54,6 +57,14 @@ export class GalleryEditComponent implements OnInit {
         }));
       }
     }));
+  }
+
+  onImageSrcChange(newImageSrc: string): void {
+    console.log('New image source:', newImageSrc);
+    this.currentImageUrl = newImageSrc;
+    this.galleryForm.patchValue({
+      imageUrl: newImageSrc
+    });
   }
 
   ngOnDestroy(): void {
@@ -65,13 +76,28 @@ export class GalleryEditComponent implements OnInit {
       name: this.originalItem.name,
       description: this.originalItem.description,
       category: this.originalItem.category,
-      imageUrl: this.originalItem.imageUrl
+      imageUrl: this.currentImageUrl
     });
   }
 
   submitEdit(): void {
 
+    if (this.galleryForm.valid) {
+      console.log('Form Data:', this.galleryForm.value);
+      const value = this.galleryForm.value;
+      const newItem: Gallery = {
+        ...value,
+      };
+
+    if (this.editMode) {
+      this.galleryService.updateGalleryItem(this.originalItem, newItem);
+    } else {
+      this.galleryService.createGalleryItem(newItem);
+    }
+    }
   }
+
+
   cancelEdit(): void {
 
   }

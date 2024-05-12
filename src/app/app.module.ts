@@ -10,6 +10,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { NgxFileDropModule } from '@bugsplat/ngx-file-drop';
 
 
 
@@ -26,7 +27,8 @@ import { EffectsModule } from '@ngrx/effects';
     SharedModule,
     BrowserAnimationsModule,
     StoreModule.forRoot({}, {}),
-    EffectsModule.forRoot([])
+    EffectsModule.forRoot([]),
+    NgxFileDropModule
     
   ],
   providers: [

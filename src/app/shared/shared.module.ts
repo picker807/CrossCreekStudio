@@ -8,12 +8,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ImageUploadComponent } from './image-upload/image-upload.component';
 
 
 
 @NgModule({
   declarations: [
-    StringFilterPipe
+    StringFilterPipe,
+    ImageUploadComponent
   ],
   imports: [
     CommonModule,
@@ -33,6 +35,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatButtonModule,
     MatSelectModule,
     DragDropModule,
+    ImageUploadComponent
     
   ]
 })

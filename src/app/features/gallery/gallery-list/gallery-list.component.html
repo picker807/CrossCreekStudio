@@ -1,7 +1,7 @@
 <div class="w-full bg-gray-100 p-4">
-  <button *ngIf="isAdmin" (click)="newItem()" class="mb-4 bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+  <a *ngIf="isAdmin" [routerLink]="['./new']" class="mb-4 bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
     New Gallery Item
-  </button>
+  </a>
   
   <div *ngFor="let category of groupedItems | keyvalue" class="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 mt-4 border-l-4 border-green-500">
     <h1 class="text-3xl font-bold text-gray-800">{{ category.key }}</h1>

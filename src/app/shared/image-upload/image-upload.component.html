@@ -1,0 +1,12 @@
+<!-- image-upload.component.html -->
+<div class="upload-container p-4 border-2 border-dotted border-gray-400 rounded-lg relative"
+     (drop)="onDrop($event)" 
+     (dragover)="onDragOver($event)" 
+     (dragleave)="onDragOver($event)">
+  <input type="file" (change)="handleFileInput($event)" hidden #fileInput>
+  <button class="mb-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" (click)="fileInput.click()">Browse</button>
+  <p class="text-gray-700">or drag and drop files here</p>
+  <img *ngIf="imageSrc" [src]="imageSrc" class="uploaded-image max-w-full h-auto mt-2" />
+</div>
+
+

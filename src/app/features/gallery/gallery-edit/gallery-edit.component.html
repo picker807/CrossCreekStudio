@@ -18,6 +18,13 @@
     </mat-select>
   </mat-form-field>
 
+  <div>
+    <cc-image-upload (imageSrcChange)="onImageSrcChange($event)"></cc-image-upload>
+    <img *ngIf="currentImageUrl" [src]="currentImageUrl" alt="Image Preview">
+  </div>
+ 
+
+
   <mat-form-field appearance="fill">
     <mat-label>Image URL</mat-label>
     <input matInput formControlName="imageUrl">

@@ -30,7 +30,8 @@ export class GalleryListComponent implements OnInit, OnDestroy{
 
     this.subscription = this.galleryService.galleryList$.subscribe((galleryList: Gallery[]) => {
       this.galleryList = galleryList;
-      this.groupItemsByCategory(); 
+      this.groupItemsByCategory();
+      this.router.navigate(['/gallery']);
     });
   }
 
