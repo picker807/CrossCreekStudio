@@ -1,19 +1,23 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Event } from './event.model';
-import { Observable, Subject, catchError, of, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, of, tap, throwError, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { GalleryCategory } from '../gallery/gallery.model';
+import { User } from '../user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventService {
-  events: Event[] = [];
+  private apiUrl = 'http://localhost:3000/events';
+  private eventsSubject = new BehaviorSubject<Event[]>([]);
+  events$ = this.eventsSubject.asObservable();
+
   maxEventId: number = 100;
   //eventSelectedEvent: EventEmitter<Event> = new EventEmitter<Event>();
-  eventListChangedEvent = new Subject<Event[]>();
+  //eventListChangedEvent = new Subject<Event[]>();
   url: string = 'mongo uri here';
-  mockEvents= [
+  /*mockEvents= [
     {
       "id": "1",
       "name": "Tech Conference 2024",
@@ -21,6 +25,7 @@ export class EventService {
       "isVirtual": true,
       "location": "Online",
       "description": "A comprehensive tech conference covering all the latest in software development.",
+      "price": 35,
       "attendees": [
         { id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
@@ -42,6 +47,7 @@ export class EventService {
       "isVirtual": false,
       "location": "Central Park",
       "description": "Explore local art and artists at our annual festival in the park.",
+      "price": 35,
       "attendees": [
         { id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
@@ -63,6 +69,7 @@ export class EventService {
       "isVirtual": false,
       "location": "Downtown Club",
       "description": "Enjoy a night of fantastic live music from top bands.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -82,6 +89,7 @@ export class EventService {
       "isVirtual": true,
       "location": "Online",
       "description": "Learn to code from scratch in our intensive, month-long virtual bootcamp.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -101,6 +109,7 @@ export class EventService {
       "isVirtual": false,
       "location": "Convention Center",
       "description": "Discover the latest in health and wellness at our annual expo.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -120,6 +129,7 @@ export class EventService {
       "isVirtual": false,
       "location": "Riverfront Theater",
       "description": "Join us for a celebration of international cinema.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -139,6 +149,7 @@ export class EventService {
       "isVirtual": false,
       "location": "Hotel Grand Ballroom",
       "description": "Expand your professional network at our quarterly business event.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -158,6 +169,7 @@ export class EventService {
       "isVirtual": true,
       "location": "Online",
       "description": "Learn about sustainable practices and how to implement them in your daily life.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -177,6 +189,7 @@ export class EventService {
       "isVirtual": false,
       "location": "City Hall",
       "description": "Support a good cause at our glamorous annual charity ball.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -196,6 +209,7 @@ export class EventService {
       "isVirtual": false,
       "location": "Skyline Rooftop",
       "description": "Ring in the new year with an unforgettable night of celebration.",
+      "price": 35,
       "attendees": [{ id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
       { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
       { id: '3', firstName: 'Jim', lastName: 'Beam', email: 'jim.beam@example.com' },
@@ -208,94 +222,123 @@ export class EventService {
         { id: '11', name: 'first image', description: "this description", imageUrl: "../../../assets/images/mexiduck.png", category: GalleryCategory.Winter
         }, ]
     }
-  ]
+  ] */
+
   
 
-  //constructor( private http: HttpClient ) { }
+    constructor( private http: HttpClient ) {
+      this.loadEvents();
 
-  get eventsChanged(): Observable<Event[]> {
-    return this.eventListChangedEvent.asObservable();
-  }
-
-  getEvents(): void {
-
-    if (this.events.length === 0) {
-      this.events = this.mockEvents.map(event => ({
-      ...event,
-      date: new Date(event.date)
-    }));
     }
 
-    this.sortAndSend();
 
-    /*
-    this.http.get<Event[]>(this.url)
-      .pipe(
-        tap(events => {
-          this.events = events;
+    /*get eventsChanged(): Observable<Event[]> {
+      return this.eventListChangedEvent.asObservable();
+    } */
+
+    private loadEvents(): void {
+      this.http.get<Event[]>(this.apiUrl).subscribe(events => {
+        const eventsWithDates = events.map(event => ({
+          ...event,
+          date: new Date(event.date)
+        }));
+        this.eventsSubject.next(eventsWithDates);
+        this.sortAndSend();
+      });
+    }
+
+    getEventById(id: string): Observable<Event> {
+      return this.events$.pipe(
+        map(events => events.find(event => event.id === id))
+      );
+    }
+
+    /*sortAndSend(): void {
+      this.events.sort((a, b) => a.date.getTime() - b.date.getTime());
+      this.eventListChangedEvent.next(this.events.slice());
+    } */
+
+    createEvent(event: Event): Observable<Event> {
+      event.id = this.generateUniqueId();
+      return this.http.post<Event>(this.apiUrl, event).pipe(
+        tap(newEvent => {
+          const currentEvents = this.eventsSubject.getValue();
+          this.eventsSubject.next([...currentEvents, newEvent]);
           this.sortAndSend();
         }),
         catchError(error => {
-          console.error('Error fetching events:', error);
-          alert('An error occurred while fetching events.');
-          return throwError(() => new Error('Error fetching events'));
+          console.error('Error adding event:', error);
+          return throwError(() => new Error('Error adding event'));
         })
-      )
-      .subscribe();
-
-      */
-  }
-
-  getEventById(id: string): Event {
-    
-    const event = this.events.find(event => event.id === id);
-    
-    return event;
-  }
-
-  sortAndSend(): void {
-    this.events.sort((a, b) => a.date.getTime() - b.date.getTime());
-    this.eventListChangedEvent.next(this.events.slice());
-  }
-
-  createEvent(event: Event): void {
-    event.id = this.maxEventId.toString();
-    this.maxEventId += 1;
-    console.log("max Event Id: ", this.maxEventId);
-    this.events.push(event);
-    console.log("New Event: ", event);
-    this.sortAndSend();
-    
-  }
-
-  updateEvent(originalEvent: Event, newEvent: Event): void {
-    console.log("Event service updateEvent - newEvent: ", newEvent)
-    if (originalEvent === undefined || originalEvent === null || newEvent === undefined || newEvent === null) {
-      return;
+      );
     }
 
-    const pos = this.events.indexOf(originalEvent);
-    if (pos < 0) {
-      return;
+    updateEvent(event: Event): Observable<Event> {
+      return this.http.put<Event>(`${this.apiUrl}/${event.id}`, event).pipe(
+        tap(updatedEvent => {
+          const currentEvents = this.eventsSubject.getValue();
+          const eventIndex = currentEvents.findIndex(e => e.id === event.id);
+          currentEvents[eventIndex] = updatedEvent;
+          this.eventsSubject.next([...currentEvents]);
+          this.sortAndSend();
+        }),
+        catchError(error => {
+          console.error('Error updating event:', error);
+          return throwError(() => new Error('Error updating event'));
+        })
+      );
     }
 
-    newEvent.id = originalEvent.id;
-    this.events[+pos] = newEvent;
-
-    console.log("Event service - after vent added: ", this.events[+pos]);
-
-    this.sortAndSend();
-    //return this.http.put<Event>(`${this.url}/${event.id}`, event);
-  }
-
-  deleteEvent(id: string): void {
-    const index = this.events.findIndex(event => event.id === id);
-    if (index !== -1) {
-      this.events.splice(index, 1);
-    } else {
-      console.error('Event not found');
+    deleteEvent(id: string): Observable<void> {
+      return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+        tap(() => {
+          const currentEvents = this.eventsSubject.getValue();
+          const updatedEvents = currentEvents.filter(event => event.id !== id);
+          this.eventsSubject.next(updatedEvents);
+          this.sortAndSend();
+        }),
+        catchError(error => {
+          console.error('Error deleting event:', error);
+          return throwError(() => new Error('Error deleting event'));
+        })
+      );
     }
-  }
-    //return this.http.delete(`${this.url}/${id}`);
+
+    getEventUsers(eventId: string): Observable<User[]> {
+      return this.getEventById(eventId).pipe(
+        map(event => event ? event.attendees : [])
+      );
+    }
+
+    addUserToEvent(user: User, eventId: string): Observable<void> {
+      return this.getEventById(eventId).pipe(
+        tap(event => {
+          if (event) {
+            const existingUserIndex = event.attendees.findIndex(u => u.email === user.email);
+            if (existingUserIndex === -1) {
+              event.attendees.push(user);
+            } else {
+              event.attendees[existingUserIndex] = user;
+            }
+            this.updateEvent(event).subscribe();
+          }
+        }),
+        map(() => {}),
+        catchError(error => {
+          console.error('Error adding user to event:', error);
+          return throwError(() => new Error('Error adding user to event'));
+        })
+      );
+    }
+
+    private sortAndSend(): void {
+      const sortedEvents = this.eventsSubject.getValue().sort((a, b) => a.date.getTime() - b.date.getTime());
+      this.eventsSubject.next([...sortedEvents]);
+    }
+  
+    private generateUniqueId(): string {
+      return (this.maxEventId++).toString();
+    }
+
   }
 

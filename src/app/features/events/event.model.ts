@@ -9,8 +9,8 @@ export class Event {
     public isVirtual: boolean,
     public location: string,
     public description: string,
+    public price: number,
     public attendees: User[],
-    public isRegistrationOpen: boolean,
     public images: Gallery[]
     
   ) {}

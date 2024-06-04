@@ -9,14 +9,15 @@ var mongoose = require('mongoose');
 require('dotenv').config();
 
 const mongoUri = process.env.MONGO_URI;
+console.log("Get Mongo URI: ", process.env.MONGO_URI);
 
-// import the routing file to handle the default (index) route
-//var index = require('./server/routes/app');
-//const inventoryRoutes = require('./server/routes/inventory');
-//const locationRoutes = require('./server/routes/locations');
+// Import the routing files
+const adminRoutes = require('./server/routes/admin');
+const eventRoutes = require('./server/routes/events');
+const galleryRoutes = require('./server/routes/galleries');
+// Note: userRoutes are not directly connected to the URL
 
 var app = express(); // create an instance of express
-
 
 // Tell express to use the following parsers for POST data
 app.use(bodyParser.json());
@@ -41,25 +42,37 @@ app.use((req, res, next) => {
   next();
 });
 
-// Tell express to use the specified director as the
+// Tell express to use the specified directory as the
 // root directory for your web site
 app.use(express.static(path.join(__dirname, 'dist/cc/browser')));
 
-// Tell express to map the default route ('/') to the index route
-//app.use('/', index);
-//app.use('/inventory', inventoryRoutes);
-//app.use('/locations', locationRoutes);
+// Register the routes with the Express application
+app.use('/admin', adminRoutes);
+app.use('/events', eventRoutes);
+app.use('/galleries', galleryRoutes);
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/cc/browser/index.html'));
 });
 
+// Establish a connection to the MongoDB database
+console.log(mongoUri);
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to database!'))
+  .catch(err => console.error('Connection failed:', err));
 
-// establish a connection to the mongo database
-mongoose.connect(mongoUri)
-.then(() => console.log('Connected to database!'))
-.catch(err => console.error('Connection failed:', err));
+// Handle connection events
+const db = mongoose.connection;
+db.on('error', (err) => {
+  console.error('Mongoose connection error:', err);
+});
+db.once('open', () => {
+  console.log('Mongoose connected to the database');
+});
+db.on('disconnected', () => {
+  console.log('Mongoose disconnected');
+});
 
 // Define the port address and tell express to use this port
 const port = process.env.PORT || '3000';
@@ -70,5 +83,5 @@ const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
 server.listen(port, function() {
-  console.log('API running on localhost: ' + port)
+  console.log('API running on localhost: ' + port);
 });

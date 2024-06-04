@@ -54,7 +54,9 @@ ngOnDestroy(): void {
 private loadItemDetails(): void {
   const id = this.route.snapshot.paramMap.get('id');
   if (id) {
-    this.item = this.galleryService.getItemById(id);
+    this.galleryService.getItemById(id).subscribe(item => {
+      this.item = item;
+    });
   }
 }
 

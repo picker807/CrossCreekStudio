@@ -6,7 +6,7 @@ import { FormGroup, FormBuilder, FormArray, FormControl, Validators } from '@ang
 //import { MatDatepickerModule } from '@angular/material/datepicker';
 import { User } from '../../user.model';
 import { Event } from '../event.model';
-import { first } from 'rxjs/operators';
+import { first, startWith } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Gallery } from '../../gallery/gallery.model';
@@ -17,7 +17,7 @@ import { GalleryService } from '../../gallery/gallery.service';
   templateUrl: './event-edit.component.html',
   styleUrl: './event-edit.component.css'
 })
-export class EventEditComponent {
+export class EventEditComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
   editForm: FormGroup;
   galleryForm: FormGroup;
@@ -27,6 +27,8 @@ export class EventEditComponent {
   originalEvent: Event;
   eventSubscription: Subscription;
   gallerySubscription: Subscription;
+  currentDate: Date = new Date();
+  showModifyEvent: boolean;
   //newEvent: Event;
 
   constructor(private fb: FormBuilder,
@@ -49,18 +51,14 @@ export class EventEditComponent {
       this.galleries = galleryList;
     })
 
-    this.eventSubscription = this.eventService.eventsChanged.subscribe(() => {
-      this.router.navigate(['/events']);
-    });
-
     this.editForm = this.fb.group({
       name: [''],
       date: [''],
       location: [''],
       description: [''],
+      price: [],
       isVirtual: [false],
       attendees: this.fb.array([]),
-      isRegistrationOpen: [false],
       images: this.fb.array([])
     });
 
@@ -79,7 +77,9 @@ export class EventEditComponent {
       }
       
 
-      this.originalEvent = this.eventService.getEventById(id);
+      this.eventService.getEventById(id).subscribe(event => {
+        this.originalEvent = event;
+      });
       if (this.originalEvent === undefined || this.originalEvent === null) {
         return;
       }
@@ -88,10 +88,19 @@ export class EventEditComponent {
       this.updateForm();
       //this.event = JSON.parse(JSON.stringify(this.originalEvent));
     });
+
+    this.editForm.get('date').valueChanges
+      .pipe(startWith(this.editForm.get('date').value))
+      .subscribe(val => {
+        const eventDate = new Date(val);
+        this.showModifyEvent = eventDate.getTime() >= this.currentDate.getTime();
+      });
   }
 
   ngOnDestroy(): void {
-    this.eventSubscription.unsubscribe();
+    if (this.eventSubscription) {
+      this.eventSubscription.unsubscribe();
+    }
     this.gallerySubscription.unsubscribe();
   }
 
@@ -103,7 +112,6 @@ export class EventEditComponent {
       description: this.originalEvent.description,
       //attendees: this.originalEvent.attendees,
       isVirtual: this.originalEvent.isVirtual,
-      isRegistrationOpen: this.originalEvent.isRegistrationOpen,
       //images: this.originalEvent.images
     });
     this.setAttendees();
@@ -112,7 +120,7 @@ export class EventEditComponent {
     
     
   setAttendees(): void {
-    console.log("Start setAttendees- originalEvent: ", this.originalEvent.attendees);
+    //console.log("Start setAttendees- originalEvent: ", this.originalEvent.attendees);
     const attendeesFormArray = this.attendees;
     attendeesFormArray.clear();
     this.originalEvent.attendees.forEach(attendee => {
@@ -124,7 +132,7 @@ export class EventEditComponent {
       });
       attendeesFormArray.push(attendeeGroup);
     });
-    console.log("End setAttendees - attendeesFormArray: ", attendeesFormArray);
+    //console.log("End setAttendees - attendeesFormArray: ", attendeesFormArray);
   }
 
   setImages(): void {
@@ -164,12 +172,16 @@ export class EventEditComponent {
 
       
 
-    if (this.editMode) {
-      this.eventService.updateEvent(this.originalEvent, newEvent);
-    } else {
-      this.eventService.createEvent(newEvent);
-    }
-    }
+      if (this.editMode) {
+        newEvent.id = this.originalEvent.id;
+        this.eventService.updateEvent(newEvent).subscribe(() => {
+          this.router.navigate(['/events']);
+        });
+      } else {
+        this.eventService.createEvent(newEvent).subscribe(() => {
+          this.router.navigate(['/events']);
+        });
+      }
     
 
       /*
@@ -178,7 +190,7 @@ export class EventEditComponent {
       this.eventService.updateEvent(eventId, this.editForm.value);
         
       this.router.navigate(['/events', eventId]);*/
-    };
+  }}
     
 
   get attendees(): FormArray {

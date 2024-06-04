@@ -14,7 +14,9 @@ import { AuthService } from '../../../core/authentication/authentication.service
 export class EventDetailComponent implements OnInit {
   @Input() public event: Event;
   isAdmin: boolean = true;
-  
+  currentDate: Date = new Date();
+  isRegistrationOpen: boolean = false;
+
   constructor(private eventService: EventService,
     private authService: AuthService,
     private router: Router,
@@ -28,9 +30,17 @@ export class EventDetailComponent implements OnInit {
         const id = params['id'];
       
         if (id) {
-          this.event = this.eventService.getEventById(id);
+          this.eventService.getEventById(id).subscribe(event => {
+            this.event = event;
+          });
         };
         });
+        if (this.event.date.getTime() >= this.currentDate.getTime()) {
+          this.isRegistrationOpen = true;
+        } else {
+          this.isRegistrationOpen = false;
+        }
+        
       }
 
       registerForEvent(): void {

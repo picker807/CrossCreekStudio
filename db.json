@@ -1,0 +1,931 @@
+{
+  "galleries":[
+    {
+        "id": "1",
+        "name": "Mexiduck",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/mexiduck.png",
+        "category": "Images"
+    },
+    {
+        "id": "2",
+        "name": "Snow Much Joy",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/Snow_Much_Joy.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "3",
+        "name": "Snow Fun",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/snow_fun.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "4",
+        "name": "Vintage Santa",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/vintage_santa.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "5",
+        "name": "Tiered Tray",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/tiered_tray.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "6",
+        "name": "Oh Christmas Tree",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/oh_christmas_tree.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "7",
+        "name": "Ceramic Truck And Tree",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/Ceramic_Truck_and_Tree.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "8",
+        "name": "Christmas Chicken",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/christmas_chicken.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "9",
+        "name": "Truck And Tree",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/Truck_and_Tree.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "10",
+        "name": "Christmas Vw Bug Vibes",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/Christmas_VW_Bug_Vibes.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "11",
+        "name": "Moonlight Deer",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/moonlight_deer.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "12",
+        "name": "Winter Moose And Friend",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/winter_moose_and_friend.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "13",
+        "name": "Christmas Donkey",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/christmas_donkey.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "14",
+        "name": "Santas List",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/santas_list.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "15",
+        "name": "Welcome Door Hanger",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/welcome_door_hanger.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "16",
+        "name": "Snowman",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/snowman.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "17",
+        "name": "Holiday Highlander",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/holiday_highlander.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "18",
+        "name": "Baby Its Cold",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/baby_its_cold.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "19",
+        "name": "Sleigh Ride",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/sleigh_ride.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "20",
+        "name": "Winter Angel",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/winter_angel.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "21",
+        "name": "Magical Christmas Tree",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/magical_christmas_tree.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "22",
+        "name": "Winter Church",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/winter_church.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "23",
+        "name": "Barn Quilt",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/Barn_Quilt.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "24",
+        "name": "Snow Globe",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/Snow_Globe.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "25",
+        "name": "Joyful Snowman",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/joyful_snowman.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "26",
+        "name": "Reindeer",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/winter/reindeer.jpeg",
+        "category": "Winter"
+    },
+    {
+        "id": "27",
+        "name": "Trick Or Treat",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/trick_or_treat.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "28",
+        "name": "Cat And Moon",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/cat_and_moon.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "29",
+        "name": "Fall Forest",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/fall_forest.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "30",
+        "name": "Autumn Church Title",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/autumn_church_title.png",
+        "category": "Fall"
+    },
+    {
+        "id": "31",
+        "name": "The Witch Is In",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/the_witch_is_in.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "32",
+        "name": "Witches Be Crazy",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/witches_be_crazy.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "33",
+        "name": "Pumpkin Latte",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/pumpkin_latte.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "34",
+        "name": "Autumn Blue",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/autumn_blue.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "35",
+        "name": "City Cat",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/city_cat.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "36",
+        "name": "Hey Pumpkin",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/hey_pumpkin.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "37",
+        "name": "Spellbinding",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/spellbinding.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "38",
+        "name": "Autumn Church",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/autumn_church.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "39",
+        "name": "Fall Woman",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/fall_woman.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "40",
+        "name": "Fall Pumpkin",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/fall_pumpkin.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "41",
+        "name": "Grateful Pumpkin",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/grateful_pumpkin.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "42",
+        "name": "Harvest Blue",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/harvest_blue.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "43",
+        "name": "Hootiful Harvest",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/hootiful_harvest.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "44",
+        "name": "Give Thanks Pumpkin",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/give_thanks_pumpkin.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "45",
+        "name": "Ravens Hollow",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/ravens_hollow.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "46",
+        "name": "Starry Night",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/starry_night.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "47",
+        "name": "Black Light Landscape",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/fall/black_light_landscape.jpeg",
+        "category": "Fall"
+    },
+    {
+        "id": "48",
+        "name": "Simply Blessed",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/simply_blessed.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "49",
+        "name": "Fab Flamingo",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/fab_flamingo.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "50",
+        "name": "Pineapple Palooza",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/pineapple_palooza.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "51",
+        "name": "Longhorn",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/longhorn.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "52",
+        "name": "Funky Flamingo",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/funky_flamingo.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "53",
+        "name": "Red White Blue",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/red_white_blue.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "54",
+        "name": "Birdie Bird",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/Birdie_Bird.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "55",
+        "name": "Flower Shop",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/flower_shop.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "56",
+        "name": "Backcountry Bear",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/backcountry_bear.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "57",
+        "name": "Under The Stars",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/under_the_stars.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "58",
+        "name": "Summer Paradise",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/summer_paradise.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "59",
+        "name": "Golden Goddess",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/golden_goddess.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "60",
+        "name": "Moo Yall",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/moo_yall.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "61",
+        "name": "Dragonfly",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/dragonfly.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "62",
+        "name": "Summer Palms",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/summer_palms.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "63",
+        "name": "Home Is Where You Park It",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/home_is_where_you_park_it.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "64",
+        "name": "Sunset Palm",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/sunset_palm.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "65",
+        "name": "Toadstool Mushroom",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/toadstool_mushroom.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "66",
+        "name": "Every Woman",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/every_woman.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "67",
+        "name": "Hometown America",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/hometown_america.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "68",
+        "name": "Mermaids Only",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/mermaids_only.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "69",
+        "name": "Happy Camper",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/happy_camper.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "70",
+        "name": "Girls Trip",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/girls_trip.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "71",
+        "name": "Greater Things",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/greater_things.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "72",
+        "name": "Anchors Away",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/anchors_away.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "73",
+        "name": "Viva Margarita",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/summer/viva_margarita.jpeg",
+        "category": "Summer"
+    },
+    {
+        "id": "74",
+        "name": "Hippity Hoppity",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/hippity_hoppity.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "75",
+        "name": "Faith Hope Love",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/Faith_Hope_Love.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "76",
+        "name": "Dolly",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/dolly.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "77",
+        "name": "Meet Me In Capri",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/meet_me_in_capri.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "78",
+        "name": "Spring Bike",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/spring_bike.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "79",
+        "name": "Love Blooms Here",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/love_blooms_here.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "80",
+        "name": "You + Me",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/you_+_me.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "81",
+        "name": "Love One Another",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/Love_One_Another.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "82",
+        "name": "Hummingbird",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/hummingbird.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "83",
+        "name": "Spring Bunny",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/spring_bunny.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "84",
+        "name": "Umbrella",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/umbrella.png",
+        "category": "Spring"
+    },
+    {
+        "id": "85",
+        "name": "Flower Fun",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/flower_fun.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "86",
+        "name": "The Old Rugged Cross",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/the_old_rugged_cross.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "87",
+        "name": "Well Always Have Paris",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/well_always_have_paris.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "88",
+        "name": "Cheers",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/cheers.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "89",
+        "name": "Spring Cactus",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/spring_cactus.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "90",
+        "name": "The Mountains Are Calling",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/the_mountains_are_calling.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "91",
+        "name": "Woodland Bunny",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/woodland_bunny.jpeg",
+        "category": "Spring"
+    },
+    {
+        "id": "92",
+        "name": "Bonjour Paris",
+        "description": "A description here",
+        "imageUrl": "../../assets/images/spring/bonjour_paris.jpeg",
+        "category": "Spring"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com"
+    },
+    {
+      "id": "2", 
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@example.com"
+    },
+    {
+      "id": "3",
+      "firstName": "Michael",
+      "lastName": "Johnson",
+      "email": "michael.johnson@example.com"
+    },
+    {
+      "id": "4",
+      "firstName": "Emily",
+      "lastName": "Williams",
+      "email": "emily.williams@example.com"
+    },
+    {
+      "id": "5",
+      "firstName": "David",
+      "lastName": "Brown",
+      "email": "david.brown@example.com"
+    },
+    {
+      "id": "6",
+      "firstName": "Sarah",
+      "lastName": "Jones",
+      "email": "sarah.jones@example.com"
+    },
+    {
+      "id": "7",
+      "firstName": "Christopher",
+      "lastName": "Miller",
+      "email": "christopher.miller@example.com"
+    },
+    {
+      "id": "8",
+      "firstName": "Jessica",
+      "lastName": "Davis",
+      "email": "jessica.davis@example.com"
+    },
+    {
+      "id": "9",
+      "firstName": "Matthew",
+      "lastName": "Garcia",
+      "email": "matthew.garcia@example.com"
+    },
+    {
+      "id": "10",
+      "firstName": "Amanda",
+      "lastName": "Rodriguez",
+      "email": "amanda.rodriguez@example.com"
+    }
+  ],
+  "events": [
+    {
+      "id": "1",
+      "name": "Tech Conference 2024",
+      "date": "2024-05-15T09:00:00Z",
+      "isVirtual": true,
+      "location": "Online",
+      "description": "A comprehensive tech conference covering all the latest in software development.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Local Art Festival",
+      "date": "2024-06-20T10:00:00Z",
+      "isVirtual": false,
+      "location": "Central Park",
+      "description": "Explore local art and artists at our annual festival in the park.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Live Music Night",
+      "date": "2024-07-04T20:00:00Z",
+      "isVirtual": false,
+      "location": "Downtown Club",
+      "description": "Enjoy a night of fantastic live music from top bands.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "4",
+      "name": "Virtual Coding Bootcamp",
+      "date": "2024-08-01T08:00:00Z",
+      "isVirtual": true,
+      "location": "Online",
+      "description": "Learn to code from scratch in our intensive, month-long virtual bootcamp.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Health and Wellness Expo",
+      "date": "2024-09-15T09:00:00Z",
+      "isVirtual": false,
+      "location": "Convention Center",
+      "description": "Discover the latest in health and wellness at our annual expo.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "6",
+      "name": "International Film Festival",
+      "date": "2024-10-10T10:00:00Z",
+      "isVirtual": false,
+      "location": "Riverfront Theater",
+      "description": "Join us for a celebration of international cinema.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "7",
+      "name": "Business Networking Event",
+      "date": "2024-11-05T18:00:00Z",
+      "isVirtual": false,
+      "location": "Hotel Grand Ballroom",
+      "description": "Expand your professional network at our quarterly business event.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "8",
+      "name": "Sustainability Workshop",
+      "date": "2024-12-01T11:00:00Z",
+      "isVirtual": true,
+      "location": "Online",
+      "description": "Learn about sustainable practices and how to implement them in your daily life.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "9",
+      "name": "Annual Charity Ball",
+      "date": "2025-01-20T19:00:00Z",
+      "isVirtual": false,
+      "location": "City Hall",
+      "description": "Support a good cause at our glamorous annual charity ball.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    },
+    {
+      "id": "10",
+      "name": "New Year's Eve Gala",
+      "date": "2025-12-31T23:00:00Z",
+      "isVirtual": false,
+      "location": "Skyline Rooftop",
+      "description": "Ring in the new year with an unforgettable night of celebration.",
+      "price": 35,
+      "attendees": [
+        { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+        { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+        { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+        { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+        { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+      ],
+      "isRegistrationOpen": true,
+      "images": [
+        { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+        { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+      ]
+    }
+  ],
+  "sequence": [
+    { "maxEventId": "11" },
+    { "maxUserId": "11"  },
+    { "maxGalleryId": "95"},
+    { "maxAdminId": "1"}
+  ],
+  "admins":[
+    { "id": "1", "email": "picker@picker.com", "password": "1234"}
+  ]
+}

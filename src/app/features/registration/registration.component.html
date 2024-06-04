@@ -1,4 +1,18 @@
 <!-- event-registration.component.html -->
+<div class="max-w-4xl mx-auto p-4">
+  <h1 class="text-3xl font-bold text-gray-800">{{ event.name }}</h1>
+  <div class="flex flex-wrap justify-center">
+    <div *ngFor="let image of event.images" class="m-2 max-w-xs">
+      <img class="max-h-64 w-full object-contain" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
+    </div>
+  </div>
+  
+  <p class="mt-2 text-lg"><strong>Date:</strong> {{ event.date | date:'fullDate' }}</p>
+  <p class="text-lg"><strong>Location:</strong> {{ event.location }}</p>
+  <p class="text-lg mb-4"><strong>Description:</strong> {{ event.description }}</p>
+
+
+<div> 1. Provide your information</div>
 <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
   <div>
     <label for="firstName">First Name:</label>
@@ -14,4 +28,11 @@
   </div>
   <button type="submit" [disabled]="!registrationForm.valid">Register</button>
 </form>
+
+<div *ngIf="showPaymentButton">
+  <p>2. Payment</p>
+  <p *ngIf="isUserInEvent">You are already part of the event. No payment required.</p>
+  <button (click)="makePayment()" [disabled]="isUserInEvent">Pay Now</button>
+</div>
+</div>
 

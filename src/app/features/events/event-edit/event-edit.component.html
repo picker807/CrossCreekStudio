@@ -39,6 +39,13 @@
                     required>
             </div>
         </div>
+        <div class="col-sm-12 form-group">
+          <label for="price" class="block text-sm font-medium text-gray-700">Price:</label>
+          <input
+              formControlName="price"
+              id="price"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+      </div>
 
         <div class="col-sm-12 form-group">
             <label for="description" class="block text-sm font-medium text-gray-700">Description:</label>
@@ -52,12 +59,19 @@
             <label class="block text-sm font-medium text-gray-700">
                 Attendees:
             </label>
+            <div  *ngIf="showModifyEvent; else showPastEvent" >
             <form [formGroup]="newAttendeeForm" (ngSubmit)="addAttendee()">
                 <input type="text" formControlName="firstName" placeholder="First Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 <input type="text" formControlName="lastName" placeholder="Last Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 <input type="email" formControlName="email" placeholder="Email" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300 ease-in-out">Add Attendee</button>
             </form>
+            </div>
+            <ng-template #showPastEvent>
+                <div class="text-red-500 font-bold mb-2">
+                  This event is in the past!
+                </div>
+              </ng-template>
 
             <!-- Attendees List Container -->
             <div class="max-w-4xl mx-auto">
@@ -125,13 +139,25 @@
           
           
           
-
+<!--  
         <div class="form-group">
             <label for="isRegistrationOpen" class="block text-sm font-medium text-gray-700">Registration Open:</label>
             <input formControlName="isRegistrationOpen" type="checkbox" id="isRegistrationOpen" class="form-checkbox h-5 w-5 text-green-600">
         </div>
-      
-        <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Save Changes</button>
+
+        -->
+        <div *ngIf="!showModifyEvent" class="text-red-500 font-bold mb-2">
+          This event is in the past and cannot be edited
+        </div>
+        <button 
+          [ngClass]="{
+            'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out': showModifyEvent,
+            'bg-gray-500 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out cursor-not-allowed': !showModifyEvent
+          }" 
+          [disabled]="!showModifyEvent" 
+          type="submit">
+          Save Changes
+        </button>
         <button type="button" (click)="cancelEdit()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Cancel</button>
     </form>
 </div>

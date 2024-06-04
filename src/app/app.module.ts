@@ -11,6 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { NgxFileDropModule } from '@bugsplat/ngx-file-drop';
+import { HttpClientModule } from '@angular/common/http';
 
 
 
@@ -28,7 +29,8 @@ import { NgxFileDropModule } from '@bugsplat/ngx-file-drop';
     BrowserAnimationsModule,
     StoreModule.forRoot({}, {}),
     EffectsModule.forRoot([]),
-    NgxFileDropModule
+    NgxFileDropModule,
+    HttpClientModule
     
   ],
   providers: [

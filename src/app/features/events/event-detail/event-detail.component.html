@@ -8,12 +8,13 @@
   
   <p class="mt-2 text-lg"><strong>Date:</strong> {{ event.date | date:'fullDate' }}</p>
   <p class="text-lg"><strong>Location:</strong> {{ event.location }}</p>
+  <p class="text-lg"><strong>Cost per person:</strong> {{ event.price }}</p>
   <p class="text-lg mb-4"><strong>Description:</strong> {{ event.description }}</p>
 
-  <div *ngIf="event.isRegistrationOpen" class="mb-4">
+  <div *ngIf="isRegistrationOpen" class="mb-4">
     <a routerLink="/events/{{event.id}}/register" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Register for Event</a>
   </div>
-  <div *ngIf="!event.isRegistrationOpen">
+  <div *ngIf="!isRegistrationOpen">
     <p class="text-red-500">Registration for this event is currently closed.</p>
   </div>
 
