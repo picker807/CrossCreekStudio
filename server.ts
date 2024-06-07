@@ -15,7 +15,7 @@ console.log("Get Mongo URI: ", process.env.MONGO_URI);
 const adminRoutes = require('./server/routes/admin');
 const eventRoutes = require('./server/routes/events');
 const galleryRoutes = require('./server/routes/galleries');
-// Note: userRoutes are not directly connected to the URL
+const userRoutes = require('./server/routes/users');
 
 var app = express(); // create an instance of express
 
@@ -42,19 +42,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Tell express to use the specified directory as the
-// root directory for your web site
-app.use(express.static(path.join(__dirname, 'dist/cc/browser')));
+
 
 // Register the routes with the Express application
 app.use('/admin', adminRoutes);
 app.use('/events', eventRoutes);
 app.use('/galleries', galleryRoutes);
+app.use('/users', userRoutes);
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/cc/browser/index.html'));
+  res.sendFile(path.join(__dirname, 'dist/cross-creek-creates/browser/index.html'));
 });
+
+// Tell express to use the specified directory as the
+// root directory for your web site
+app.use(express.static(path.join(__dirname, 'dist/cross-creek-creates/browser')));
 
 // Establish a connection to the MongoDB database
 console.log(mongoUri);

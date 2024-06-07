@@ -110,6 +110,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       date: this.originalEvent.date,
       location: this.originalEvent.location,
       description: this.originalEvent.description,
+      price: this.originalEvent.price,
       //attendees: this.originalEvent.attendees,
       isVirtual: this.originalEvent.isVirtual,
       //images: this.originalEvent.images
@@ -148,50 +149,39 @@ export class EventEditComponent implements OnInit, OnDestroy {
   }
     
 
-  submitEdit(): void {
+  async submitEdit(): Promise<void> {
 
     if (this.editForm.valid) {
       console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
-      const fullGalleryItems = value.images.map(image => this.galleryService.getItemById(image.id));
       const newEvent: Event = {
         ...value,
-        images: fullGalleryItems
-        /*
-        id: '',
-        name: value.name,
-        date: value.date,
-        isVirtual: value.isVirtual,
-        location: value.location,
-        description: value.description,
-        attendees: value.attendees,
-        isRegistrationOpen: value.isRegistrationOpen,
-        images: value.images
-        */
+        date: new Date(value.date)
       };
-
-      
 
       if (this.editMode) {
         newEvent.id = this.originalEvent.id;
-        this.eventService.updateEvent(newEvent).subscribe(() => {
-          this.router.navigate(['/events']);
+        this.eventService.updateEvent(newEvent).subscribe({
+          next: () => {
+            console.log("event edit is navigating");
+            this.router.navigate(['/events']);
+          },
+          error: (err) => {
+            console.error('Error updating event:', err);
+          }
         });
       } else {
-        this.eventService.createEvent(newEvent).subscribe(() => {
-          this.router.navigate(['/events']);
+        this.eventService.createEvent(newEvent).subscribe({
+          next: () => {
+            this.router.navigate(['/events']);
+          },
+          error: (err) => {
+            console.error('Error creating event:', err);
+          }
         });
       }
-    
-
-      /*
-      const eventId = this.route.snapshot.paramMap.get('id');
-      // Call the service to update the event
-      this.eventService.updateEvent(eventId, this.editForm.value);
-        
-      this.router.navigate(['/events', eventId]);*/
-  }}
-    
+    }
+  }
 
   get attendees(): FormArray {
     return this.editForm.get('attendees') as FormArray;

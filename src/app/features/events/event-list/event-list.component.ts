@@ -29,12 +29,18 @@ export class EventListComponent implements OnInit, OnDestroy{
     this.subscription = this.eventService.events$.subscribe((eventsList: Event[]) => {
       this.events = eventsList;
       this.filterFutureEvents();
-    })
+    },
+    
+    )
     //this.eventService.getEvents();
   }
 
   filterFutureEvents(): void {
-    this.futureEvents = this.events.filter(event => event.date.getTime() >= this.currentDate.getTime());
+    this.futureEvents = this.events.filter(event => {
+      const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
+      return eventDate.getTime() >= this.currentDate.getTime();
+    });
+    
   }
   
   search (value: string) {

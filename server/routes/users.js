@@ -17,6 +17,13 @@ router.post('/', async (req, res, next) => {
   try{
     const maxUserId = await sequenceGenerator.nextId("users");
 
+    if (isNaN(Number(maxUserId))) {
+      return res.status(500).json({
+        message: 'Failed to generate a valid user ID',
+        error: 'Invalid user ID'
+      });
+    }
+
     const user = new User({
       id: maxUserId,
       firstName: req.body.firstName,
@@ -25,15 +32,14 @@ router.post('/', async (req, res, next) => {
     });
 
     const createdUser = await user.save();
-      res.status(201).json({
-        message: 'User added successfully',
-        user: createdUser
-        });
-  } catch(error) {
-       res.status(500).json({
-          message: 'An error occurred',
-          error: error
-        });
+      res.status(201).json(createdUser );
+  } catch (error) {
+    console.error('Error saving user:', error); // Log the error details
+    res.status(500).json({
+      message: 'An error occurred while you were away',
+      error: error.message, // Include the error message in the response
+      stack: error.stack // Optionally include the stack trace
+    });
     }
 });
 

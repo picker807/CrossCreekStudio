@@ -18,6 +18,12 @@ const sequenceGenerator = {
       this.maxGalleryId = sequence.maxGalleryId;
       this.maxUserId = sequence.maxUserId;
       this.maxAdminId = sequence.maxAdminId;
+
+      console.log('Sequence ID:', this.sequenceId);
+      console.log('Max Event ID:', this.maxEventId);
+      console.log('Max Gallery ID:', this.maxGalleryId);
+      console.log('Max User ID:', this.maxUserId);
+      console.log('Max Admin ID:', this.maxAdminId);
     } catch (err) {
       console.error('Error initializing SequenceGenerator:', err);
       throw err;

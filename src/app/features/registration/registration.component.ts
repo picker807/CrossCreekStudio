@@ -71,7 +71,7 @@ export class RegistrationComponent {
     this.isPaid = true; //This will be set using a Paypal service
     if (this.isPaid) {
     this.registrationService.addUser(this.newUser, this.event).subscribe(() => {
-      this.router.navigate(['/success']);
+      this.router.navigate(['/events']);
     });
     }
   }

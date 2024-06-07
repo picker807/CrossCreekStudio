@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:CrossCreekCreates": "node dist/cross-creek-creates/server/server.mjs",
-    "dev": "concurrently \"ng serve\" \"json-server --watch db.json\""
+    "dev": "concurrently \"ng serve\" \"node server.ts\""
   },
   "private": true,
   "dependencies": {

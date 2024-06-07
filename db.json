@@ -723,7 +723,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -744,7 +743,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -765,7 +763,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -786,7 +783,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -807,7 +803,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -828,7 +823,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -849,7 +843,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -870,7 +863,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -891,7 +883,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
@@ -912,7 +903,6 @@
         { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
         { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
       ],
-      "isRegistrationOpen": true,
       "images": [
         { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
         { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }

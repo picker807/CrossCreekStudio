@@ -1,0 +1,202 @@
+[
+  {
+    "id": "1",
+    "name": "Tech Conference 2024",
+    "date": "2024-05-15T09:00:00Z",
+    "isVirtual": true,
+    "location": "Online",
+    "description": "A comprehensive tech conference covering all the latest in software development.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Local Art Festival",
+    "date": "2024-06-20T10:00:00Z",
+    "isVirtual": false,
+    "location": "Central Park",
+    "description": "Explore local art and artists at our annual festival in the park.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Live Music Night",
+    "date": "2024-07-04T20:00:00Z",
+    "isVirtual": false,
+    "location": "Downtown Club",
+    "description": "Enjoy a night of fantastic live music from top bands.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Virtual Coding Bootcamp",
+    "date": "2024-08-01T08:00:00Z",
+    "isVirtual": true,
+    "location": "Online",
+    "description": "Learn to code from scratch in our intensive, month-long virtual bootcamp.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Health and Wellness Expo",
+    "date": "2024-09-15T09:00:00Z",
+    "isVirtual": false,
+    "location": "Convention Center",
+    "description": "Discover the latest in health and wellness at our annual expo.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "6",
+    "name": "International Film Festival",
+    "date": "2024-10-10T10:00:00Z",
+    "isVirtual": false,
+    "location": "Riverfront Theater",
+    "description": "Join us for a celebration of international cinema.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "7",
+    "name": "Business Networking Event",
+    "date": "2024-11-05T18:00:00Z",
+    "isVirtual": false,
+    "location": "Hotel Grand Ballroom",
+    "description": "Expand your professional network at our quarterly business event.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "8",
+    "name": "Sustainability Workshop",
+    "date": "2024-12-01T11:00:00Z",
+    "isVirtual": true,
+    "location": "Online",
+    "description": "Learn about sustainable practices and how to implement them in your daily life.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "9",
+    "name": "Annual Charity Ball",
+    "date": "2025-01-20T19:00:00Z",
+    "isVirtual": false,
+    "location": "City Hall",
+    "description": "Support a good cause at our glamorous annual charity ball.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  },
+  {
+    "id": "10",
+    "name": "New Year's Eve Gala",
+    "date": "2025-12-31T23:00:00Z",
+    "isVirtual": false,
+    "location": "Skyline Rooftop",
+    "description": "Ring in the new year with an unforgettable night of celebration.",
+    "price": 35,
+    "attendees": [
+      { "id": "1", "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com" },
+      { "id": "2", "firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com" },
+      { "id": "3", "firstName": "Jim", "lastName": "Beam", "email": "jim.beam@example.com" },
+      { "id": "4", "firstName": "Jack", "lastName": "Daniels", "email": "jack.daniels@example.com" },
+      { "id": "5", "firstName": "Johnny", "lastName": "Walker", "email": "johnny.walker@example.com" }
+    ],
+    "images": [
+      { "id": "10", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" },
+      { "id": "11", "name": "first image", "description": "this description", "imageUrl": "../../../assets/images/mexiduck.png", "category": "Summer" }
+    ]
+  }
+]

@@ -9,9 +9,10 @@ import { RegistrationComponent } from '../registration/registration.component';
 const routes: Routes = [
   { path: '', component: EventListComponent },
   { path: 'new', component: EventEditComponent },
-  { path: ':id', component: EventDetailComponent },
   { path: ':id/register', component: RegistrationComponent},
-  { path: ':id/edit', component: EventEditComponent }
+  { path: ':id/edit', component: EventEditComponent },
+  { path: ':id', component: EventDetailComponent }
+  
 ];
 
 @NgModule({
