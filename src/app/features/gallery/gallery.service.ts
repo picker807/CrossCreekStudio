@@ -12,7 +12,6 @@ import { catchError, tap, map } from 'rxjs/operators';
 export class GalleryService {
   private apiUrl = 'http://localhost:3000/galleries';
   private galleryList: Gallery[] = [];
-  private maxGalleryId: number = 100;
   private galleryListSubject = new BehaviorSubject<Gallery[]>([]);
   public galleryList$ = this.galleryListSubject.asObservable();
 
@@ -43,9 +42,11 @@ export class GalleryService {
   } */
 
   createGalleryItem(gallery: Gallery): Observable<Gallery> {
-    gallery.id = this.generateUniqueId();
+    gallery.id = '';
+    console.log("item in createGalleryItem: ", gallery);
     return this.http.post<Gallery>(this.apiUrl, gallery).pipe(
       tap(newGallery => {
+        console.log("newly created gallery item: ", newGallery);
         const currentGalleries = this.galleryListSubject.getValue();
         this.galleryListSubject.next([...currentGalleries, newGallery]);
         //this.sortAndSend();
@@ -58,9 +59,11 @@ export class GalleryService {
   }
 
   updateGalleryItem(originalGallery: Gallery, newGallery: Gallery): Observable<Gallery> {
+    console.log("updating gallery item in updateGalleryItem: ", newGallery);
     newGallery.id = originalGallery.id;
     return this.http.put<Gallery>(`${this.apiUrl}/${newGallery.id}`, newGallery).pipe(
       tap(updatedGallery => {
+        console.log("updated gallery after http.put: ", updatedGallery);
         const currentGalleries = this.galleryListSubject.getValue();
         const galleryIndex = currentGalleries.findIndex(g => g.id === originalGallery.id);
         currentGalleries[galleryIndex] = updatedGallery;
@@ -87,10 +90,6 @@ export class GalleryService {
         return throwError(() => new Error('Error deleting gallery item'));
       })
     );
-  }
-
-  private generateUniqueId(): string {
-    return (this.maxGalleryId++).toString();
   }
 
 }

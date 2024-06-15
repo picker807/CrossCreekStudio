@@ -104,26 +104,17 @@ router.post('/:id/register', async (req, res) => {
 
 // Update event using findOneAndUpdate
 router.put('/:id', async (req, res) => {
+  console.log("starting event put router: ", req.body);
   try {
     // Convert attendees and images to ObjectIds
     if (req.body.attendees) {
-      const userIds = await Promise.all(
-        req.body.attendees.map(async user => {
-          const foundUser = await User.findOne({ id: user.id }); // Adjust the query as necessary
-          return foundUser ? foundUser._id : null;
-        })
-      );
+      const userIds = req.body.attendees.map(user => user._id); 
       req.body.attendees = userIds.filter(id => id !== null);
     }
 
     // Convert images to ObjectIds
     if (req.body.images) {
-      const galleryIds = await Promise.all(
-        req.body.images.map(async gallery => {
-          const foundGallery = await Gallery.findOne({ id: gallery.id }); // Adjust the query as necessary
-          return foundGallery ? foundGallery._id : null;
-        })
-      );
+      const galleryIds = req.body.images.map(gallery => gallery._id);      
       req.body.images = galleryIds.filter(id => id !== null);
     }
 

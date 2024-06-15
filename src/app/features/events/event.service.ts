@@ -88,7 +88,7 @@ export class EventService {
       const bDate = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return aDate - bDate;
     });
-    console.log("event service is broadcasting")
+    //console.log("event service is broadcasting")
     this.eventsSubject.next(sortedEvents);
   }
 
@@ -110,6 +110,7 @@ export class EventService {
 
   getEventUsers(eventId: string): Observable<User[]> {
     return this.getEventById(eventId).pipe(
+      tap(event => console.log('Fetched event:', event)),
       map(event => event ? event.attendees : [])
     );
   }
@@ -119,12 +120,14 @@ export class EventService {
       take(1), // Ensure we only take the latest value once
       switchMap(event => {
         if (event) {
+          console.log("Event in addUsertoEvent: ", event);
           const existingUserIndex = event.attendees.findIndex(u => u.email === user.email);
           if (existingUserIndex === -1) {
             event.attendees.push(user);
           } else {
             event.attendees[existingUserIndex] = user;
           }
+          console.log("Event after user is added: ", event);
           return this.updateEvent(event).pipe(
             map(() => {}),
             catchError(error => {
@@ -141,8 +144,6 @@ export class EventService {
         return throwError(() => new Error('Error adding user to event'));
       })
     );
-  }
-
-  
+  }  
 }
 

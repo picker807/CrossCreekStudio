@@ -9,13 +9,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ImageUploadComponent } from './image-upload/image-upload.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
 
 
 @NgModule({
   declarations: [
     StringFilterPipe,
-    ImageUploadComponent
+    ImageUploadComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     CommonModule,

@@ -61,7 +61,12 @@ export class RegistrationComponent {
 
   checkUserInEvent(email: string): void {
     this.eventService.getEventUsers(this.event.id).subscribe(eventUsers => {
+      
+        console.log(eventUsers);
+      
       this.isUserInEvent = eventUsers.some(user => user.email === email);
+        console.log("Is In Event?? ", this.isUserInEvent)
+      
       this.showPaymentButton = true;
     });
   }

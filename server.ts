@@ -20,9 +20,10 @@ const userRoutes = require('./server/routes/users');
 var app = express(); // create an instance of express
 
 // Tell express to use the following parsers for POST data
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '100mb'}));
 app.use(bodyParser.urlencoded({
-  extended: false
+  extended: true,
+  limit: '100mb'
 }));
 app.use(cookieParser());
 

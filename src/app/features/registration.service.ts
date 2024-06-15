@@ -44,10 +44,12 @@ export class RegistrationService {
   }
 
   private updateUser(newUser: User): Observable<User> {
+    console.log(newUser);
     return this.users$.pipe(
-      take(1), // Ensure we only take the latest value once
+      take(1),
       switchMap(users => {
         let user = users.find(u => u.email === newUser.email);
+        console.log("user in updateUser: ", user);
         if (user) {
           user.firstName = newUser.firstName;
           user.lastName = newUser.lastName;
@@ -58,7 +60,7 @@ export class RegistrationService {
             }),
             catchError(err => {
               console.error('Error updating user:', err);
-              return throwError(err);
+              return throwError(() => err);
             })
           );
         } else {
@@ -71,7 +73,7 @@ export class RegistrationService {
             }),
             catchError(err => {
               console.error('Error creating user:', err);
-              return throwError(err);
+              return throwError(() => err);
             })
           );
         }

@@ -27,12 +27,12 @@ router.get('/:id', async (req, res) => {
 // Create new gallery
 router.post('/', async (req, res) => {
   const maxGalleryId = await sequenceGenerator.nextId("galleries");
-  const event = new Gallery({
+  const gallery = new Gallery({
     ...req.body,
     id: maxGalleryId.toString()
   });
   try {
-    const newgallery = await gallery.save();
+    const newGallery = await gallery.save();
     res.status(201).json(newGallery);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -41,8 +41,9 @@ router.post('/', async (req, res) => {
 
 // Update gallery
 router.put('/:id', async (req, res) => {
+  console.log('req.body in router.put: ', req.body);
   try {
-    const updatedGallery = await Gallery.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedGallery = await Gallery.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
     if (!updatedGallery) return res.status(404).json({ message: 'Gallery item not found' });
     res.json(updatedGallery);
   } catch (err) {
@@ -53,7 +54,7 @@ router.put('/:id', async (req, res) => {
 // Delete gallery
 router.delete('/:id', async (req, res) => {
   try {
-    const gallery = await Gallery.findByIdAndDelete(req.params.id);
+    const gallery = await Gallery.findOneAndDelete({ id: req.params.id });
     if (!gallery) return res.status(404).json({ message: 'Gallery item not found' });
     res.json({ message: 'Gallery item deleted' });
   } catch (err) {

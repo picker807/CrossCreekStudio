@@ -34,34 +34,33 @@ router.post('/', async (req, res, next) => {
     const createdUser = await user.save();
       res.status(201).json(createdUser );
   } catch (error) {
-    console.error('Error saving user:', error); // Log the error details
+    console.error('Error saving user:', error);
     res.status(500).json({
       message: 'An error occurred while you were away',
-      error: error.message, // Include the error message in the response
-      stack: error.stack // Optionally include the stack trace
+      error: error.message, 
+      stack: error.stack 
     });
     }
 });
 
 router.put('/:id', (req, res, next) => {
+  console.log(req.params.id);
   User.findOne({ id: req.params.id })
     .then(user => {
+      console.log("user fetched in user route: ", user);
       if (!user) {
         return res.status(404).json({
           message: 'User not found'
         });
       }
 
-      user.id = maxUserId;
+      //user.id = maxUserId;
       user.firstName = req.body.firstName;
       user.lastName = req.body.lastName;
-      user.email = req.body.email;
+      //user.email = req.body.email;
 
-      return user.save();
-    })
-    .then(result => {
-      res.status(204).json({
-        message: 'User updated successfully'
+      return user.save().then(updatedUser => {
+        res.status(200).json(updatedUser);
       });
     })
     .catch(error => {

@@ -4,6 +4,8 @@ import { GalleryService } from '../gallery.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '../../../core/authentication/authentication.service';
 import { Subscription, filter } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'cc-gallery-detail',
@@ -19,7 +21,8 @@ constructor(
   private galleryService: GalleryService,
   private authService: AuthService,
   private router: Router,
-  private route: ActivatedRoute
+  private route: ActivatedRoute,
+  private dialog: MatDialog,
 ) {
   this.subscriptions.add(
     this.router.events.pipe(
@@ -69,9 +72,21 @@ editItem(itemId: string): void {
 }
 
 deleteItem(id: string): void {
-  this.galleryService.deleteGalleryItem(id);
-  //this.item = null;
-  this.router.navigate(['/gallery']);
+  const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    width: '300px',
+    data: {
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this item?'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.galleryService.deleteGalleryItem(id).subscribe(() => {
+        this.router.navigate(['/gallery']);
+      });
+    }
+  });
 }
 
 }
