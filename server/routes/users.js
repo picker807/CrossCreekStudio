@@ -44,10 +44,10 @@ router.post('/', async (req, res, next) => {
 });
 
 router.put('/:id', (req, res, next) => {
-  console.log(req.params.id);
+  //console.log(req.params.id);
   User.findOne({ id: req.params.id })
     .then(user => {
-      console.log("user fetched in user route: ", user);
+      //console.log("user fetched in user route: ", user);
       if (!user) {
         return res.status(404).json({
           message: 'User not found'

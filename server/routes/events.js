@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 router.get('/', async (req, res, next) => {
   try {
     const events = await Event.find({}).populate('attendees').populate('images').exec();
-    console.log(events);
+    //console.log(events);
     res.status(200).json(events);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -104,7 +104,7 @@ router.post('/:id/register', async (req, res) => {
 
 // Update event using findOneAndUpdate
 router.put('/:id', async (req, res) => {
-  console.log("starting event put router: ", req.body);
+  //console.log("starting event put router: ", req.body);
   try {
     // Convert attendees and images to ObjectIds
     if (req.body.attendees) {
@@ -118,7 +118,7 @@ router.put('/:id', async (req, res) => {
       req.body.images = galleryIds.filter(id => id !== null);
     }
 
-    console.log("rquest body: ", req.body);
+    //console.log("rquest body: ", req.body);
     const updatedEvent = await Event.findOneAndUpdate(
       { id: req.params.id.trim() },
       req.body,

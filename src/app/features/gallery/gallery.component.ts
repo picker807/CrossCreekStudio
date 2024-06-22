@@ -3,7 +3,7 @@ import { Component, HostListener } from '@angular/core';
 import { Inject, PLATFORM_ID } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { AuthService } from '../../core/authentication/authentication.service';
+import { AuthService } from '../../core/authentication/auth.service';
 import { Subscription } from 'rxjs';
 
 

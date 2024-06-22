@@ -2,10 +2,10 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Gallery } from '../gallery.model';
 import { GalleryService } from '../gallery.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { AuthService } from '../../../core/authentication/authentication.service';
+import { AuthService } from '../../../core/authentication/auth.service';
 import { Subscription, filter } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'cc-gallery-detail',

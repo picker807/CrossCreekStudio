@@ -79,7 +79,7 @@ export class GalleryEditComponent implements OnInit {
   submitEdit(): void {
 
     if (this.galleryForm.valid) {
-      console.log('Form Data:', this.galleryForm.value);
+      //console.log('Form Data:', this.galleryForm.value);
       const value = this.galleryForm.value;
       const newItem: Gallery = {
         ...value,

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { User } from './user.model';
-import { Event } from './events/event.model';
-import { EventService } from './events/event.service';
+import { User } from '../user.model';
+import { Event } from '../events/event.model';
+import { EventService } from '../events/event.service';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
@@ -44,18 +44,18 @@ export class RegistrationService {
   }
 
   private updateUser(newUser: User): Observable<User> {
-    console.log(newUser);
+    //console.log(newUser);
     return this.users$.pipe(
       take(1),
       switchMap(users => {
         let user = users.find(u => u.email === newUser.email);
-        console.log("user in updateUser: ", user);
+        //console.log("user in updateUser: ", user);
         if (user) {
           user.firstName = newUser.firstName;
           user.lastName = newUser.lastName;
           return this.http.put<User>(`${this.apiUrl}/${user.id}`, user).pipe(
             tap(updatedUser => {
-              console.log('User updated successfully:', updatedUser);
+              //console.log('User updated successfully:', updatedUser);
               this.usersSubject.next(users);
             }),
             catchError(err => {

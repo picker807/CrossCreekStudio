@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../../../core/authentication/authentication.service';
+import { AuthService } from '../../../core/authentication/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../event.service';
 import { FormGroup, FormBuilder, FormArray, FormControl, Validators } from '@angular/forms';
@@ -29,6 +29,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
   gallerySubscription: Subscription;
   currentDate: Date = new Date();
   showModifyEvent: boolean;
+
+  tests = [{imageUrl: "this image", name: "thing 1"}, {imageUrl: "other image", name: "thing 2"}];
   //newEvent: Event;
 
   constructor(private fb: FormBuilder,
@@ -47,9 +49,12 @@ export class EventEditComponent implements OnInit, OnDestroy {
       galleries: this.fb.array([])
     });
 
-    this.gallerySubscription = this.galleryService.galleryList$.subscribe((galleryList: Gallery[]) => {
-      this.galleries = galleryList;
-    })
+    this.gallerySubscription = this.galleryService.galleryList$.subscribe(galleries => {
+      console.log('Galleries received:', galleries);
+      this.galleries = galleries;
+    });
+
+    this.galleryService.loadAllData().subscribe();
 
     this.editForm = this.fb.group({
       name: [''],
@@ -152,7 +157,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
   async submitEdit(): Promise<void> {
 
     if (this.editForm.valid) {
-      console.log('Form Data:', this.editForm.value);
+      //console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
       const newEvent: Event = {
         ...value,
