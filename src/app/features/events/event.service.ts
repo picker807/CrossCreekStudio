@@ -58,11 +58,11 @@ export class EventService {
   }
 
   updateEvent(event: Event): Observable<Event> {
-    console.log('Updating event:', event); 
+    //console.log('Updating event:', event); 
     return this.http.put<Event>(`${this.apiUrl}/${event.id}`, event).pipe(
       tap(updatedEvent => {
         const currentEvents = this.eventsSubject.getValue();
-        console.log("updatedEvent in event service: ", updatedEvent);
+        //("updatedEvent in event service: ", updatedEvent);
         const eventIndex = currentEvents.findIndex(e => e.id === event.id);
         if (eventIndex !== -1) {
           // Ensure the date is a Date object
@@ -110,7 +110,7 @@ export class EventService {
 
   getEventUsers(eventId: string): Observable<User[]> {
     return this.getEventById(eventId).pipe(
-      tap(event => console.log('Fetched event:', event)),
+      //tap(event => console.log('Fetched event:', event)),
       map(event => event ? event.attendees : [])
     );
   }
@@ -120,14 +120,14 @@ export class EventService {
       take(1), // Ensure we only take the latest value once
       switchMap(event => {
         if (event) {
-          console.log("Event in addUsertoEvent: ", event);
+          //console.log("Event in addUsertoEvent: ", event);
           const existingUserIndex = event.attendees.findIndex(u => u.email === user.email);
           if (existingUserIndex === -1) {
             event.attendees.push(user);
           } else {
             event.attendees[existingUserIndex] = user;
           }
-          console.log("Event after user is added: ", event);
+          //console.log("Event after user is added: ", event);
           return this.updateEvent(event).pipe(
             map(() => {}),
             catchError(error => {

@@ -5,10 +5,18 @@ var router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const galleries = await Gallery.find({});
-    res.status(200).json(galleries);
+    const category = req.query.category;
+    let galleries;
+
+    if (category) {
+      galleries = await Gallery.find({ category });
+    } else {
+      galleries = await Gallery.find();
+    }
+
+    res.json({ galleries });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -16,10 +24,13 @@ router.get('/', async (req, res, next) => {
 // Get gallery by ID
 router.get('/:id', async (req, res) => {
   try {
-    const gallery = await Gallery.findById(req.params.id);
-    res.status(200).json(gallery);
+    const galleryItem = await Gallery.findOne({ id: req.params.id });
+    if (!galleryItem) {
+      return res.status(404).json({ message: 'Gallery item not found' });
+    }
+    res.json(galleryItem);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -41,7 +52,7 @@ router.post('/', async (req, res) => {
 
 // Update gallery
 router.put('/:id', async (req, res) => {
-  console.log('req.body in router.put: ', req.body);
+  //console.log('req.body in router.put: ', req.body);
   try {
     const updatedGallery = await Gallery.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
     if (!updatedGallery) return res.status(404).json({ message: 'Gallery item not found' });

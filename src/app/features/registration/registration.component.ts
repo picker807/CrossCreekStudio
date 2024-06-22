@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../events/event.service';
 import { Event } from '../events/event.model';
-import { RegistrationService } from '../registration.service';
+import { RegistrationService } from './registration.service';
 import { User } from '../user.model';
 
 @Component({
@@ -46,7 +46,7 @@ export class RegistrationComponent {
 
 
   onSubmit(): void {
-    console.log('Registration data:', this.registrationForm.value);
+    //('Registration data:', this.registrationForm.value);
     if (this.registrationForm.valid) {
       const value = this.registrationForm.value;
       this.newUser = {
@@ -62,10 +62,10 @@ export class RegistrationComponent {
   checkUserInEvent(email: string): void {
     this.eventService.getEventUsers(this.event.id).subscribe(eventUsers => {
       
-        console.log(eventUsers);
+        //console.log(eventUsers);
       
       this.isUserInEvent = eventUsers.some(user => user.email === email);
-        console.log("Is In Event?? ", this.isUserInEvent)
+        //console.log("Is In Event?? ", this.isUserInEvent)
       
       this.showPaymentButton = true;
     });

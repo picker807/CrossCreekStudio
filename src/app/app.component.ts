@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from './core/authentication/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'cc-root',
@@ -7,4 +9,25 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Cross Creek Creates';
+  isAdmin: boolean = false;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {
+
+  }
+
+  ngOnInit(): void {
+    this.authService.isAdmin$.subscribe(isAdmin => {
+      this.isAdmin = isAdmin;
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/admin']).then(() => {
+      window.location.reload();
+    });
+  }
 }

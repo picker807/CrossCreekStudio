@@ -43,7 +43,7 @@ export class ImageUploadComponent {
   }
 
   onDrop(event: any) {
-    console.log('Drop event triggered');
+    //console.log('Drop event triggered');
     event.preventDefault();
     if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
       const file: File = event.dataTransfer.files[0];

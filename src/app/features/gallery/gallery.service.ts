@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, Observable, throwError, of } from 'rxjs';
 import { Gallery, GalleryCategory } from './gallery.model';
 import data from '../../../../MOCK_GALLERY_DATA.json';
 import { HttpClient } from '@angular/common/http';
@@ -15,38 +15,43 @@ export class GalleryService {
   private galleryListSubject = new BehaviorSubject<Gallery[]>([]);
   public galleryList$ = this.galleryListSubject.asObservable();
 
-  constructor(private http: HttpClient){
-    this.loadInitialData();
+  constructor(private http: HttpClient){}
+
+  getGalleryItemsByCategory(category: string): Observable<Gallery[]> {
+    return this.http.get<{ galleries: Gallery[] }>(`${this.apiUrl}?category=${category}`)
+      .pipe(
+        map(response => response.galleries)
+      );
   }
 
-  private loadInitialData(): void {
-    this.http.get<Gallery[]>(this.apiUrl).subscribe(galleries => {
-      const galleriesWithCategories = galleries.map(gallery => ({
-        ...gallery,
-        category: GalleryCategory[gallery.category as keyof typeof GalleryCategory]  // Convert string to enum
-      }));
-      this.galleryListSubject.next(galleriesWithCategories);
-      //this.sortAndSend();
-    });
+  loadAllData(): Observable<Gallery[]> {
+    return this.http.get<{galleries: Gallery[]}>(this.apiUrl).pipe(
+      map (response => response.galleries),
+      tap(galleries => this.galleryListSubject.next(galleries)),
+      catchError(error => {
+        console.error('Error loading gallery items:', error);
+        return throwError(() => new Error('Error loading gallery items'));
+      })
+    );
   }
 
 
   getItemById(id: string): Observable<Gallery> {
-    return this.galleryList$.pipe(
-      map(galleries => galleries.find(gallery => gallery.id === id))
-    );
+    const currentItems = this.galleryListSubject.getValue();
+    const item = currentItems.find(gallery => gallery.id === id);
+    if (item) {
+      return of(item);
+    } else {
+      return this.http.get<Gallery>(`${this.apiUrl}/${id}`);
+    }
   }
-
-  /*sortAndSend(): void {
-    this.galleryListChangedEvent.next(this.galleryList.slice());
-  } */
 
   createGalleryItem(gallery: Gallery): Observable<Gallery> {
     gallery.id = '';
-    console.log("item in createGalleryItem: ", gallery);
+    //console.log("item in createGalleryItem: ", gallery);
     return this.http.post<Gallery>(this.apiUrl, gallery).pipe(
       tap(newGallery => {
-        console.log("newly created gallery item: ", newGallery);
+        //console.log("newly created gallery item: ", newGallery);
         const currentGalleries = this.galleryListSubject.getValue();
         this.galleryListSubject.next([...currentGalleries, newGallery]);
         //this.sortAndSend();
@@ -59,11 +64,11 @@ export class GalleryService {
   }
 
   updateGalleryItem(originalGallery: Gallery, newGallery: Gallery): Observable<Gallery> {
-    console.log("updating gallery item in updateGalleryItem: ", newGallery);
+    //console.log("updating gallery item in updateGalleryItem: ", newGallery);
     newGallery.id = originalGallery.id;
     return this.http.put<Gallery>(`${this.apiUrl}/${newGallery.id}`, newGallery).pipe(
       tap(updatedGallery => {
-        console.log("updated gallery after http.put: ", updatedGallery);
+        //console.log("updated gallery after http.put: ", updatedGallery);
         const currentGalleries = this.galleryListSubject.getValue();
         const galleryIndex = currentGalleries.findIndex(g => g.id === originalGallery.id);
         currentGalleries[galleryIndex] = updatedGallery;

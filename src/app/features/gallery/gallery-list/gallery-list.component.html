@@ -1,13 +1,23 @@
 <div class="w-full bg-gray-100 p-4">
-  
-  <div *ngFor="let category of groupedItems | keyvalue" class="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 mt-4 border-l-4 border-green-500">
-    <h1 class="text-3xl font-bold text-gray-800">{{ category.key }}</h1>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div *ngFor="let item of category.value">
-        <cc-gallery-item [item]="item"></cc-gallery-item>
-      </div>
-    </div>
+  <!-- Fixed tab labels -->
+  <div class="sticky top-0 z-10 bg-white">
+    <mat-tab-group (selectedTabChange)="onTabChange($event)">
+      <mat-tab *ngFor="let category of categories" [label]="category"></mat-tab>
+    </mat-tab-group>
   </div>
-  
+
+  <!-- Scrollable content container -->
+  <div class=" h-[calc(100vh-4rem)]">
+    <ng-container *ngIf="categoryItems[selectedCategory]">
+      <div class="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 mt-4 border-l-4 border-green-500">
+        <h1 class="text-3xl font-bold text-gray-800">{{ selectedCategory }}</h1>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div *ngFor="let item of categoryItems[selectedCategory]">
+            <cc-gallery-item [item]="item"></cc-gallery-item>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
 </div>
 

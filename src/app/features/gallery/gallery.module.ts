@@ -6,7 +6,10 @@ import { GalleryItemComponent } from './gallery-item/gallery-item.component';
 import { GalleryListComponent } from './gallery-list/gallery-list.component';
 import { GalleryRoutingModule } from './gallery-routing.module';
 import { GalleryComponent } from './gallery.component';
-import { SharedModule } from "../../shared/shared.module";
+import { SharedModule } from "../../core/shared/shared.module";
+import { TabComponent } from './tab/tab.component';
+import { TabsComponent } from './tabs/tabs.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 
 
@@ -17,12 +20,15 @@ import { SharedModule } from "../../shared/shared.module";
         GalleryEditComponent,
         GalleryDetailComponent,
         GalleryItemComponent,
-        GalleryComponent
+        GalleryComponent,
+        TabComponent,
+        TabsComponent
     ],
     imports: [
         CommonModule,
         GalleryRoutingModule,
-        SharedModule
+        SharedModule,
+        MatTabsModule
     ]
 })
 export class GalleryModule { }
