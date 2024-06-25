@@ -168,7 +168,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
         newEvent.id = this.originalEvent.id;
         this.eventService.updateEvent(newEvent).subscribe({
           next: () => {
-            this.router.navigate(['/events']);
+            this.router.navigate(['/events', newEvent.id]);
           },
           error: (err) => {
             console.error('Error updating event:', err);

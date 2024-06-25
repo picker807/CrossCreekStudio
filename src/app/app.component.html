@@ -1,12 +1,13 @@
 <div class="app-container flex flex-col min-h-screen">
+
   <header class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-50">
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-      <!-- Logo and Title -->
+      
       <div class="flex items-center">
         <img src="../../assets/images/mexiduck.png" alt="Cross Creek Creates Logo" class="h-16 mr-3">
         <span class="text-xl font-bold">Cross Creek Creates</span>
       </div>
-      <!-- Navigation Links -->
+      
       <ul class="flex justify-between sm:space-x-4">
         <li><a routerLink="/home" class="hover:text-gray-300">Home</a></li>
         <li><a routerLink="/events" class="hover:text-gray-300">Events</a></li>
@@ -15,7 +16,8 @@
         <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
       </ul>
     </nav>
-  </header>
+  </header> 
+  
   <main class="flex-grow mx-auto w-[95%] px-4 sm:px-6 py-4 mt-[95px]">
     <router-outlet></router-outlet>
   </main>

@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { ImageUploadComponent } from './image-upload/image-upload.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
 
@@ -16,7 +15,6 @@ import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-
 @NgModule({
   declarations: [
     StringFilterPipe,
-    ImageUploadComponent,
     ConfirmationDialogComponent
   ],
   imports: [
@@ -37,7 +35,6 @@ import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-
     MatButtonModule,
     MatSelectModule,
     DragDropModule,
-    ImageUploadComponent
     
   ]
 })

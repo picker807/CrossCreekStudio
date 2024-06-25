@@ -18,5 +18,12 @@ export class AdminService {
     return this.http.get(this.apiUrl);
   }
 
-  // Other CRUD methods for admin management
+  resetPassword(adminId: string, newPassword: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${adminId}/reset-password`, { newPassword });
+  }
+
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/change-password`, { oldPassword, newPassword });
+  }
+  
 }

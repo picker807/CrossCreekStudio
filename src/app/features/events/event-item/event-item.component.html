@@ -2,7 +2,7 @@
 <a href="#" class="relative block transform transition duration-300 hover:scale-105 hover:bg-blue-50 rounded-lg overflow-hidden shadow-lg hover:shadow-xl" routerLinkActive="active" [routerLink]="[event.id]">
   <!-- Background Image with Opacity -->
   <div class="relative overflow-hidden rounded-xl h-96">
-    <img src="{{event.images[0].imageUrl}}" alt="{{ event.name }} Image" class="w-full h-full object-contain">
+    <img src="{{event.images[0]?.imageUrl}}" alt="{{ event.name }} Image" class="w-full h-full object-contain">
   </div>
   
   
