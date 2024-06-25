@@ -20,20 +20,27 @@ export class GalleryService {
   getGalleryItemsByCategory(category: string): Observable<Gallery[]> {
     return this.http.get<{ galleries: Gallery[] }>(`${this.apiUrl}?category=${category}`)
       .pipe(
-        map(response => response.galleries)
+        map(response => response.galleries),
+        tap(galleries => {
+          this.galleryList = [...this.galleryList, ...galleries];
+          this.galleryListSubject.next(this.galleryList);
+        })
       );
   }
 
   loadAllData(): Observable<Gallery[]> {
     return this.http.get<{galleries: Gallery[]}>(this.apiUrl).pipe(
       map (response => response.galleries),
-      tap(galleries => this.galleryListSubject.next(galleries)),
+      tap(galleries => {
+        this.galleryListSubject.next(galleries);
+      }),
+      
       catchError(error => {
         console.error('Error loading gallery items:', error);
         return throwError(() => new Error('Error loading gallery items'));
       })
     );
-  }
+  } 
 
 
   getItemById(id: string): Observable<Gallery> {

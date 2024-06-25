@@ -40,6 +40,7 @@ export class GalleryEditComponent implements OnInit {
 
     this.subscriptions.add(this.route.params.subscribe(params => {
       const id = params['id'];
+      console.log(id);
       if (id) {
         this.subscriptions.add(this.galleryService.galleryList$.subscribe(list => {
           this.originalItem = list.find(item => item.id === id);
@@ -55,12 +56,9 @@ export class GalleryEditComponent implements OnInit {
     }));
   }
 
-  onImageSrcChange(newImageSrc: string): void {
-    console.log('New image source:', newImageSrc);
-    this.currentImageUrl = newImageSrc;
-    this.galleryForm.patchValue({
-      imageUrl: newImageSrc
-    });
+  onImageUrlChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.currentImageUrl = input.value;
   }
 
   ngOnDestroy(): void {
@@ -72,14 +70,14 @@ export class GalleryEditComponent implements OnInit {
       name: this.originalItem.name,
       description: this.originalItem.description,
       category: this.originalItem.category,
-      imageUrl: this.currentImageUrl
+      imageUrl: this.originalItem.imageUrl
     });
+    this.currentImageUrl = this.originalItem.imageUrl;
   }
 
   submitEdit(): void {
 
     if (this.galleryForm.valid) {
-      //console.log('Form Data:', this.galleryForm.value);
       const value = this.galleryForm.value;
       const newItem: Gallery = {
         ...value,
