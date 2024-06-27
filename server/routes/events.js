@@ -6,6 +6,7 @@ const User = require('../models/user');
 const Gallery = require('../models/gallery');
 const mongoose = require('mongoose');
 
+
 router.get('/', async (req, res, next) => {
   try {
     const events = await Event.find({}).populate('attendees').populate('images').exec();
@@ -104,21 +105,47 @@ router.post('/:id/register', async (req, res) => {
 
 // Update event using findOneAndUpdate
 router.put('/:id', async (req, res) => {
-  //console.log("starting event put router: ", req.body);
+  console.log("starting event put router: ", req.body);
   try {
-    // Convert attendees and images to ObjectIds
+    const existingEvent = await Event.findOne({ id: req.params.id.trim() });
+
+    if (!existingEvent) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Convert attendees to ObjectIds
     if (req.body.attendees) {
-      const userIds = req.body.attendees.map(user => user._id); 
-      req.body.attendees = userIds.filter(id => id !== null);
+      const processedAttendees = await Promise.all(req.body.attendees.map(async (attendee) => {
+        if (attendee.email) {
+          // Try to find the user by email
+          let user = await User.findOne({ email: attendee.email });
+          if (!user) {
+            // If user doesn't exist, create a new one
+            user = new User({
+              id: await sequenceGenerator.nextId("users"),
+              firstName: attendee.firstName,
+              lastName: attendee.lastName,
+              email: attendee.email,
+              phone: attendee.phone
+            });
+            await user.save();
+          }
+          return user._id;
+        }
+        return null;
+      }));
+
+      // Filter out any null values
+      req.body.attendees = processedAttendees.filter(id => id);
     }
 
     // Convert images to ObjectIds
     if (req.body.images) {
-      const galleryIds = req.body.images.map(gallery => gallery._id);      
-      req.body.images = galleryIds.filter(id => id !== null);
+      req.body.images = await Gallery.find({ id: { $in: req.body.images } })
+        .then(images => images.map(image => image._id));
     }
 
-    //console.log("rquest body: ", req.body);
+    console.log("Processed request body: ", req.body);
     const updatedEvent = await Event.findOneAndUpdate(
       { id: req.params.id.trim() },
       req.body,
@@ -126,6 +153,8 @@ router.put('/:id', async (req, res) => {
     ).populate('attendees').populate('images').exec();
 
     if (!updatedEvent) return res.status(404).json({ message: 'Event not found' });
+
+    console.log("updated event: ", updatedEvent);
 
     res.json(updatedEvent);
   } catch (err) {

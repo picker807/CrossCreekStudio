@@ -6,6 +6,7 @@ import { User } from '../../user.model';
 import { Admin } from '../admin.model';
 import { Event } from '../../events/event.model';
 import { EventService } from '../../events/event.service';
+import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 
 @Component({
   selector: 'cc-admin-dashboard',

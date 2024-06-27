@@ -19,7 +19,7 @@ import { HttpClientModule, provideHttpClient, withFetch } from '@angular/common/
 @NgModule({
   declarations: [
     AppComponent,
-    RegistrationComponent
+    RegistrationComponent,
  
   ],
   imports: [

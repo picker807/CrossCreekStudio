@@ -5,11 +5,13 @@ import { EventService } from '../events/event.service';
 import { Event } from '../events/event.model';
 import { RegistrationService } from './registration.service';
 import { User } from '../user.model';
+import { PhoneFormatPipe } from '../../core/shared/phone-format.pipe';
 
 @Component({
   selector: 'cc-registration',
   templateUrl: './registration.component.html',
-  styleUrl: './registration.component.css'
+  styleUrl: './registration.component.css',
+  providers: [PhoneFormatPipe]
 })
 export class RegistrationComponent {
   registrationForm: FormGroup;
@@ -24,23 +26,40 @@ export class RegistrationComponent {
     private router: Router,
     private route: ActivatedRoute,
     private eventService: EventService,
-    private registrationService: RegistrationService) {}
+    private registrationService: RegistrationService,
+    private phoneFormatPipe: PhoneFormatPipe) {}
 
     ngOnInit(): void {
+      // Initialize the form
+      this.initializeForm();
+    
+      // Handle route params
       this.route.params.subscribe(params => {
         const id = params['id'];
-        
         if (id) {
-          this.eventService.getEventById(id).subscribe(event => {
-            this.event = event;
-          });
+          this.loadEvent(id);
         }
+      });
+
+      this.registrationForm.get('phone').valueChanges.subscribe(value => {
+        const formatted = this.phoneFormatPipe.transform(value);
+        this.registrationForm.get('phone').setValue(formatted, { emitEvent: false });
+      });
+    }
     
-        this.registrationForm = this.fb.group({
-          firstName: ['', Validators.required],
-          lastName: ['', Validators.required],
-          email: ['', [Validators.required, Validators.email]]
-        });
+    private initializeForm(): void {
+      this.registrationForm = this.fb.group({
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
+      });
+    }
+    
+    private loadEvent(id: string): void {
+      this.eventService.getEventById(id).subscribe(event => {
+        this.event = event;
+        // You can update the form with event data here if needed
       });
     }
 
@@ -49,9 +68,12 @@ export class RegistrationComponent {
     //('Registration data:', this.registrationForm.value);
     if (this.registrationForm.valid) {
       const value = this.registrationForm.value;
+      const rawPhoneNumber = value.phone.replace(/\D/g, '');
+
       this.newUser = {
         id: '',
-        ...value
+        ...value,
+        phone: rawPhoneNumber
       }
       
       //this.registrationService.addUser(newUser, this.event);

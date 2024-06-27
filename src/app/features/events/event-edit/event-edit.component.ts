@@ -11,11 +11,13 @@ import { Subscription } from 'rxjs';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Gallery } from '../../gallery/gallery.model';
 import { GalleryService } from '../../gallery/gallery.service';
+import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 
 @Component({
   selector: 'cc-event-edit',
   templateUrl: './event-edit.component.html',
-  styleUrl: './event-edit.component.css'
+  styleUrl: './event-edit.component.css',
+  providers: [PhoneFormatPipe]
 })
 export class EventEditComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
@@ -30,7 +32,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
   currentDate: Date = new Date();
   showModifyEvent: boolean;
 
-  tests = [{imageUrl: "this image", name: "thing 1"}, {imageUrl: "other image", name: "thing 2"}];
+  //tests = [{imageUrl: "this image", name: "thing 1"}, {imageUrl: "other image", name: "thing 2"}];
   //newEvent: Event;
 
   constructor(private fb: FormBuilder,
@@ -38,7 +40,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
     private galleryService: GalleryService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute){}
+    private route: ActivatedRoute,
+    private phoneFormatPipe: PhoneFormatPipe){}
 
   ngOnInit(): void {
     this.authService.isAdmin$.subscribe(isAdmin => {
@@ -50,7 +53,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
     });
 
     this.gallerySubscription = this.galleryService.galleryList$.subscribe(galleries => {
-      console.log('Galleries received:', galleries);
+      //console.log('Galleries received:', galleries);
       this.galleries = galleries;
     });
 
@@ -62,7 +65,6 @@ export class EventEditComponent implements OnInit, OnDestroy {
       location: [''],
       description: [''],
       price: [],
-      isVirtual: [false],
       attendees: this.fb.array([]),
       images: this.fb.array([])
     });
@@ -71,7 +73,13 @@ export class EventEditComponent implements OnInit, OnDestroy {
       id: [''],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
+    });
+
+    this.newAttendeeForm.get('phone').valueChanges.subscribe(value => {
+      const formatted = this.phoneFormatPipe.transform(value);
+      this.newAttendeeForm.get('phone').setValue(formatted, { emitEvent: false });
     });
 
     this.route.params.subscribe(params => {
@@ -106,7 +114,9 @@ export class EventEditComponent implements OnInit, OnDestroy {
     if (this.eventSubscription) {
       this.eventSubscription.unsubscribe();
     }
+    if (this.gallerySubscription) {
     this.gallerySubscription.unsubscribe();
+    }
   }
 
   updateForm(): void {
@@ -117,7 +127,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       description: this.originalEvent.description,
       price: this.originalEvent.price,
       //attendees: this.originalEvent.attendees,
-      isVirtual: this.originalEvent.isVirtual,
+      //isVirtual: this.originalEvent.isVirtual,
       //images: this.originalEvent.images
     });
     this.setAttendees();
@@ -134,7 +144,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
         id: [attendee.id || ''],
         firstName: [attendee.firstName || '', Validators.required],
         lastName: [attendee.lastName || '', Validators.required],
-        email: [attendee.email || '', [Validators.required, Validators.email]]
+        email: [attendee.email || '', [Validators.required, Validators.email]],
+        phone: [attendee.phone || '', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
       });
       attendeesFormArray.push(attendeeGroup);
     });
@@ -157,21 +168,30 @@ export class EventEditComponent implements OnInit, OnDestroy {
   async submitEdit(): Promise<void> {
 
     if (this.editForm.valid) {
-      //console.log('Form Data:', this.editForm.value);
+      console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
+
+      const processedAttendees = value.attendees.map(attendee => ({
+        ...attendee,
+        phone: attendee.phone.replace(/\D/g, '') // Remove non-digit characters
+      }));
+
       const newEvent: Event = {
         ...value,
-        date: new Date(value.date)
+        date: new Date(value.date),
+        attendees: processedAttendees
       };
 
       if (this.editMode) {
         newEvent.id = this.originalEvent.id;
         this.eventService.updateEvent(newEvent).subscribe({
-          next: () => {
-            this.router.navigate(['/events', newEvent.id]);
+          next: (updatedEvent) => {
+            console.log("Event updated successfully: ", updatedEvent)
+            this.router.navigate(['/events', updatedEvent.id]);
           },
           error: (err) => {
             console.error('Error updating event:', err);
+            
           }
         });
       } else {
@@ -205,7 +225,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
         id: [this.newAttendeeForm.value.id || ''],
         firstName: [this.newAttendeeForm.value.firstName],
         lastName: [this.newAttendeeForm.value.lastName],
-        email: [this.newAttendeeForm.value.email]
+        email: [this.newAttendeeForm.value.email],
+        phone: [this.newAttendeeForm.value.phone]
       });
   
       this.attendees.push(newAttendee);

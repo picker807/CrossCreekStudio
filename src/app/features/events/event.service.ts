@@ -58,11 +58,16 @@ export class EventService {
   }
 
   updateEvent(event: Event): Observable<Event> {
-    //console.log('Updating event:', event); 
-    return this.http.put<Event>(`${this.apiUrl}/${event.id}`, event).pipe(
+    const eventToSend = {
+      ...event,
+      images: event.images.map(image => image.id)
+    };
+
+    console.log('Updating event:', eventToSend); 
+    return this.http.put<Event>(`${this.apiUrl}/${event.id}`, eventToSend).pipe(
       tap(updatedEvent => {
+        console.log("server response: ", updatedEvent);
         const currentEvents = this.eventsSubject.getValue();
-        //("updatedEvent in event service: ", updatedEvent);
         const eventIndex = currentEvents.findIndex(e => e.id === event.id);
         if (eventIndex !== -1) {
           // Ensure the date is a Date object
@@ -77,7 +82,11 @@ export class EventService {
       }),
       catchError(error => {
         console.error('Error updating event:', error);
-        return throwError(() => new Error('Error updating event'));
+        return throwError(() => ({
+          message: 'Error updating event',
+          details: error.message,
+          status: error.status
+        }));
       })
     );
   }

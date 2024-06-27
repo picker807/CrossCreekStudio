@@ -44,7 +44,8 @@
         <ul class="space-y-2">
           <li *ngFor="let user of selectedEventUsers" class="flex items-center">
             <input type="checkbox" [id]="user.id" (change)="toggleUserSelection(user.id)" class="mr-2">
-            <label [for]="user.id">{{ user.name }} ({{ user.email }})</label>
+            <label [for]="user.id">{{ user.firstName }} {{ user.lastName }} -- {{ user.phone | phoneFormat }} --
+               ({{ user.email }})</label>
           </li>
         </ul>
       </div>

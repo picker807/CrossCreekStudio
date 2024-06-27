@@ -20,87 +20,82 @@
               <mat-hint>Format: MM/DD/YYYY</mat-hint>
             </mat-form-field>
           </div>
+          <div>
+              <label for="location" class="block text-sm font-medium text-gray-700">Location:</label>
+              <input 
+                  formControlName="location"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  type="text"
+                  id="location"
+                  required>
+          </div>
+          <div class="col-sm-12 form-group">
+            <label for="price" class="block text-sm font-medium text-gray-700">Price:</label>
+            <input
+                formControlName="price"
+                id="price"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
 
-        <div class="col-xs-12 form-group">
-            <label class="inline-flex items-center">
-                <input type="checkbox" formControlName="isVirtual" class="form-checkbox h-5 w-5 text-green-600">
-                <span class="ml-2 text-gray-700">Virtual Event</span>
-            </label>
-        </div>
+          <div class="col-sm-12 form-group">
+              <label for="description" class="block text-sm font-medium text-gray-700">Description:</label>
+              <textarea
+                  formControlName="description"
+                  id="description"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+          </div>
 
-        <div *ngIf="!editForm.get('isVirtual').value">
-            <div>
-                <label for="location" class="block text-sm font-medium text-gray-700">Location:</label>
-                <input 
-                    formControlName="location"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    type="text"
-                    id="location"
-                    required>
-            </div>
-        </div>
-        <div class="col-sm-12 form-group">
-          <label for="price" class="block text-sm font-medium text-gray-700">Price:</label>
-          <input
-              formControlName="price"
-              id="price"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-      </div>
+          <div formArrayName="attendees" class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">
+                  Attendees:
+              </label>
+              <div  *ngIf="showModifyEvent; else showPastEvent" >
+              <form [formGroup]="newAttendeeForm" (ngSubmit)="addAttendee()">
+                  <input type="text" formControlName="firstName" placeholder="First Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <input type="text" formControlName="lastName" placeholder="Last Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <input type="email" formControlName="email" placeholder="Email" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <input type="text" formControlName="phone" placeholder="Phone" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300 ease-in-out">Add Attendee</button>
+              </form>
+              </div>
+              <ng-template #showPastEvent>
+                  <div class="text-red-500 font-bold mb-2">
+                    This event is in the past!
+                  </div>
+                </ng-template>
 
-        <div class="col-sm-12 form-group">
-            <label for="description" class="block text-sm font-medium text-gray-700">Description:</label>
-            <textarea
-                formControlName="description"
-                id="description"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-        </div>
-
-        <div formArrayName="attendees" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
-                Attendees:
-            </label>
-            <div  *ngIf="showModifyEvent; else showPastEvent" >
-            <form [formGroup]="newAttendeeForm" (ngSubmit)="addAttendee()">
-                <input type="text" formControlName="firstName" placeholder="First Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                <input type="text" formControlName="lastName" placeholder="Last Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                <input type="email" formControlName="email" placeholder="Email" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300 ease-in-out">Add Attendee</button>
-            </form>
-            </div>
-            <ng-template #showPastEvent>
-                <div class="text-red-500 font-bold mb-2">
-                  This event is in the past!
-                </div>
-              </ng-template>
-
-            <!-- Attendees List Container -->
-            <div class="max-w-4xl mx-auto">
-                <!-- Headers -->
-                <div class="flex mb-4 text-gray-700 bg-gray-100 p-3 rounded-t-lg">
-                    <div class="flex-1 font-semibold">First Name</div>
-                    <div class="flex-1 font-semibold">Last Name</div>
-                    <div class="flex-1 font-semibold">Email</div>
-                    <div class="w-20">Actions</div>
-                </div>
-            
-                <!-- Attendee Rows -->  
-                <div *ngFor="let attendee of attendees.controls; let i = index" [formGroupName]="i" class="flex items-center justify-between p-3 bg-white border-b border-gray-200">
-                    <div class="flex-1 pr-2">
-                        <input type="text" formControlName="firstName" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
+              <!-- Attendees List Container -->
+              <div class="max-w-4xl mx-auto">
+                  <!-- Headers -->
+                  <div class="flex mb-4 text-gray-700 bg-gray-100 p-3 rounded-t-lg">
+                      <div class="flex-1 font-semibold">First Name</div>
+                      <div class="flex-1 font-semibold">Last Name</div>
+                      <div class="flex-1 font-semibold">Email</div>
+                      <div class="flex-1 font-semibold">Phone</div>
+                      <div class="w-20">Actions</div>
+                  </div>
+              
+                  <!-- Attendee Rows -->  
+                  <div *ngFor="let attendee of attendees.controls; let i = index" [formGroupName]="i" class="flex items-center justify-between p-3 bg-white border-b border-gray-200">
+                      <div class="flex-1 pr-2">
+                          <input type="text" formControlName="firstName" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
+                      </div>
+                      <div class="flex-1 px-2">
+                          <input type="text" formControlName="lastName" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
+                      </div>
+                      <div class="flex-1 pl-2">
+                          <input type="text" formControlName="email" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
+                      </div>
+                      <div class="flex-1 pl-2">
+                        <input type="text" formControlName="phone" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
                     </div>
-                    <div class="flex-1 px-2">
-                        <input type="text" formControlName="lastName" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
-                    </div>
-                    <div class="flex-1 pl-2">
-                        <input type="text" formControlName="email" readonly class="w-full bg-gray-100 text-gray-800 rounded-lg p-2 cursor-not-allowed">
-                    </div>
-                    
-                    <button type="button" (click)="removeAttendee(i)" class="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
-                        Remove
-                    </button>
-                </div>
-            </div>
-        </div>
+                      
+                      <button type="button" (click)="removeAttendee(i)" class="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+                          Remove
+                      </button>
+                  </div>
+              </div>
+          </div>
 
         <!--
             <div class="form-group">

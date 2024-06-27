@@ -6,7 +6,6 @@ export class Event {
     public id: string,
     public name: string,
     public date: Date,
-    public isVirtual: boolean,
     public location: string,
     public description: string,
     public price: number,

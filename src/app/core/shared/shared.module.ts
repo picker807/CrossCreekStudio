@@ -9,13 +9,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { PhoneFormatPipe } from './phone-format.pipe';
 
 
 
 @NgModule({
   declarations: [
     StringFilterPipe,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    PhoneFormatPipe
   ],
   imports: [
     CommonModule,
@@ -35,6 +37,8 @@ import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-
     MatButtonModule,
     MatSelectModule,
     DragDropModule,
+    PhoneFormatPipe
+  
     
   ]
 })
