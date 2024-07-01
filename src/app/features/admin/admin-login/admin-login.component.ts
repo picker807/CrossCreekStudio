@@ -29,7 +29,9 @@ export class AdminLoginComponent implements OnInit {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe({
-        next: () => this.router.navigate(['/admin']),
+        next: () => {
+          this.router.navigate(['/admin']);
+        },
         error: (err) => this.errorMessage = 'Invalid email or password'
       });
     }

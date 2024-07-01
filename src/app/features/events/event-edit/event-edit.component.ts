@@ -44,9 +44,9 @@ export class EventEditComponent implements OnInit, OnDestroy {
     private phoneFormatPipe: PhoneFormatPipe){}
 
   ngOnInit(): void {
-    this.authService.isAdmin$.subscribe(isAdmin => {
+    /* this.authService.isAdmin$.subscribe(isAdmin => {
       this.isAdmin = isAdmin;
-    });
+    }); */
 
     this.galleryForm = this.fb.group({
       galleries: this.fb.array([])

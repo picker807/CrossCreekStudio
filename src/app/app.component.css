@@ -1,0 +1,4 @@
+.active {
+  color: #fbbf24; /* Example color for active link */
+  border-bottom: 2px solid #fbbf24; /* Optional: underline the active link */
+}

@@ -36,7 +36,7 @@ constructor(
 ngOnInit(): void {
   this.subscriptions.add(this.authService.isAdmin$.subscribe(isAdmin => {
     this.isAdmin = isAdmin;
-  }));
+  })); 
   this.loadItemDetails();
 
  /* this.subscriptions.add(this.route.params.subscribe(params => {

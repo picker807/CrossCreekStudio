@@ -7,6 +7,7 @@ import { Admin } from '../admin.model';
 import { Event } from '../../events/event.model';
 import { EventService } from '../../events/event.service';
 import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'cc-admin-dashboard',
@@ -26,7 +27,8 @@ export class AdminDashboardComponent implements OnInit {
     private userService: RegistrationService,
     private adminService: AdminService,
     private eventService: EventService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) {
     this.changePasswordForm = this.fb.group({
       oldPassword: ['', Validators.required],
@@ -50,7 +52,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadAdmins(): void {
-    this.adminService.getAllAdmins().subscribe(admins => this.admins = admins);
+    this.adminService.getAllAdmins().subscribe(admins => {this.admins = admins});
   }
 
   onEventSelect(eventId: string): void {
@@ -63,7 +65,9 @@ export class AdminDashboardComponent implements OnInit {
   changePassword(): void {
     if (this.changePasswordForm.valid) {
       const { oldPassword, newPassword } = this.changePasswordForm.value;
-      this.adminService.changePassword(oldPassword, newPassword).subscribe();
+      this.adminService.changePassword(oldPassword, newPassword).subscribe(response => {
+        console.log('Password changed successfully');
+      });
     }
   }
 
@@ -86,5 +90,10 @@ export class AdminDashboardComponent implements OnInit {
     } else {
       this.selectedUsers.push(userId);
     }
+  }
+
+  logout(): void {
+    this.adminService.logout();
+    this.router.navigate(['/admin/login']);
   }
 }

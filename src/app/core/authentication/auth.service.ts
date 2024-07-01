@@ -4,73 +4,65 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
 import { Admin } from '../../features/admin/admin.model';
-import {jwtDecode} from 'jwt-decode';
-
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private isAdminSubject = new BehaviorSubject<boolean>(false);
-  private token: string | null = null;
+  isAdmin$ = this.isAdminSubject.asObservable();
+  private AUTH_API = 'http://localhost:3000/admin';
 
-  private AUTH_API = 'http://localhost:3000/admin/'; // Update with your actual API URL
-  private httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
-
-  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {
-    this.loadToken();
+  constructor(
+    private http: HttpClient,
+    private jwtHelper: JwtHelperService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.checkAuthStatus();
   }
 
-  private loadToken() {
+  register(username: string, password: string): Observable<any> {
+    return this.http.post(`${this.AUTH_API}/register`, { username, password });
+  }
+
+  private checkAuthStatus(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const token = localStorage.getItem('auth-token');
-      if (token) {
-        this.token = token;
-        if (!this.isTokenExpired(token)) {
-          this.isAdminSubject.next(true);
-        } else {
-          this.logout();
-        }
+      const token = localStorage.getItem('token');
+      if (token && !this.jwtHelper.isTokenExpired(token)) {
+        this.isAdminSubject.next(true);
+      } else {
+        this.isAdminSubject.next(false);
       }
+    } else {
+      console.log("checkAuthStatus in auth service. isPlatformBrowser was false");
+      this.isAdminSubject.next(false);
     }
   }
 
-  private isTokenExpired(token: string): boolean {
-    const decoded: any = jwtDecode(token);
-    const expiryTime = decoded.exp * 1000;
-    return Date.now() > expiryTime;
-  }
-
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.AUTH_API}login`, { email, password }, this.httpOptions)
+    return this.http.post<any>(`${this.AUTH_API}/login`, { email, password })
       .pipe(
-        tap(response => {
-          if (response.token) {
-            this.token = response.token;
-            localStorage.setItem('auth-token', this.token);
+        tap((response: any) => {
+            localStorage.setItem('token', response.token);
             this.isAdminSubject.next(true);
-          }
         })
       );
   }
 
   logout(): void {
-    this.token = null;
-    localStorage.removeItem('auth-token');
-    this.isAdminSubject.next(false);
+    localStorage.removeItem('token');
   }
 
-  get isAdmin$(): Observable<boolean> {
-    return this.isAdminSubject.asObservable();
-  }
+  /* getUser(): Observable<Admin | null> {
+    return this.http.get<Admin>(`${this.AUTH_API}/user`, { withCredentials: true });
+  } */
 
-  isAuthenticated(): boolean {
-    return this.isAdminSubject.value;
+    isAuthenticated(): boolean {
+      if (isPlatformBrowser(this.platformId)) {
+        const token = localStorage.getItem('token');
+        return token != null && !this.jwtHelper.isTokenExpired(token);
+      }
+      return false; // Not authenticated on server-side
+    }
   }
-
-  getToken(): string | null {
-    return this.token;
-  }
-}

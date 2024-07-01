@@ -35,7 +35,8 @@ export class GalleryComponent {
     this.subscriptions.add(this.authService.isAdmin$.subscribe(isAdmin => {
       this.isAdmin = isAdmin;
     }));
-  }
+  } 
+
   @HostListener('window:scroll', [])
   onWindowScroll() {
     this.lastScrollTop = window.scrollY;

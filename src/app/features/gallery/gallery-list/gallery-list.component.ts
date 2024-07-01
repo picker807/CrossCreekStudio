@@ -34,9 +34,9 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   ) {}
 
   ngOnInit(): void {
-    this.authService.isAdmin$.subscribe(isAdmin => {
+   /*  this.authService.isAdmin$.subscribe(isAdmin => {
       this.isAdmin = isAdmin;
-    });
+    }); */
 
     
 

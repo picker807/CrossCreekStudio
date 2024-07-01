@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 exports.getAllAdmins = async (req, res) => {
   try {
     const admins = await Admin.find({});
+    //console.log("Admins from server: ", admins);
     res.status(200).json(admins);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,8 +63,51 @@ exports.login = async (req, res) => {
       return res.status(401).send('Invalid credentials');
     }
     const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-    res.json({ token });
+    res.json({ message: 'Login successful', token });
   } catch (error) {
     res.status(400).send(error.message);
   }
 };
+
+exports.checkAuthStatus = async (req, res) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
+  if (!token) {
+    return res.json({ isAuthenticated: false });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const admin = await Admin.findById(decoded.id);
+    if (!admin) {
+      return res.json({ isAuthenticated: false });
+    }
+    res.json({ isAuthenticated: true });
+  } catch (error) {
+    res.json({ isAuthenticated: false });
+  }
+};
+
+exports.logout = (req, res) => {
+  res.status(200).json({ message: 'Logout successful' });
+};
+
+/* exports.logout = (req, res) => {
+  // Clear the authentication cookie
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
+
+  // Optionally, destroy the session if you're using session-based authentication
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) {
+        return res.status(500).json({ message: 'Failed to log out' });
+      }
+      res.status(200).json({ message: 'Logout successful' });
+    });
+  } else {
+    res.status(200).json({ message: 'Logout successful' });
+  }
+}; */

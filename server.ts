@@ -4,14 +4,16 @@ var path = require('path');
 var http = require('http');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
+const session = require('express-session');
 var logger = require('morgan');
 var mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();
 
 const mongoUri = process.env.MONGO_URI;
-console.log("Get Mongo URI: ", process.env.MONGO_URI);
 
 // Import the routing files
+const authRoutes = require('./server/routes/auth');
 const adminRoutes = require('./server/routes/admin');
 const eventRoutes = require('./server/routes/events');
 const galleryRoutes = require('./server/routes/galleries');
@@ -26,26 +28,30 @@ app.use(bodyParser.urlencoded({
   limit: '100mb'
 }));
 app.use(cookieParser());
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
 
 app.use(logger('dev')); // Tell express to use the Morgan logger
 
-// Add support for CORS
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  );
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PATCH, PUT, DELETE, OPTIONS'
-  );
-  next();
-});
+
+app.use(cors({
+  origin: 'http://localhost:4200', // Replace with your frontend's URL
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
 
 
 
 // Register the routes with the Express application
+app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/events', eventRoutes);
 app.use('/galleries', galleryRoutes);

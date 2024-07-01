@@ -14,8 +14,10 @@ export class AppComponent {
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {
+  ) {}
 
+  isActive(route: string): boolean {
+    return this.router.url === route;
   }
 
   ngOnInit(): void {

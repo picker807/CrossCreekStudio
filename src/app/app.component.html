@@ -9,10 +9,10 @@
       </div>
       
       <ul class="flex justify-between sm:space-x-4">
-        <li><a routerLink="/home" class="hover:text-gray-300">Home</a></li>
-        <li><a routerLink="/events" class="hover:text-gray-300">Events</a></li>
-        <li><a routerLink="/gallery" class="hover:text-gray-300">Gallery</a></li>
-        <li><a routerLink="/admin" class="hover:text-gray-300">Admin</a></li>
+        <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300">Home</a></li>
+        <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300">Events</a></li>
+        <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
+        <li><a routerLink="/admin" [class.active]="isActive('/admin')" class="hover:text-gray-300">Admin</a></li>
         <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
       </ul>
     </nav>
