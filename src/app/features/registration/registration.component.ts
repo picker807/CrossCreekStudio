@@ -52,8 +52,9 @@ export class RegistrationComponent {
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
+        confirmEmail: ['', [Validators.required, Validators.email]],
         phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
-      });
+      }, { validators: this.emailMatchValidator });
     }
     
     private loadEvent(id: string): void {
@@ -63,6 +64,15 @@ export class RegistrationComponent {
       });
     }
 
+    emailMatchValidator(form: FormGroup) {
+      const email = form.get('email');
+      const confirmEmail = form.get('confirmEmail');
+      if (email && confirmEmail && email.value !== confirmEmail.value) {
+        confirmEmail.setErrors({ emailMismatch: true });
+      } else {
+        confirmEmail.setErrors(null);
+      }
+    }
 
   onSubmit(): void {
     //('Registration data:', this.registrationForm.value);

@@ -10,6 +10,7 @@ import { EventEditComponent } from './event-edit/event-edit.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
+
 @NgModule({
     declarations: [
         EventListComponent,

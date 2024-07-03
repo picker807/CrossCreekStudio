@@ -2,19 +2,24 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'stringFilter',
-  pure: false // Set to false if you want the pipe to update whenever the input changes
+  pure: false
 })
 export class StringFilterPipe implements PipeTransform {
-  transform(items: any[], filterString: string, propertyName: string): any[] {
-    if (!items || !filterString || !propertyName) {
+  transform(items: any[], filterString: string): any[] {
+    if (!items || !filterString) {
       return items;
     }
 
     filterString = filterString.toLowerCase();
 
     return items.filter(item => {
-      const itemValue = item[propertyName].toString().toLowerCase();
-      return itemValue.includes(filterString);
+      return Object.keys(item).some(key => {
+        const value = item[key];
+        if (value !== null && value !== undefined) {
+          return value.toString().toLowerCase().includes(filterString);
+        }
+        return false;
+      });
     });
   }
 }

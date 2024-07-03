@@ -3,6 +3,7 @@ import { Event } from '../event.model';
 import { Subscription } from 'rxjs';
 import { EventService } from '../event.service';
 import { AuthService } from '../../../core/authentication/auth.service';
+import { StringFilterPipe } from '../../../core/shared/string-filter.pipe';
 
 @Component({
   selector: 'cc-event-list',

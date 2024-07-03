@@ -30,7 +30,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
   eventSubscription: Subscription;
   gallerySubscription: Subscription;
   currentDate: Date = new Date();
-  showModifyEvent: boolean;
+  showModifyEvent: boolean = true;
 
   //tests = [{imageUrl: "this image", name: "thing 1"}, {imageUrl: "other image", name: "thing 2"}];
   //newEvent: Event;
@@ -41,7 +41,9 @@ export class EventEditComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private phoneFormatPipe: PhoneFormatPipe){}
+    private phoneFormatPipe: PhoneFormatPipe){
+      
+    }
 
   ngOnInit(): void {
     /* this.authService.isAdmin$.subscribe(isAdmin => {
@@ -60,14 +62,17 @@ export class EventEditComponent implements OnInit, OnDestroy {
     this.galleryService.loadAllData().subscribe();
 
     this.editForm = this.fb.group({
-      name: [''],
-      date: [''],
+      name: ['', Validators.required],
+      date: ['', Validators.required],
+      time: ['', Validators.required],
       location: [''],
       description: [''],
-      price: [],
+      price: [null],
       attendees: this.fb.array([]),
       images: this.fb.array([])
     });
+
+    this.editForm.markAllAsTouched();
 
     this.newAttendeeForm = this.fb.group({
       id: [''],
@@ -120,9 +125,11 @@ export class EventEditComponent implements OnInit, OnDestroy {
   }
 
   updateForm(): void {
+    const eventDate = new Date(this.originalEvent.date);
     this.editForm.patchValue({
       name: this.originalEvent.name,
-      date: this.originalEvent.date,
+      date: eventDate,
+      time: eventDate.toTimeString().slice(0, 5),
       location: this.originalEvent.location,
       description: this.originalEvent.description,
       price: this.originalEvent.price,
@@ -132,6 +139,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
     });
     this.setAttendees();
     this.setImages();
+    this.checkFormValidity();
   }
     
     
@@ -140,12 +148,13 @@ export class EventEditComponent implements OnInit, OnDestroy {
     const attendeesFormArray = this.attendees;
     attendeesFormArray.clear();
     this.originalEvent.attendees.forEach(attendee => {
+      const formattedPhone = this.phoneFormatPipe.transform(attendee.phone);
       const attendeeGroup = this.fb.group({
         id: [attendee.id || ''],
         firstName: [attendee.firstName || '', Validators.required],
         lastName: [attendee.lastName || '', Validators.required],
         email: [attendee.email || '', [Validators.required, Validators.email]],
-        phone: [attendee.phone || '', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
+        phone: [formattedPhone || '', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
       });
       attendeesFormArray.push(attendeeGroup);
     });
@@ -166,10 +175,16 @@ export class EventEditComponent implements OnInit, OnDestroy {
     
 
   async submitEdit(): Promise<void> {
-
-    if (this.editForm.valid) {
+    this.checkFormValidity();
+    //if (this.editForm.valid) {
       console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
+
+      // Combine date and time
+      const combinedDateTime = new Date(value.date);
+      const [hours, minutes] = value.time.split(':');
+      combinedDateTime.setHours(parseInt(hours, 10));
+      combinedDateTime.setMinutes(parseInt(minutes, 10));
 
       const processedAttendees = value.attendees.map(attendee => ({
         ...attendee,
@@ -178,7 +193,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
       const newEvent: Event = {
         ...value,
-        date: new Date(value.date),
+        date: combinedDateTime,
         attendees: processedAttendees
       };
 
@@ -204,7 +219,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
           }
         });
       }
-    }
+    //}
   }
 
   get attendees(): FormArray {
@@ -259,6 +274,15 @@ export class EventEditComponent implements OnInit, OnDestroy {
         imageUrl: [gallery.imageUrl, Validators.required]
       }));
     }
+  }
+
+  checkFormValidity() {
+    console.log('Form valid:', this.editForm.valid);
+    console.log('Form errors:', this.editForm.errors);
+    Object.keys(this.editForm.controls).forEach(key => {
+      const control = this.editForm.get(key);
+      console.log(`${key} valid:`, control.valid, 'errors:', control.errors);
+    });
   }
 }
 

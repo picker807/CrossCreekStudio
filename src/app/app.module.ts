@@ -22,13 +22,14 @@ export function tokenGetter() {
 @NgModule({
   declarations: [
     AppComponent,
-    RegistrationComponent,
+    RegistrationComponent
  
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    FormsModule,
     SharedModule,
     BrowserAnimationsModule,
     StoreModule.forRoot({}, {}),
