@@ -9,6 +9,7 @@ import { SharedModule } from "../../core/shared/shared.module";
 import { EventEditComponent } from './event-edit/event-edit.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { GalleryModule } from '../gallery/gallery.module';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { MatNativeDateModule } from '@angular/material/core';
         SharedModule,
         MatDatepickerModule,
         MatNativeDateModule,
-        SharedModule,        
+        SharedModule, 
+        GalleryModule       
     ]
 })
 export class EventsModule { }

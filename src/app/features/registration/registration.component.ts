@@ -77,7 +77,8 @@ export class RegistrationComponent {
   onSubmit(): void {
     //('Registration data:', this.registrationForm.value);
     if (this.registrationForm.valid) {
-      const value = this.registrationForm.value;
+      const value = { ...this.registrationForm.value };
+      delete value.confirmEmail;
       const rawPhoneNumber = value.phone.replace(/\D/g, '');
 
       this.newUser = {
@@ -85,6 +86,7 @@ export class RegistrationComponent {
         ...value,
         phone: rawPhoneNumber
       }
+      console.log("New User: ", this.newUser)
       
       //this.registrationService.addUser(newUser, this.event);
       this.checkUserInEvent(this.newUser.email);

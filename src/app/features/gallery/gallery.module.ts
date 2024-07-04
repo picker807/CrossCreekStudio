@@ -29,6 +29,9 @@ import { MatTabsModule } from '@angular/material/tabs';
         GalleryRoutingModule,
         SharedModule,
         MatTabsModule
+    ],
+    exports: [
+        GalleryListComponent
     ]
 })
 export class GalleryModule { }

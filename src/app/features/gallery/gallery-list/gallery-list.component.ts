@@ -1,10 +1,11 @@
-import { Component, ElementRef, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, PLATFORM_ID, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Gallery, GalleryCategory } from '../gallery.model';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/authentication/auth.service';
 import { GalleryService } from '../gallery.service';
 import { isPlatformBrowser } from '@angular/common';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'cc-gallery-list',
@@ -12,6 +13,11 @@ import { isPlatformBrowser } from '@angular/common';
   styleUrl: './gallery-list.component.css'
 })
 export class GalleryListComponent implements OnInit, OnDestroy{
+  //@Input() galleries: Gallery[];
+  @Input() cdkDropListConnectedTo: string[] = [];
+  @Output() itemDropped = new EventEmitter<CdkDragDrop<Gallery[]>>();
+  @Output() galleriesLoaded = new EventEmitter<Gallery[]>();
+  
   isAdmin = false; // This should come from an authentication service
   galleryList: Gallery[] = [];
   term: string;
@@ -45,13 +51,14 @@ export class GalleryListComponent implements OnInit, OnDestroy{
 
     this.subscription = this.galleryService.galleryList$.subscribe((galleryList: Gallery[]) => {
       this.galleryList = galleryList;
-      //this.groupItemsByCategory();
+      this.galleriesLoaded.emit(this.galleryList);
     });
+    this.galleryService.loadAllData().subscribe();
   }
 
-
-
- 
+  onDrop(event: CdkDragDrop<Gallery[]>) {
+    this.itemDropped.emit(event);
+  }
 
   onTabChange(event: any): void {
     const selectedCategory = this.categories[event.index];
@@ -81,7 +88,9 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   } */
  
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   search (value: string) {

@@ -105,7 +105,7 @@ router.post('/:id/register', async (req, res) => {
 
 // Update event using findOneAndUpdate
 router.put('/:id', async (req, res) => {
-  console.log("starting event put router: ", req.body);
+  //console.log("starting event put router: ", req.body);
   try {
     const existingEvent = await Event.findOne({ id: req.params.id.trim() });
 
@@ -145,7 +145,7 @@ router.put('/:id', async (req, res) => {
         .then(images => images.map(image => image._id));
     }
 
-    console.log("Processed request body: ", req.body);
+    //console.log("Processed request body: ", req.body);
     const updatedEvent = await Event.findOneAndUpdate(
       { id: req.params.id.trim() },
       req.body,
@@ -154,7 +154,7 @@ router.put('/:id', async (req, res) => {
 
     if (!updatedEvent) return res.status(404).json({ message: 'Event not found' });
 
-    console.log("updated event: ", updatedEvent);
+    //console.log("updated event: ", updatedEvent);
 
     res.json(updatedEvent);
   } catch (err) {

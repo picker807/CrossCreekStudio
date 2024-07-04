@@ -53,6 +53,7 @@ export class RegistrationService {
         if (user) {
           user.firstName = newUser.firstName;
           user.lastName = newUser.lastName;
+          user.phone = newUser.phone;
           return this.http.put<User>(`${this.apiUrl}/${user.id}`, user).pipe(
             tap(updatedUser => {
               //console.log('User updated successfully:', updatedUser);

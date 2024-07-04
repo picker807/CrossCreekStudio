@@ -72,7 +72,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       images: this.fb.array([])
     });
 
-    this.editForm.markAllAsTouched();
+    //this.editForm.markAllAsTouched();
 
     this.newAttendeeForm = this.fb.group({
       id: [''],
@@ -113,6 +113,10 @@ export class EventEditComponent implements OnInit, OnDestroy {
         const eventDate = new Date(val);
         this.showModifyEvent = eventDate.getTime() >= this.currentDate.getTime();
       });
+  }
+
+  onGalleriesLoaded(galleries: Gallery[]): void {
+    this.galleries = galleries;
   }
 
   ngOnDestroy(): void {

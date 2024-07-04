@@ -11,8 +11,12 @@
     <ng-container *ngIf="categoryItems[selectedCategory]">
       <div class="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 mt-4 border-l-4 border-green-500">
         <h1 class="text-3xl font-bold text-gray-800">{{ selectedCategory }}</h1>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div *ngFor="let item of categoryItems[selectedCategory]">
+        <div cdkDropList 
+             [cdkDropListData]="categoryItems[selectedCategory]"
+             [cdkDropListConnectedTo]="cdkDropListConnectedTo"
+             (cdkDropListDropped)="onDrop($event)"
+             class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div *ngFor="let item of categoryItems[selectedCategory]" cdkDrag>
             <cc-gallery-item [item]="item"></cc-gallery-item>
           </div>
         </div>
