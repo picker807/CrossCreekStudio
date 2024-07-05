@@ -12,6 +12,8 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { Gallery } from '../../gallery/gallery.model';
 import { GalleryService } from '../../gallery/gallery.service';
 import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
+import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'cc-event-edit',
@@ -29,7 +31,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
   originalEvent: Event;
   eventSubscription: Subscription;
   gallerySubscription: Subscription;
-  currentDate: Date = new Date();
+  //currentDate: Date = new Date();
   showModifyEvent: boolean = true;
 
   //tests = [{imageUrl: "this image", name: "thing 1"}, {imageUrl: "other image", name: "thing 2"}];
@@ -41,7 +43,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private phoneFormatPipe: PhoneFormatPipe){
+    private phoneFormatPipe: PhoneFormatPipe,
+    private dialog: MatDialog,){
       
     }
 
@@ -107,12 +110,17 @@ export class EventEditComponent implements OnInit, OnDestroy {
       //this.event = JSON.parse(JSON.stringify(this.originalEvent));
     });
 
-    this.editForm.get('date').valueChanges
-      .pipe(startWith(this.editForm.get('date').value))
-      .subscribe(val => {
-        const eventDate = new Date(val);
-        this.showModifyEvent = eventDate.getTime() >= this.currentDate.getTime();
-      });
+    this.updateShowModifyEvent();
+    /* this.editForm.get('date').valueChanges
+    .pipe(startWith(this.editForm.get('date').value))
+    .subscribe(val => {
+      const eventDate = new Date(val);
+      const now = new Date(); 
+      console.log("event Date: ", eventDate);
+      console.log("Now: ", now);
+      // Check if the event is today or in the future
+      this.showModifyEvent = eventDate >= now || (eventDate.toDateString() === now.toDateString() && eventDate.getTime() >= now.getTime());
+    }); */
   }
 
   onGalleriesLoaded(galleries: Gallery[]): void {
@@ -287,6 +295,41 @@ export class EventEditComponent implements OnInit, OnDestroy {
       const control = this.editForm.get(key);
       console.log(`${key} valid:`, control.valid, 'errors:', control.errors);
     });
+  }
+
+  deleteEvent(): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this item?'
+      }
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.eventService.deleteEvent(this.originalEvent.id).subscribe(() => {
+          this.router.navigate(['/gallery']);
+        });
+      }
+    });
+  }
+
+  updateShowModifyEvent(): void {
+    const dateValue = this.editForm.get('date').value;
+    const timeValue = this.editForm.get('time').value;
+
+    if (dateValue && timeValue) {
+      const [hours, minutes] = timeValue.split(':');
+      const eventDateTime = new Date(dateValue);
+      eventDateTime.setHours(parseInt(hours, 10));
+      eventDateTime.setMinutes(parseInt(minutes, 10));
+
+      const now = new Date(); // Get the current date and time
+      this.showModifyEvent = eventDateTime >= now;
+    } else {
+      this.showModifyEvent = false;
+    }
   }
 }
 

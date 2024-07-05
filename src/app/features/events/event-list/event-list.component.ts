@@ -38,9 +38,11 @@ export class EventListComponent implements OnInit, OnDestroy{
   }
 
   filterFutureEvents(): void {
+    const now = new Date();
+
     this.futureEvents = this.events.filter(event => {
       const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
-      return eventDate.getTime() >= this.currentDate.getTime();
+      return eventDate >= now || (eventDate.toDateString() === now.toDateString() && eventDate.getTime() >= now.getTime());
     });
     
   }
