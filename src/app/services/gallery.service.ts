@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Observable, throwError, of } from 'rxjs';
-import { Gallery, GalleryCategory } from './gallery.model';
-import data from '../../../../MOCK_GALLERY_DATA.json';
+import { Gallery, GalleryCategory } from '../models/gallery.model';
+//import data from '../../../../MOCK_GALLERY_DATA.json';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, map } from 'rxjs/operators';
 

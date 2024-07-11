@@ -1,11 +1,13 @@
 import { Component, Input } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventService } from '../events/event.service';
-import { Event } from '../events/event.model';
-import { RegistrationService } from './registration.service';
-import { User } from '../user.model';
+import { EventService } from '../../services/event.service';
+import { Event } from '../../models/event.model';
+import { RegistrationService } from '../../services/registration.service';
+import { User } from '../../models/user.model';
 import { PhoneFormatPipe } from '../../core/shared/phone-format.pipe';
+import { CheckoutService } from '../../services/checkout.service';
+import { from, mergeMap } from 'rxjs';
 
 @Component({
   selector: 'cc-registration',
@@ -15,11 +17,14 @@ import { PhoneFormatPipe } from '../../core/shared/phone-format.pipe';
 })
 export class RegistrationComponent {
   registrationForm: FormGroup;
+  numAttendeesControl: FormControl;
   event: Event;
   isPaid: boolean = false;
   isUserInEvent: boolean = false;
   showPaymentButton: boolean = false;
   newUser: User;
+  previewEnrollees: any[] = [];
+  validationErrors: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -27,91 +32,211 @@ export class RegistrationComponent {
     private route: ActivatedRoute,
     private eventService: EventService,
     private registrationService: RegistrationService,
-    private phoneFormatPipe: PhoneFormatPipe) {}
+    private phoneFormatPipe: PhoneFormatPipe,
+    private checkoutService: CheckoutService) {}
 
-    ngOnInit(): void {
-      // Initialize the form
-      this.initializeForm();
-    
-      // Handle route params
-      this.route.params.subscribe(params => {
-        const id = params['id'];
-        if (id) {
-          this.loadEvent(id);
-        }
-      });
+  ngOnInit(): void {
+    // Initialize the form
+    this.initializeForm();
+    this.addAttendee();
 
-      this.registrationForm.get('phone').valueChanges.subscribe(value => {
-        const formatted = this.phoneFormatPipe.transform(value);
-        this.registrationForm.get('phone').setValue(formatted, { emitEvent: false });
-      });
-    }
-    
-    private initializeForm(): void {
-      this.registrationForm = this.fb.group({
-        firstName: ['', Validators.required],
-        lastName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        confirmEmail: ['', [Validators.required, Validators.email]],
-        phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
-      }, { validators: this.emailMatchValidator });
-    }
-    
-    private loadEvent(id: string): void {
-      this.eventService.getEventById(id).subscribe(event => {
-        this.event = event;
-        // You can update the form with event data here if needed
-      });
-    }
-
-    emailMatchValidator(form: FormGroup) {
-      const email = form.get('email');
-      const confirmEmail = form.get('confirmEmail');
-      if (email && confirmEmail && email.value !== confirmEmail.value) {
-        confirmEmail.setErrors({ emailMismatch: true });
-      } else {
-        confirmEmail.setErrors(null);
-      }
-    }
-
-  onSubmit(): void {
-    //('Registration data:', this.registrationForm.value);
-    if (this.registrationForm.valid) {
-      const value = { ...this.registrationForm.value };
-      delete value.confirmEmail;
-      const rawPhoneNumber = value.phone.replace(/\D/g, '');
-
-      this.newUser = {
-        id: '',
-        ...value,
-        phone: rawPhoneNumber
-      }
-      console.log("New User: ", this.newUser)
-      
-      //this.registrationService.addUser(newUser, this.event);
-      this.checkUserInEvent(this.newUser.email);
-    }
-  }
-
-  checkUserInEvent(email: string): void {
-    this.eventService.getEventUsers(this.event.id).subscribe(eventUsers => {
-      
-        //console.log(eventUsers);
-      
-      this.isUserInEvent = eventUsers.some(user => user.email === email);
-        //console.log("Is In Event?? ", this.isUserInEvent)
-      
-      this.showPaymentButton = true;
+    this.numAttendeesControl.valueChanges.subscribe(value => {
+      this.updateAttendees(value);
     });
+  
+    // Handle route params
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        this.loadEvent(id);
+      }
+    });
+
+    this.applyPhoneFormatPipe();
+
+    /*
+    this.registrationForm.get('phone').valueChanges.subscribe(value => {
+      const formatted = this.phoneFormatPipe.transform(value);
+      this.registrationForm.get('phone').setValue(formatted, { emitEvent: false });
+    });
+    */
   }
   
+  private initializeForm(): void {
+    this.numAttendeesControl = new FormControl(1, [Validators.required, Validators.min(1)]);
+    this.registrationForm = this.fb.group({
+      /* 
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      confirmEmail: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]],
+      */
+      attendees: this.fb.array([])
+    } /*, { validators: this.emailMatchValidator } */); 
+  }
 
-  makePayment(): void {
+  get attendeesArray() {
+    return this.registrationForm.get('attendees') as FormArray;
+  }
+
+  applyPhoneFormatPipe() {
+    this.attendeesArray.controls.forEach((attendeeForm: FormGroup) => {
+      this.applyPhoneFormatPipeToControl(attendeeForm.get('phone')as FormControl);
+    });
+  }
+
+  applyPhoneFormatPipeToControl(control: FormControl) {
+    control.valueChanges.subscribe(value => {
+      const formatted = this.phoneFormatPipe.transform(value);
+      control.setValue(formatted, { emitEvent: false });
+    });
+  }
+
+  createAttendeeForm(): FormGroup {
+    return this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      confirmEmail: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required]
+    }, { validators: this.emailMatchValidator });
+  }
+
+  addAttendee() {
+    const attendeeForm = this.createAttendeeForm();
+    this.attendeesArray.push(attendeeForm);
+    this.applyPhoneFormatPipeToControl(attendeeForm.get('phone') as FormControl);
+  }
+
+  removeAttendee(index: number) {
+    this.attendeesArray.removeAt(index);
+  }
+
+  updateAttendees(numAttendees: number) {
+    const currentAttendees = this.attendeesArray.length;
+    if (numAttendees > currentAttendees) {
+      for (let i = currentAttendees; i < numAttendees; i++) {
+        this.addAttendee();
+      }
+    } else if (numAttendees < currentAttendees) {
+      for (let i = currentAttendees - 1; i >= numAttendees; i--) {
+        this.removeAttendee(i);
+      }
+    }
+  }
+
+  incrementAttendees() {
+    this.numAttendeesControl.setValue(this.numAttendeesControl.value + 1);
+  }
+
+  decrementAttendees() {
+    if (this.numAttendeesControl.value > 1) {
+      this.numAttendeesControl.setValue(this.numAttendeesControl.value - 1);
+    }
+  }
+  
+  private loadEvent(id: string): void {
+    this.eventService.getEventById(id).subscribe(event => {
+      this.event = event;
+    });
+  }
+
+  emailMatchValidator(form: FormGroup) {
+    const email = form.get('email');
+    const confirmEmail = form.get('confirmEmail');
+    if (email && confirmEmail && email.value !== confirmEmail.value) {
+      confirmEmail.setErrors({ emailMismatch: true });
+    } else {
+      confirmEmail.setErrors(null);
+    }
+  }
+
+  getTotalPrice(): number {
+    return this.event ? this.event.price * this.numAttendeesControl.value : 0;
+  }
+
+  previewCart() {
+    this.previewEnrollees = this.attendeesArray.value.map((attendee: any) => ({
+      ...attendee,
+      compositeKey: `${attendee.firstName.toLowerCase()}_${attendee.lastName.toLowerCase()}_${attendee.email.toLowerCase()}`
+    }));
+    this.validateEnrollees();
+  }
+
+  validateEnrollees() {
+    this.validationErrors = [];
+    const validatedEnrollees: any[] = [];
+
+    from(this.previewEnrollees).pipe(
+      mergeMap(enrollee => 
+        this.registrationService.checkUserInEvent(enrollee, this.event).pipe(
+          mergeMap(isInEvent => {
+            if (isInEvent) {
+              this.validationErrors.push(`${enrollee.firstName} ${enrollee.lastName} is already registered for this event.`);
+              return [];
+            } else {
+              validatedEnrollees.push(enrollee);
+              return [enrollee];
+            }
+          })
+        )
+      )
+    ).subscribe({
+      next: () => {
+        this.previewEnrollees = validatedEnrollees;
+      },
+      error: (err) => {
+        console.error('Error validating enrollees:', err);
+      }
+    });
+  }
+
+  onSubmit(): void {
+
+    if (this.registrationForm.valid) {
+      this.previewCart();
+
+      /*
+      const attendees = this.registrationForm.value.attendees.map(attendee => {
+        const compositeKey = `${attendee.firstName.toLowerCase()}_${attendee.lastName.toLowerCase()}_${attendee.email.toLowerCase()}`;
+        return {
+          ...attendee,
+          compositeKey,
+          phone: attendee.phone.replace(/\D/g, '')
+        };
+      });
+
+      from(attendees).pipe(
+        mergeMap(attendee => this.registrationService.addUserToCart(attendee, this.event))
+      ).subscribe({
+        next: () => {
+          console.log('All attendees added to cart successfully');
+          // Navigate to cart or show success message
+        },
+        error: (err) => {
+          console.error('Error adding attendees to cart:', err);
+          // Show error message to user
+        }
+      });
+      */
+    }
+  } 
+  
+
+  addToCart() {
+    this.checkoutService.addToCart(this.event, this.previewEnrollees);
+    this.previewEnrollees = [];
+    this.registrationForm.reset();
+    // Show success message or navigate to cart
+  }
+
+  /* makePayment(): void {
     this.isPaid = true; //This will be set using a Paypal service
     if (this.isPaid) {
     this.registrationService.addUser(this.newUser, this.event).subscribe(() => {
       this.router.navigate(['/events']);
     });
     }
-  }
+  } */
 }

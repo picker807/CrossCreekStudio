@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { User } from '../user.model';
-import { Event } from '../events/event.model';
-import { EventService } from '../events/event.service';
+import { User } from '../models/user.model';
+import { Event } from '../models/event.model';
+import { EventService } from '../services/event.service';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
@@ -32,7 +32,19 @@ export class RegistrationService {
     });
   }
 
-  addUser(newUser: User, event: Event): Observable<void> {
+  checkUserInEvent(user: User, event: Event): Observable<boolean> {
+    return this.eventService.getEventById(event.id).pipe(
+      map(fetchedEvent => {
+        return fetchedEvent.attendees.some(attendee => attendee.compositeKey === user.compositeKey);
+      }),
+      catchError(err => {
+        console.error('Error checking user in event:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /* addUser(newUser: User, event: Event): Observable<void> {
     return this.updateUser(newUser).pipe(
       switchMap(user => this.eventService.addUserToEvent(user, event.id)),
       tap({
@@ -41,9 +53,9 @@ export class RegistrationService {
       }),
       map(() => {})
     );
-  }
+  } */
 
-  private updateUser(newUser: User): Observable<User> {
+  /* private updateUser(newUser: User): Observable<User> {
     //console.log(newUser);
     return this.users$.pipe(
       take(1),
@@ -80,7 +92,7 @@ export class RegistrationService {
         }
       })
     );
-  }
+  } */
 }
 
 

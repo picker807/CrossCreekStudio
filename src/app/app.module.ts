@@ -13,6 +13,9 @@ import { EffectsModule } from '@ngrx/effects';
 import { NgxFileDropModule } from '@bugsplat/ngx-file-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
+import { CartComponent } from './features/checkout/cart/cart.component';
+import { CheckoutComponent } from './features/checkout/checkout/checkout.component';
+
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -22,7 +25,10 @@ export function tokenGetter() {
 @NgModule({
   declarations: [
     AppComponent,
-    RegistrationComponent
+    RegistrationComponent,
+    CartComponent,
+    CheckoutComponent
+    
  
   ],
   imports: [

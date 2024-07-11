@@ -14,6 +14,14 @@
         <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
         <li><a routerLink="/admin" [class.active]="isActive('/admin')" class="hover:text-gray-300">Admin</a></li>
         <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
+        <li class="relative">
+          <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300">
+            <img src="../../assets/images/cart.png" alt="Cart" class="h-6 w-6">
+            <span *ngIf="cartItemCount > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {{cartItemCount}}
+            </span>
+          </a>
+        </li>
       </ul>
     </nav>
   </header> 

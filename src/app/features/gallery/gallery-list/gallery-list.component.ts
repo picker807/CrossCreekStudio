@@ -1,9 +1,9 @@
 import { Component, ElementRef, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, PLATFORM_ID, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Gallery, GalleryCategory } from '../gallery.model';
+import { Gallery, GalleryCategory } from '../../../models/gallery.model';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/authentication/auth.service';
-import { GalleryService } from '../gallery.service';
+import { GalleryService } from '../../../services/gallery.service';
 import { isPlatformBrowser } from '@angular/common';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 

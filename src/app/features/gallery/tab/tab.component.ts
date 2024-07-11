@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Gallery } from '../gallery.model';
+import { Gallery } from '../../../models/gallery.model';
 
 @Component({
   selector: 'cc-tab',

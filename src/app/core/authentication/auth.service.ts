@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
-import { Admin } from '../../features/admin/admin.model';
+import { Admin } from '../../models/admin.model';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({

@@ -29,7 +29,8 @@ router.post('/', async (req, res, next) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      phone: req.body.phone
+      phone: req.body.phone,
+      compositeKey: req.body.compositeKey
     });
 
     const createdUser = await user.save();
@@ -45,22 +46,25 @@ router.post('/', async (req, res, next) => {
 });
 
 router.put('/:id', (req, res, next) => {
-  //console.log(req.params.id);
+  console.log('PUT request received');
+  console.log(req.body);
   User.findOne({ id: req.params.id })
     .then(user => {
-      //console.log("user fetched in user route: ", user);
+      console.log("user fetched in user route: ", user);
       if (!user) {
         return res.status(404).json({
           message: 'User not found'
         });
       }
 
+      Object.assign(user, req.body);
       //user.id = maxUserId;
-      user.firstName = req.body.firstName;
-      user.lastName = req.body.lastName;
+      //user.firstName = req.body.firstName;
+      //user.lastName = req.body.lastName;
       //user.email = req.body.email;
 
       return user.save().then(updatedUser => {
+        console.log("user saved", updatedUser)
         res.status(200).json(updatedUser);
       });
     })

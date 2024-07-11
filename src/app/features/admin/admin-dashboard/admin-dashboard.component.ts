@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RegistrationService } from '../../registration/registration.service';
-import { AdminService } from '../admin.service';
-import { User } from '../../user.model';
-import { Admin } from '../admin.model';
-import { Event } from '../../events/event.model';
-import { EventService } from '../../events/event.service';
+import { RegistrationService } from '../../../services/registration.service';
+import { AdminService } from '../../../services/admin.service';
+import { User } from '../../../models/user.model';
+import { Admin } from '../../../models/admin.model';
+import { Event } from '../../../models/event.model';
+import { EventService } from '../../../services/event.service';
 import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 import { Router } from '@angular/router';
 

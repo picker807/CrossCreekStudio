@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Gallery, GalleryCategory } from '../gallery.model';
-import { GalleryService } from '../gallery.service';
+import { Gallery, GalleryCategory } from '../../../models/gallery.model';
+import { GalleryService } from '../../../services/gallery.service';
 import { Subscription } from 'rxjs';
 
 @Component({

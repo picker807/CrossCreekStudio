@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Event } from '../event.model';
+import { Event } from '../../../models/event.model';
 import { Subscription } from 'rxjs';
-import { EventService } from '../event.service';
+import { EventService } from '../../../services/event.service';
 import { AuthService } from '../../../core/authentication/auth.service';
 import { StringFilterPipe } from '../../../core/shared/string-filter.pipe';
 

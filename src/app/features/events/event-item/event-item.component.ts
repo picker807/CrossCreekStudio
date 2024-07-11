@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Event } from '../event.model';
+import { Event } from '../../../models/event.model';
 
 @Component({
   selector: 'cc-event-item',

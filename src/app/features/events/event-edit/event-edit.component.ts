@@ -1,16 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../../../core/authentication/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventService } from '../event.service';
+import { EventService } from '../../../services/event.service';
 import { FormGroup, FormBuilder, FormArray, FormControl, Validators } from '@angular/forms';
 //import { MatDatepickerModule } from '@angular/material/datepicker';
-import { User } from '../../user.model';
-import { Event } from '../event.model';
+import { User } from '../../../models/user.model';
+import { Event } from '../../../models/event.model';
 import { first, startWith } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Gallery } from '../../gallery/gallery.model';
-import { GalleryService } from '../../gallery/gallery.service';
+import { Gallery } from '../../../models/gallery.model';
+import { GalleryService } from '../../../services/gallery.service';
 import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -200,7 +200,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
       const processedAttendees = value.attendees.map(attendee => ({
         ...attendee,
-        phone: attendee.phone.replace(/\D/g, '') // Remove non-digit characters
+        phone: attendee.phone.replace(/\D/g, ''), // Remove non-digit characters
+        compositeKey: `${attendee.firstName.toLowerCase()}_${attendee.lastName.toLowerCase()}_${attendee.email.toLowerCase()}` 
       }));
 
       const newEvent: Event = {

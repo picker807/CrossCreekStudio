@@ -1,5 +1,5 @@
 import { Component, Inject, Input, PLATFORM_ID } from '@angular/core';
-import { Gallery } from '../gallery.model';
+import { Gallery } from '../../../models/gallery.model';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 

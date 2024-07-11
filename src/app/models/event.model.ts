@@ -1,5 +1,5 @@
-import { Gallery } from "../gallery/gallery.model";
-import { User } from "../user.model";
+import { Gallery } from "./gallery.model";
+import { User } from "./user.model";
 
 export class Event {
   constructor(

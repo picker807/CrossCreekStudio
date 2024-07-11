@@ -11,46 +11,80 @@
   <p class="text-lg"><strong>Location:</strong> {{ event.location }}</p>
   <p class="text-lg mb-4"><strong>Description:</strong> {{ event.description }}</p>
 
-  <div class="mt-8">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">1. Provide your information</h2>
-    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-lg shadow-md">
-      <div class="mb-4">
-        <label for="firstName" class="block mb-2 text-sm font-medium text-gray-700">First Name</label>
-        <input id="firstName" formControlName="firstName" placeholder="First Name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+    <!-- Developer comment: Fill in all attendee information -->
+    <div class="flex justify-between items-center mb-4">
+      <button type="submit" [disabled]="!registrationForm.valid" class="px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Preview Order</button>
+      <div class="text-lg font-bold text-gray-800">
+        Event Price: ${{ event?.price }}<br>
+        Number of Attendees: {{ numAttendeesControl.value }}<br>
+        Total Price: ${{ getTotalPrice() }}
       </div>
-      <div class="mb-4">
-        <label for="lastName" class="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
-        <input id="lastName" formControlName="lastName" placeholder="Last Name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+      <div *ngIf="previewEnrollees.length > 0">
+        <h3>Cart Preview</h3>
+        <ul>
+          <li *ngFor="let enrollee of previewEnrollees">
+            {{ enrollee.firstName }} {{ enrollee.lastName }} ({{ enrollee.email }})
+          </li>
+        </ul>
+        <div *ngIf="validationErrors.length > 0">
+          <h4>Validation Errors:</h4>
+          <ul>
+            <li *ngFor="let error of validationErrors" class="text-danger">{{ error }}</li>
+          </ul>
+        </div>
+        <button (click)="addToCart()">Add to Cart</button>
       </div>
-      <div class="mb-4">
-        <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email</label>
-        <input id="email" type="email" formControlName="email" placeholder="Email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-        <div *ngIf="registrationForm.get('email').invalid && (registrationForm.get('email').dirty || registrationForm.get('email').touched)" class="text-red-500 text-sm mt-1">
-          <div *ngIf="registrationForm.get('email').errors?.required">Email is required.</div>
-          <div *ngIf="registrationForm.get('email').errors?.email">Please enter a valid email address.</div>
+    </div>
+  
+    <div>
+      <label for="numAttendees">Number of Attendees:</label>
+      <div class="flex items-center">
+        <button type="button" (click)="decrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-l-md">-</button>
+        <input type="number" id="numAttendees" [formControl]="numAttendeesControl" min="1" class="w-20 px-3 py-2 border-t border-b border-gray-300 text-center">
+        <button type="button" (click)="incrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-r-md">+</button>
+      </div>
+      <div *ngIf="!registrationForm.valid" class="text-red-500 text-sm mt-1">
+        Please complete all attendee information.
+      </div>
+    </div>
+  
+    <div formArrayName="attendees">
+      <div *ngFor="let attendee of attendeesArray.controls; let i = index" [formGroupName]="i" class="mb-4 p-4 border border-gray-300 rounded-md">
+        <h3 class="text-xl font-bold mb-2">Attendee {{ i + 1 }}</h3>
+        <div class="mb-4">
+          <label [attr.for]="'firstName' + i" class="block mb-2 text-sm font-medium text-gray-700">First Name</label>
+          <input [id]="'firstName' + i" type="text" formControlName="firstName" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div class="mb-4">
+          <label [attr.for]="'lastName' + i" class="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
+          <input [id]="'lastName' + i" type="text" formControlName="lastName" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div class="mb-4">
+          <label [attr.for]="'email' + i" class="block mb-2 text-sm font-medium text-gray-700">Email</label>
+          <input [id]="'email' + i" type="email" formControlName="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div class="mb-4">
+          <label [attr.for]="'confirmEmail' + i" class="block mb-2 text-sm font-medium text-gray-700">Confirm Email</label>
+          <input [id]="'confirmEmail' + i" type="email" formControlName="confirmEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <div *ngIf="attendee.get('confirmEmail').invalid && (attendee.get('confirmEmail').dirty || attendee.get('confirmEmail').touched)" class="text-red-500 text-sm mt-1">
+            <div *ngIf="attendee.get('confirmEmail').errors?.required">Confirm Email is required.</div>
+            <div *ngIf="attendee.get('confirmEmail').errors?.email">Please enter a valid email address.</div>
+            <div *ngIf="attendee.get('confirmEmail').errors?.emailMismatch">Emails do not match.</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label [attr.for]="'phone' + i" class="block mb-2 text-sm font-medium text-gray-700">Phone</label>
+          <input [id]="'phone' + i" type="tel" formControlName="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
       </div>
-      
-      <div class="mb-4">
-        <label for="confirmEmail" class="block mb-2 text-sm font-medium text-gray-700">Confirm Email</label>
-        <input id="confirmEmail" type="email" formControlName="confirmEmail" placeholder="Confirm Email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-        <div *ngIf="registrationForm.get('confirmEmail').invalid && (registrationForm.get('confirmEmail').dirty || registrationForm.get('confirmEmail').touched)" class="text-red-500 text-sm mt-1">
-          <div *ngIf="registrationForm.get('confirmEmail').errors?.required">Confirm Email is required.</div>
-          <div *ngIf="registrationForm.get('confirmEmail').errors?.email">Please enter a valid email address.</div>
-          <div *ngIf="registrationForm.get('confirmEmail').errors?.emailMismatch">Emails do not match.</div>
-        </div>
-      </div>
-      <div>
-        <label for="phone" class="block mb-2 text-sm font-medium text-gray-700">Phone:</label>
-        <input type="tel" id="phone" formControlName="phone" placeholder="Phone" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-      </div>
-      <button type="submit" [disabled]="!registrationForm.valid" class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Register</button>
-    </form>
-  </div>
+    </div>
+  </form>
+  
 
   <div *ngIf="showPaymentButton" class="mt-8">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">2. Payment</h2>
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">2. Add to Cart</h2>
     <p *ngIf="isUserInEvent" class="text-center text-lg text-gray-700">You are already part of the event. No payment required.</p>
-    <button (click)="makePayment()" [disabled]="isUserInEvent" class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Pay Now</button>
+    <button (click)="addToCart()" [disabled]="isUserInEvent" class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Pay Now</button>
   </div>
 </div>

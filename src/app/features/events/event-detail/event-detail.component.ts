@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Event } from '../event.model';
+import { Event } from '../../../models/event.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventService } from '../event.service';
+import { EventService } from '../../../services/event.service';
 import { AuthService } from '../../../core/authentication/auth.service';
 
 

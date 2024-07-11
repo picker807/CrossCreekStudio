@@ -71,7 +71,7 @@ router.post('/', async (req, res) => {
 router.post('/:id/register', async (req, res) => {
   try {
     // Check if the user already exists
-    let user = await User.findOne({ email: req.body.email });
+    let user = await User.findOne({ compositeKey: req.body.compositeKey });
 
     if (!user) {
       // Create a new user
@@ -79,15 +79,16 @@ router.post('/:id/register', async (req, res) => {
         id: req.body.id,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        email: req.body.email
+        email: req.body.email,
+        compositeKey: req.body.compositeKey
       });
       await user.save();
-    } else {
+    } /* else {
       // Update the existing user
       user.firstName = req.body.firstName;
       user.lastName = req.body.lastName;
       await user.save();
-    }
+    } */
 
     // Add the user to the event attendees
     const event = await Event.findById(req.params.id);
@@ -116,9 +117,9 @@ router.put('/:id', async (req, res) => {
     // Convert attendees to ObjectIds
     if (req.body.attendees) {
       const processedAttendees = await Promise.all(req.body.attendees.map(async (attendee) => {
-        if (attendee.email) {
-          // Try to find the user by email
-          let user = await User.findOne({ email: attendee.email });
+        if (attendee.compositeKey) {
+          // Try to find the user
+          let user = await User.findOne({ compositeKey: req.body.compositeKey });
           if (!user) {
             // If user doesn't exist, create a new one
             user = new User({
@@ -126,7 +127,8 @@ router.put('/:id', async (req, res) => {
               firstName: attendee.firstName,
               lastName: attendee.lastName,
               email: attendee.email,
-              phone: attendee.phone
+              phone: attendee.phone,
+              compositeKey: req.body.compositeKey
             });
             await user.save();
           }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { GalleryService } from '../gallery.service';
-import { Gallery, GalleryCategory } from '../gallery.model';
+import { GalleryService } from '../../../services/gallery.service';
+import { Gallery, GalleryCategory } from '../../../models/gallery.model';
 
 @Component({
   selector: 'cc-tabs',

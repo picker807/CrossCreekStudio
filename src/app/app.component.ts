@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from './core/authentication/auth.service';
 import { Router } from '@angular/router';
+import { CheckoutService } from './services/checkout.service';
 
 @Component({
   selector: 'cc-root',
@@ -10,10 +11,12 @@ import { Router } from '@angular/router';
 export class AppComponent {
   title = 'Cross Creek Creates';
   isAdmin: boolean = false;
+  cartItemCount: number = 0;
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private checkoutService: CheckoutService
   ) {}
 
   isActive(route: string): boolean {
@@ -23,6 +26,10 @@ export class AppComponent {
   ngOnInit(): void {
     this.authService.isAdmin$.subscribe(isAdmin => {
       this.isAdmin = isAdmin;
+    });
+
+    this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
+      this.cartItemCount = cartList.length;
     });
   }
 

@@ -1,8 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Event } from './event.model';
+import { Event } from '../models/event.model';
 import { BehaviorSubject, Observable, Subject, catchError, of, tap, throwError, map, take, switchMap } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { User } from '../user.model';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -130,7 +130,7 @@ export class EventService {
       switchMap(event => {
         if (event) {
           //console.log("Event in addUsertoEvent: ", event);
-          const existingUserIndex = event.attendees.findIndex(u => u.email === user.email);
+          const existingUserIndex = event.attendees.findIndex(u => u.compositeKey === user.compositeKey);
           if (existingUserIndex === -1) {
             event.attendees.push(user);
           } else {

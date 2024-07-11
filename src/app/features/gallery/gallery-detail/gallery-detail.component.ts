@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Gallery } from '../gallery.model';
-import { GalleryService } from '../gallery.service';
+import { Gallery } from '../../../models/gallery.model';
+import { GalleryService } from '../../../services/gallery.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '../../../core/authentication/auth.service';
 import { Subscription, filter } from 'rxjs';
