@@ -18,6 +18,7 @@ const adminRoutes = require('./server/routes/admin');
 const eventRoutes = require('./server/routes/events');
 const galleryRoutes = require('./server/routes/galleries');
 const userRoutes = require('./server/routes/users');
+const emailRoutes = require('./server/routes/email');
 
 
 var app = express(); // create an instance of express
@@ -60,6 +61,7 @@ app.use('/users', userRoutes);
 app.get('/api/paypal-client-id', (req, res) => {
   res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
 });
+app.use('/api/email', emailRoutes);
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {

@@ -7,6 +7,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { PaypalService } from '../../../services/paypal.service';
 import { User } from '../../../models/user.model';
 import { OrderDetails, PayPalOrderDetails } from '../../../models/interfaces';
+import { EmailService } from '../../../services/email.service';
+import { MessageService } from '../../../services/message.service';
 
 declare var paypal: any;
 
@@ -39,6 +41,8 @@ export class CartComponent implements OnInit {
     private eventService: EventService,
     private router: Router,
     private paypalService: PaypalService,
+    private emailService: EmailService,
+    private messageService: MessageService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -89,54 +93,23 @@ export class CartComponent implements OnInit {
           this.showPaypalButton = true;
         } else {
           console.log("Some cart items are invalid");
+          this.messageService.showMessage({
+            text: 'Some cart items are invalid. Please review your cart.',
+            type: 'warning',
+            duration: 5000
+          });
         }
       },
       error: (error) => {
         console.error('Verification failed', error);
+        this.messageService.showMessage({
+          text: 'Cart verification failed. Please try again.',
+          type: 'error',
+          duration: 5000
+        });
       }
     });
   }
-
-
-
-
-
-
-
-    /* const verificationRequests = this.cartItems.map(item => 
-      this.eventService.getEventById(item.event.id)
-    );
-    console.log("Verification requests created:", verificationRequests.length);
-  
-    from(verificationRequests).pipe(
-      mergeMap(request => request),
-      toArray()
-    ).subscribe({
-      next: (events) => {
-        console.log('Verification events:', events);
-        const isValid = events.every((event, index) => {
-          const cartItem = this.cartItems[index];
-          return event && event.price === cartItem.event.price;
-        });
-  
-        if (isValid) {
-          console.log('Cart is valid. Loading PayPal script...');
-          this.loadPayPalScript();
-          this.showPaypalButton = true;
-        } else {
-          console.log("Cart items not valid");
-          this.verificationError = 'Some events in your cart are no longer available or have changed.';
-        }
-      },
-      error: (error) => {
-        console.error('Verification failed', error);
-        this.verificationError = 'An error occurred while verifying your cart. Please try again.';
-      },
-      complete: () => {
-        console.log("Verification process completed");
-      }
-    }); */
-  
 
   loadPayPalScript(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -184,10 +157,20 @@ export class CartComponent implements OnInit {
                   map((results: EnrolleeResult[]) => {
                     const addedUsers = results.filter(r => r.added).map(r => r.enrollee);
                     console.log(`Added ${addedUsers.length} new users to event ${item.event.id}`);
+
+                    addedUsers.forEach(user => {
+                      this.sendConfirmationEmail(user, item.event);
+                    });
+
                     return addedUsers;
                   }),
                   catchError(error => {
                     console.error(`Error processing enrollees for event ${item.event.id}:`, error);
+                    this.messageService.showMessage({
+                      text: `Error processing enrollees for event ${item.event.name}.`,
+                      type: 'error',
+                      duration: 5000
+                    });
                     return of([]);
                   })
                 );
@@ -221,6 +204,22 @@ export class CartComponent implements OnInit {
         }
       }).render(this.paypalButton.nativeElement);
     }
+  }
+
+  private sendConfirmationEmail(enrollee: User, event: any) {
+    this.emailService.sendConfirmationEmail(enrollee, event.name, event.date).subscribe({
+      next: () => {
+        console.log(`Confirmation email sent to ${enrollee.email}`);
+      },
+      error: (error) => {
+        console.error(`Failed to send confirmation email to ${enrollee.email}`, error);
+        this.messageService.showMessage({
+          text: `Failed to send confirmation email to ${enrollee.email}.`,
+          type: 'error',
+          duration: 5000
+        });
+      }
+    });
   }
   
   ngOnDestroy(): void {

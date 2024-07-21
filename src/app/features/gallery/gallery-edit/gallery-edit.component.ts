@@ -6,6 +6,7 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { Gallery, GalleryCategory } from '../../../models/gallery.model';
 import { GalleryService } from '../../../services/gallery.service';
 import { Subscription } from 'rxjs';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
   selector: 'cc-gallery-edit',
@@ -25,7 +26,8 @@ export class GalleryEditComponent implements OnInit {
     private fb: FormBuilder,
     private galleryService: GalleryService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -87,20 +89,42 @@ export class GalleryEditComponent implements OnInit {
       this.galleryService.updateGalleryItem(this.originalItem, newItem)
       .subscribe({
         next: (updatedItem) => {
+          this.messageService.showMessage({
+            text: 'Item updated successfully.',
+            type: 'success',
+            duration: 5000
+          });
           this.router.navigate(['/gallery/detail', updatedItem.id]);
+          
         },
         error: (error) => {
           console.error('Error updating gallery item:', error);
+          this.messageService.showMessage({
+            text: 'There was a problem when attempting to update this item.',
+            type: 'error',
+            duration: 5000
+          });
         }
       });
     } else {
       this.galleryService.createGalleryItem(newItem)
       .subscribe({
         next: (updatedItem) => {
+          this.messageService.showMessage({
+            text: 'Item created successfully',
+            type: 'success',
+            duration: 5000
+          });
           this.router.navigate(['gallery/detail', updatedItem.id]);
+          
         },
         error: (error) => {
           console.error('Error creating new gallery item', error);
+          this.messageService.showMessage({
+            text: 'There was a problem when attempting to update this item.',
+            type: 'error',
+            duration: 5000
+          });
         }
       });
     }

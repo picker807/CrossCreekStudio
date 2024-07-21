@@ -14,6 +14,7 @@ import { GalleryService } from '../../../services/gallery.service';
 import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
   selector: 'cc-event-edit',
@@ -22,7 +23,7 @@ import { MatDialog } from '@angular/material/dialog';
   providers: [PhoneFormatPipe]
 })
 export class EventEditComponent implements OnInit, OnDestroy {
-  isAdmin: boolean = false;
+  //isAdmin: boolean = false;
   editForm: FormGroup;
   galleryForm: FormGroup;
   galleries: Gallery[] = [];
@@ -40,11 +41,12 @@ export class EventEditComponent implements OnInit, OnDestroy {
   constructor(private fb: FormBuilder,
     private eventService: EventService,
     private galleryService: GalleryService,
-    private authService: AuthService,
+    //private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
     private phoneFormatPipe: PhoneFormatPipe,
-    private dialog: MatDialog,){
+    private dialog: MatDialog,
+    private messageService: MessageService){
       
     }
 
@@ -214,21 +216,40 @@ export class EventEditComponent implements OnInit, OnDestroy {
         newEvent.id = this.originalEvent.id;
         this.eventService.updateEvent(newEvent).subscribe({
           next: (updatedEvent) => {
-            console.log("Event updated successfully: ", updatedEvent)
+            console.log("Event updated successfully: ", updatedEvent);
+            this.messageService.showMessage({
+              text: 'Event updated successfully',
+              type: 'success',
+              duration: 3000
+            });
             this.router.navigate(['/events', updatedEvent.id]);
           },
           error: (err) => {
             console.error('Error updating event:', err);
-            
+            this.messageService.showMessage({
+              text: 'Error updating event. Please try again.',
+              type: 'error',
+              duration: 5000
+            });
           }
         });
       } else {
         this.eventService.createEvent(newEvent).subscribe({
           next: () => {
+            this.messageService.showMessage({
+              text: 'Event created successfully',
+              type: 'success',
+              duration: 3000
+            });
             this.router.navigate(['/events']);
           },
           error: (err) => {
             console.error('Error creating event:', err);
+            this.messageService.showMessage({
+              text: 'Error creating event. Please try again.',
+              type: 'error',
+              duration: 5000
+            });
           }
         });
       }
@@ -259,7 +280,20 @@ export class EventEditComponent implements OnInit, OnDestroy {
   
       this.attendees.push(newAttendee);
       this.newAttendeeForm.reset();
+      this.messageService.showMessage({
+        text: 'Attendee added successfully',
+        type: 'success',
+        duration: 3000
+      });
+    } else {
+      this.messageService.showMessage({
+        text: 'Please fill in all attendee fields correctly.',
+        type: 'warning',
+        duration: 5000
+      });
     }
+  }
+ 
   
   
   
@@ -268,15 +302,25 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
     //const attendeesFormArray = this.editForm.get('attendees') as FormArray;
     //attendeesFormArray.push(this.fb.control(''));
-  }
+  
 
-  removeAttendee(index: string) {
-    this.attendees.removeAt(+index);
-  } 
+    removeAttendee(index: string) {
+      this.attendees.removeAt(+index);
+      this.messageService.showMessage({
+        text: 'Attendee removed',
+        type: 'info',
+        duration: 3000
+      });
+    }
 
-  removeImage(index: string) {
-    this.images.removeAt(+index);
-  }
+    removeImage(index: string) {
+      this.images.removeAt(+index);
+      this.messageService.showMessage({
+        text: 'Image removed',
+        type: 'info',
+        duration: 3000
+      });
+    }
     
   drop(event: CdkDragDrop<Gallery[]>): void {
     if (event.previousContainer !== event.container) {
@@ -286,6 +330,11 @@ export class EventEditComponent implements OnInit, OnDestroy {
         id: [gallery.id, Validators.required],
         imageUrl: [gallery.imageUrl, Validators.required]
       }));
+      this.messageService.showMessage({
+        text: 'Image added to event',
+        type: 'success',
+        duration: 3000
+      });
     }
   }
 
@@ -303,18 +352,34 @@ export class EventEditComponent implements OnInit, OnDestroy {
       width: '300px',
       data: {
         title: 'Confirm Deletion',
-        message: 'Are you sure you want to delete this item?'
+        message: 'Are you sure you want to delete this event?'
       }
     });
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.eventService.deleteEvent(this.originalEvent.id).subscribe(() => {
-          this.router.navigate(['/gallery']);
+        this.eventService.deleteEvent(this.originalEvent.id).subscribe({
+          next: () => {
+            this.messageService.showMessage({
+              text: 'Event deleted successfully',
+              type: 'success',
+              duration: 3000
+            });
+            this.router.navigate(['/events']);
+          },
+          error: (err) => {
+            console.error('Error deleting event:', err);
+            this.messageService.showMessage({
+              text: 'Error deleting event. Please try again.',
+              type: 'error',
+              duration: 5000
+            });
+          }
         });
       }
     });
   }
+
 
   updateShowModifyEvent(): void {
     const dateValue = this.editForm.get('date').value;

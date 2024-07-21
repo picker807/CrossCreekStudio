@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/authentication/auth.service';
 import { GalleryService } from '../../../services/gallery.service';
 import { isPlatformBrowser } from '@angular/common';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
   selector: 'cc-gallery-list',
@@ -18,7 +19,7 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   @Output() itemDropped = new EventEmitter<CdkDragDrop<Gallery[]>>();
   @Output() galleriesLoaded = new EventEmitter<Gallery[]>();
   
-  isAdmin = false; // This should come from an authentication service
+  //isAdmin = false; // This should come from an authentication service
   galleryList: Gallery[] = [];
   term: string;
   private subscription: Subscription;
@@ -35,7 +36,8 @@ export class GalleryListComponent implements OnInit, OnDestroy{
 
   constructor(private router: Router,
     private galleryService: GalleryService,
-    private authService: AuthService,
+    //private authService: AuthService,
+    private messageService: MessageService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -49,11 +51,28 @@ export class GalleryListComponent implements OnInit, OnDestroy{
     this.selectedCategory = this.categories[0]; // Load the first category by default
     this.loadCategoryItems(this.selectedCategory);
 
-    this.subscription = this.galleryService.galleryList$.subscribe((galleryList: Gallery[]) => {
-      this.galleryList = galleryList;
-      this.galleriesLoaded.emit(this.galleryList);
+    this.subscription = this.galleryService.galleryList$.subscribe({
+      next: (galleryList: Gallery[]) => {
+        this.galleryList = galleryList;
+        this.galleriesLoaded.emit(this.galleryList);
+      },
+      error: (error) => {
+        this.messageService.showMessage({
+          text: 'Error loading gallery items. Please try again later.',
+          type: 'error',
+          duration: 5000
+        });
+      }
     });
-    this.galleryService.loadAllData().subscribe();
+    this.galleryService.loadAllData().subscribe({
+      error: () => {
+        this.messageService.showMessage({
+          text: 'Error loading gallery data. Please refresh the page or try again later.',
+          type: 'error',
+          duration: 5000
+        });
+      }
+    });
   }
 
   onDrop(event: CdkDragDrop<Gallery[]>) {
@@ -68,9 +87,17 @@ export class GalleryListComponent implements OnInit, OnDestroy{
 
   private loadCategoryItems(category: string): void {
     if (!this.categoryItems[category]) {
-      this.galleryService.getGalleryItemsByCategory(category).subscribe(items => {
-        //console.log(`Loaded items for category ${category}:`, items);
-        this.categoryItems[category] = items;
+      this.galleryService.getGalleryItemsByCategory(category).subscribe({
+        next: (items) => {
+          this.categoryItems[category] = items;
+        },
+        error: (error) => {
+          this.messageService.showMessage({
+            text: `Error loading items for ${category}. Please try again.`,
+            type: 'error',
+            duration: 5000
+          });
+        }
       });
     }
   }

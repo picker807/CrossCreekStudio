@@ -8,6 +8,7 @@ import { User } from '../../models/user.model';
 import { PhoneFormatPipe } from '../../core/shared/phone-format.pipe';
 import { CheckoutService } from '../../services/checkout.service';
 import { from, mergeMap } from 'rxjs';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'cc-registration',
@@ -33,7 +34,8 @@ export class RegistrationComponent {
     private eventService: EventService,
     private registrationService: RegistrationService,
     private phoneFormatPipe: PhoneFormatPipe,
-    private checkoutService: CheckoutService) {}
+    private checkoutService: CheckoutService,
+    private messageService: MessageService) {}
 
   ngOnInit(): void {
     // Initialize the form
@@ -139,6 +141,12 @@ export class RegistrationComponent {
   private loadEvent(id: string): void {
     this.eventService.getEventById(id).subscribe(event => {
       this.event = event;
+    }, error => {
+      this.messageService.showMessage({
+        text: 'Error loading event.',
+        type: 'error',
+        duration: 5000
+      });
     });
   }
 
@@ -189,9 +197,21 @@ export class RegistrationComponent {
     ).subscribe({
       next: () => {
         this.previewEnrollees = validatedEnrollees;
+        if (this.validationErrors.length > 0) {
+          this.messageService.showMessage({
+            text: 'Some enrollees are already registered for this event.',
+            type: 'warning',
+            duration: 5000
+          });
+        }
       },
       error: (err) => {
         console.error('Error validating enrollees:', err);
+        this.messageService.showMessage({
+          text: 'An error occurred while validating enrollees.',
+          type: 'error',
+          duration: 5000
+        });
       }
     });
   }
@@ -229,18 +249,22 @@ export class RegistrationComponent {
   
 
   addToCart() {
-    this.checkoutService.addToCart(this.event, this.previewEnrollees);
-    this.previewEnrollees = [];
-    this.registrationForm.reset();
-    // Show success message or navigate to cart
-  }
-
-  /* makePayment(): void {
-    this.isPaid = true; //This will be set using a Paypal service
-    if (this.isPaid) {
-    this.registrationService.addUser(this.newUser, this.event).subscribe(() => {
-      this.router.navigate(['/events']);
-    });
+    if (this.previewEnrollees.length > 0) {
+      this.checkoutService.addToCart(this.event, this.previewEnrollees);
+      this.previewEnrollees = [];
+      this.registrationForm.reset();
+      this.messageService.showMessage({
+        text: 'Added to cart successfully.',
+        type: 'success',
+        duration: 3000
+      });
+      this.router.navigate(['/cart']);
+    } else {
+      this.messageService.showMessage({
+        text: 'No enrollees to add to cart.',
+        type: 'error',
+        duration: 5000
+      });
     }
-  } */
+  }
 }

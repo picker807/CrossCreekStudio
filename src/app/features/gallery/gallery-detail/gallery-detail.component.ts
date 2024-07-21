@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/authentication/auth.service';
 import { Subscription, filter } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
   selector: 'cc-gallery-detail',
@@ -23,6 +24,7 @@ constructor(
   private router: Router,
   private route: ActivatedRoute,
   private dialog: MatDialog,
+  private messageService: MessageService
 ) {
   this.subscriptions.add(
     this.router.events.pipe(
@@ -83,6 +85,11 @@ deleteItem(id: string): void {
   dialogRef.afterClosed().subscribe(result => {
     if (result) {
       this.galleryService.deleteGalleryItem(id).subscribe(() => {
+        this.messageService.showMessage({
+          text: 'Item deleted successfully',
+          type: 'success',
+          duration: 5000
+        });
         this.router.navigate(['/gallery']);
       });
     }
