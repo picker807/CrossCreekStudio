@@ -106,7 +106,6 @@ router.post('/:id/register', async (req, res) => {
 
 // Update event using findOneAndUpdate
 router.put('/:id', async (req, res) => {
-  //console.log("starting event put router: ", req.body);
   try {
     const existingEvent = await Event.findOne({ id: req.params.id.trim() });
 
@@ -114,21 +113,21 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    // Convert attendees to ObjectIds
-    if (req.body.attendees) {
-      const processedAttendees = await Promise.all(req.body.attendees.map(async (attendee) => {
+    console.log('Existing attendees:', existingEvent.attendees);
+
+    // Process new attendees
+    if (req.body.attendees && Array.isArray(req.body.attendees)) {
+      const newAttendees = await Promise.all(req.body.attendees.map(async (attendee) => {
         if (attendee.compositeKey) {
-          // Try to find the user
-          let user = await User.findOne({ compositeKey: req.body.compositeKey });
+          let user = await User.findOne({ compositeKey: attendee.compositeKey });
           if (!user) {
-            // If user doesn't exist, create a new one
             user = new User({
               id: await sequenceGenerator.nextId("users"),
               firstName: attendee.firstName,
               lastName: attendee.lastName,
               email: attendee.email,
               phone: attendee.phone,
-              compositeKey: req.body.compositeKey
+              compositeKey: attendee.compositeKey
             });
             await user.save();
           }
@@ -137,31 +136,38 @@ router.put('/:id', async (req, res) => {
         return null;
       }));
 
-      // Filter out any null values
-      req.body.attendees = processedAttendees.filter(id => id);
+      // Use $addToSet to add new attendees without duplicates
+      await Event.findOneAndUpdate(
+        { id: req.params.id.trim() },
+        { $addToSet: { attendees: { $each: newAttendees.filter(id => id) } } },
+        { new: true }
+      );
     }
 
-    // Convert images to ObjectIds
+    // Update other fields
     if (req.body.images) {
       req.body.images = await Gallery.find({ id: { $in: req.body.images } })
         .then(images => images.map(image => image._id));
     }
 
-    //console.log("Processed request body: ", req.body);
-    const updatedEvent = await Event.findOneAndUpdate(
-      { id: req.params.id.trim() },
-      req.body,
-      { new: true, runValidators: true }
-    ).populate('attendees').populate('images').exec();
+    // Update the event with the new data (excluding attendees)
+    const { attendees, ...updateData } = req.body;
+    Object.assign(existingEvent, updateData);
 
-    if (!updatedEvent) return res.status(404).json({ message: 'Event not found' });
+    // Save the updated event
+    const savedEvent = await existingEvent.save();
 
-    //console.log("updated event: ", updatedEvent);
+    // Populate the attendees and images fields
+    const populatedEvent = await Event.findById(savedEvent._id)
+      .populate('attendees')
+      .populate('images')
+      .exec();
 
-    res.json(updatedEvent);
+    console.log('Saved and populated event:', populatedEvent);
+    res.json(populatedEvent);
   } catch (err) {
-    res.status(400).json({ 
-      message: err.message });
+    console.error('Error updating event:', err);
+    res.status(400).json({ message: err.message });
   }
 });
 

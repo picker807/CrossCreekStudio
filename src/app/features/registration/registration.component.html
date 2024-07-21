@@ -1,9 +1,9 @@
-<!-- event-registration.component.html -->
 <div class="max-w-4xl mx-auto p-4">
-  <h1 class="text-3xl font-bold text-gray-800">{{ event.name }}</h1>
-  <div class="flex flex-wrap justify-center">
+  <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ event.name }}</h1>
+  
+  <div class="flex flex-wrap justify-center mb-4">
     <div *ngFor="let image of event.images" class="m-2 max-w-xs">
-      <img class="max-h-64 w-full object-contain" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
+      <img class="max-h-64 w-full object-contain rounded-lg shadow-md" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
     </div>
   </div>
   
@@ -12,58 +12,37 @@
   <p class="text-lg mb-4"><strong>Description:</strong> {{ event.description }}</p>
 
   <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
-    <!-- Developer comment: Fill in all attendee information -->
-    <div class="flex justify-between items-center mb-4">
-      <button type="submit" [disabled]="!registrationForm.valid" class="px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Preview Order</button>
-      <div class="text-lg font-bold text-gray-800">
-        Event Price: ${{ event?.price }}<br>
-        Number of Attendees: {{ numAttendeesControl.value }}<br>
-        Total Price: ${{ getTotalPrice() }}
-      </div>
-      <div *ngIf="previewEnrollees.length > 0">
-        <h3>Cart Preview</h3>
-        <ul>
-          <li *ngFor="let enrollee of previewEnrollees">
-            {{ enrollee.firstName }} {{ enrollee.lastName }} ({{ enrollee.email }})
-          </li>
-        </ul>
-        <div *ngIf="validationErrors.length > 0">
-          <h4>Validation Errors:</h4>
-          <ul>
-            <li *ngFor="let error of validationErrors" class="text-danger">{{ error }}</li>
-          </ul>
-        </div>
-        <button (click)="addToCart()">Add to Cart</button>
-      </div>
-    </div>
-  
-    <div>
-      <label for="numAttendees">Number of Attendees:</label>
-      <div class="flex items-center">
-        <button type="button" (click)="decrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-l-md">-</button>
+    <div class="mb-4">
+      <label for="numAttendees" class="block text-sm font-medium text-gray-700">Number of Attendees:</label>
+      <div class="flex items-center mt-1">
+        <button type="button" (click)="decrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-l-md bg-gray-100 hover:bg-gray-200">-</button>
         <input type="number" id="numAttendees" [formControl]="numAttendeesControl" min="1" class="w-20 px-3 py-2 border-t border-b border-gray-300 text-center">
-        <button type="button" (click)="incrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-r-md">+</button>
+        <button type="button" (click)="incrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-r-md bg-gray-100 hover:bg-gray-200">+</button>
       </div>
       <div *ngIf="!registrationForm.valid" class="text-red-500 text-sm mt-1">
         Please complete all attendee information.
       </div>
     </div>
-  
+    
     <div formArrayName="attendees">
-      <div *ngFor="let attendee of attendeesArray.controls; let i = index" [formGroupName]="i" class="mb-4 p-4 border border-gray-300 rounded-md">
+      <div *ngFor="let attendee of attendeesArray.controls; let i = index" [formGroupName]="i" class="mb-4 p-4 border border-gray-300 rounded-md bg-white shadow-sm">
         <h3 class="text-xl font-bold mb-2">Attendee {{ i + 1 }}</h3>
+        
         <div class="mb-4">
           <label [attr.for]="'firstName' + i" class="block mb-2 text-sm font-medium text-gray-700">First Name</label>
           <input [id]="'firstName' + i" type="text" formControlName="firstName" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
+        
         <div class="mb-4">
           <label [attr.for]="'lastName' + i" class="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
           <input [id]="'lastName' + i" type="text" formControlName="lastName" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
+        
         <div class="mb-4">
           <label [attr.for]="'email' + i" class="block mb-2 text-sm font-medium text-gray-700">Email</label>
           <input [id]="'email' + i" type="email" formControlName="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
+        
         <div class="mb-4">
           <label [attr.for]="'confirmEmail' + i" class="block mb-2 text-sm font-medium text-gray-700">Confirm Email</label>
           <input [id]="'confirmEmail' + i" type="email" formControlName="confirmEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -73,18 +52,37 @@
             <div *ngIf="attendee.get('confirmEmail').errors?.emailMismatch">Emails do not match.</div>
           </div>
         </div>
+        
         <div class="mb-4">
           <label [attr.for]="'phone' + i" class="block mb-2 text-sm font-medium text-gray-700">Phone</label>
           <input [id]="'phone' + i" type="tel" formControlName="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
       </div>
     </div>
+    
+    <div class="flex justify-between items-center mb-4">
+      <button type="submit" [disabled]="!registrationForm.valid" class="px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Preview Order</button>
+      <div class="text-lg font-bold text-gray-800">
+        Event Price: ${{ event?.price }}<br>
+        Number of Attendees: {{ numAttendeesControl.value }}<br>
+        Total Price: ${{ getTotalPrice() }}
+      </div>
+    </div>
+    
+    <div *ngIf="previewEnrollees.length > 0" class="mt-4 p-4 border border-gray-300 rounded-md bg-white shadow-sm">
+      <h3 class="text-lg font-bold mb-2">Order Preview</h3>
+      <ul class="list-disc list-inside text-gray-700">
+        <li *ngFor="let enrollee of previewEnrollees">
+          {{ enrollee.firstName }} {{ enrollee.lastName }} ({{ enrollee.email }})
+        </li>
+      </ul>
+      <div *ngIf="validationErrors.length > 0" class="mt-4">
+        <h4 class="text-red-500 font-bold">Validation Errors:</h4>
+        <ul class="list-disc list-inside text-red-500">
+          <li *ngFor="let error of validationErrors">{{ error }}</li>
+        </ul>
+      </div>
+      <button (click)="addToCart()" class="mt-4 px-4 py-2 font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">Add to Cart</button>
+    </div>
   </form>
-  
-
-  <div *ngIf="showPaymentButton" class="mt-8">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">2. Add to Cart</h2>
-    <p *ngIf="isUserInEvent" class="text-center text-lg text-gray-700">You are already part of the event. No payment required.</p>
-    <button (click)="addToCart()" [disabled]="isUserInEvent" class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">Pay Now</button>
-  </div>
 </div>

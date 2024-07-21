@@ -1,24 +1,57 @@
-<div class="cart-container">
-  <h2>Your Cart</h2>
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
 
-  <div *ngIf="verificationError" class="alert alert-danger">
-    {{ verificationError }}
-  </div>
+  <!-- Cart items -->
+  <ng-container *ngIf="cartItems.length > 0; else emptyCart">
+    <div *ngFor="let item of cartItems" class="bg-white shadow-md rounded-lg p-4 mb-4">
+      <h3 class="text-xl font-semibold">{{ item.event.name }}</h3>
+      <p class="text-gray-600">Date: {{ item.event.date | date:'mediumDate' }}</p>
+      <p class="text-gray-600">Location: {{ item.event.location }}</p>
+      <p class="text-gray-600">Price: ${{ item.event.price }}</p>
+      <p class="text-gray-600">Enrollees: {{ item.enrollees.length }}</p>
+      <p class="text-gray-600">Subtotal: ${{ item.event.price * item.enrollees.length }}</p>
+      
+      <div class="mt-4">
+        <h4 class="text-lg font-semibold">Enrollees:</h4>
+        <ul class="list-disc list-inside">
+          <li *ngFor="let enrollee of item.enrollees" class="text-gray-700">
+            {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
+          </li>
+        </ul>
+      </div>
 
-  <div *ngIf="cartItems.length === 0" class="empty-cart">
-    Your cart is empty.
-  </div>
+      <button (click)="removeFromCart(item.event.id)" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+    </div>
 
-  <div *ngFor="let item of cartItems" class="cart-item">
-    <h3>{{ item.event.name }}</h3>
-    <p>Price: ${{ item.event.price }}</p>
-    <p>Enrollees: {{ item.enrollees.length }}</p>
-    <p>Subtotal: ${{ item.event.price * item.enrollees.length }}</p>
-    <button (click)="removeFromCart(item.event.id)" class="btn btn-danger">Remove</button>
-  </div>
+    <div *ngIf="invalidItems.length > 0" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+      <h4 class="text-lg font-semibold">Some items in your cart require attention:</h4>
+      <ul class="list-disc list-inside">
+        <li *ngFor="let invalidItem of invalidItems">
+          {{ invalidItem.item.event.name }}: {{ invalidItem.reason }}
+        </li>
+      </ul>
+    </div>
 
-  <div *ngIf="cartItems.length > 0" class="cart-summary">
-    <h3>Total: ${{ totalPrice }}</h3>
-    <button (click)="verifyAndCheckout()" class="btn btn-primary">Proceed to Checkout</button>
-  </div>
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <h3 class="text-xl font-semibold">Total: ${{ totalPrice }}</h3>
+      <button *ngIf="!showPaypalButton" (click)="verifyAndCheckout()" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Proceed to Checkout</button>
+      <div *ngIf="showPaypalButton" #paypalButton></div>
+    </div>
+  </ng-container>
+
+  <!-- Empty cart message and graphic -->
+  <ng-template #emptyCart>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 class="mt-2 text-xl font-medium text-gray-900">Your cart is empty</h3>
+      <p class="mt-1 text-gray-500">Start adding events to your cart to see them here.</p>
+      <div class="mt-6">
+        <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Browse Events
+        </a>
+      </div>
+    </div>
+  </ng-template>
 </div>

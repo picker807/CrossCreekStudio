@@ -1,8 +1,0 @@
-<div *ngIf="verificationError" class="alert alert-danger">
-  {{ verificationError }}
-</div>
-<div *ngFor="let item of cartItems">
-  <p>{{ item.event.name }} - {{ item.event.price }} x {{ item.enrollees.length }} enrollees</p>
-</div>
-<p>Total: {{ totalPrice }}</p>
-<button (click)="verifyAndCheckout()">Proceed to Checkout</button>

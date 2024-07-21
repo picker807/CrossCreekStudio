@@ -21,7 +21,7 @@ export class RegistrationComponent {
   event: Event;
   isPaid: boolean = false;
   isUserInEvent: boolean = false;
-  showPaymentButton: boolean = false;
+  //showPaymentButton: boolean = false;
   newUser: User;
   previewEnrollees: any[] = [];
   validationErrors: string[] = [];
@@ -157,12 +157,16 @@ export class RegistrationComponent {
   }
 
   previewCart() {
-    this.previewEnrollees = this.attendeesArray.value.map((attendee: any) => ({
-      ...attendee,
-      compositeKey: `${attendee.firstName.toLowerCase()}_${attendee.lastName.toLowerCase()}_${attendee.email.toLowerCase()}`
-    }));
+    this.previewEnrollees = this.attendeesArray.value.map((attendee: any) => {
+      const { confirmEmail, ...rest } = attendee; // Destructure to exclude confirmEmail
+      return {
+        ...rest,
+        compositeKey: `${rest.firstName.toLowerCase()}_${rest.lastName.toLowerCase()}_${rest.email.toLowerCase()}`
+      };
+    });
     this.validateEnrollees();
   }
+  
 
   validateEnrollees() {
     this.validationErrors = [];

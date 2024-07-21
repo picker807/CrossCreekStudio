@@ -32,8 +32,14 @@ export class EventService {
   }
 
   getEventById(id: string): Observable<Event> {
+    console.log(`Fetching event with ID: ${id}`);
     return this.events$.pipe(
-      map(events => events.find(event => event.id === id))
+      take(1),
+      map(events => {
+        const event = events.find(event => event.id === id);
+        console.log(`Found event: ${event.date}`);
+        return event;
+      })
     );
   }
 
@@ -124,26 +130,29 @@ export class EventService {
     );
   }
 
-  addUserToEvent(user: User, eventId: string): Observable<void> {
+  addUserToEvent(user: User, eventId: string): Observable<boolean> {
     return this.getEventById(eventId).pipe(
       take(1), // Ensure we only take the latest value once
       switchMap(event => {
         if (event) {
+          console.log('Current attendees:', event.attendees);
           //console.log("Event in addUsertoEvent: ", event);
           const existingUserIndex = event.attendees.findIndex(u => u.compositeKey === user.compositeKey);
           if (existingUserIndex === -1) {
+            // User doesn't exist, add them
             event.attendees.push(user);
+            console.log('Updated attendees:', event.attendees);
+            return this.updateEvent(event).pipe(
+              map(() => true),
+              catchError(error => {
+                console.error('Error updating event:', error);
+                return throwError(() => new Error('Error updating event'));
+              })
+            );
           } else {
-            event.attendees[existingUserIndex] = user;
+            // User already exists, don't add or update
+            return of(false);
           }
-          //console.log("Event after user is added: ", event);
-          return this.updateEvent(event).pipe(
-            map(() => {}),
-            catchError(error => {
-              console.error('Error updating event:', error);
-              return throwError(() => new Error('Error updating event'));
-            })
-          );
         } else {
           return throwError(() => new Error('Event not found'));
         }

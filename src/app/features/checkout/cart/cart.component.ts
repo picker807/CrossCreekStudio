@@ -1,8 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { CheckoutService } from '../../../services/checkout.service';
 import { EventService } from '../../../services/event.service';
 import { Router } from '@angular/router';
-import { forkJoin, Subscription } from 'rxjs';
+import { catchError, concatMap, forkJoin, from, map, mergeMap, of, Subscription, toArray } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
+import { PaypalService } from '../../../services/paypal.service';
+import { User } from '../../../models/user.model';
+import { OrderDetails, PayPalOrderDetails } from '../../../models/interfaces';
+
+declare var paypal: any;
+
+interface EnrolleeResult {
+  enrollee: User;
+  added: boolean;
+}
+
 
 @Component({
   selector: 'cc-cart',
@@ -14,18 +26,35 @@ export class CartComponent implements OnInit {
   totalPrice: number = 0;
   verificationError: string = '';
   subscription: Subscription;
+  validItems: any[] = [];
+  invalidItems: { item: any, reason: string }[] = [];
 
+  @ViewChild('paypalButton') paypalButton: ElementRef;
+  showPaypalButton: boolean = false;
+  paypalClientId: string;
+
+  
   constructor(
     private checkoutService: CheckoutService,
     private eventService: EventService,
-    private router: Router
+    private router: Router,
+    private paypalService: PaypalService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
     this.subscription = this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
+      //console.log(cartList);
       this.cartItems = cartList;
     });
     this.loadCart();
+    this.paypalService.getPaypalClientId().subscribe({
+      next: (result) => {
+        this.paypalClientId = result.clientId;
+        //this.loadPayPalScript();
+      },
+      error: (error) => console.error('Error fetching PayPal client ID:', error)
+    });
   }
 
   loadCart(): void {
@@ -34,8 +63,8 @@ export class CartComponent implements OnInit {
   }
 
   calculateTotalPrice(): void {
-    this.totalPrice = this.cartItems.reduce((total, item) => 
-      total + item.event.price * item.enrollees.length, 0);
+    this.totalPrice = this.cartItems?.reduce((total, item) => 
+      total + item.event.price * item.enrollees.length, 0) ?? 0;
   }
 
   removeFromCart(eventId: string): void {
@@ -44,31 +73,156 @@ export class CartComponent implements OnInit {
   }
 
   verifyAndCheckout(): void {
-    const verificationRequests = this.cartItems.map(item => 
+    console.log("starting verification and checkout...");
+    //this.loadPayPalScript(); // temporary for troubleshooting
+    //this.showPaypalButton = true; //temporary for troubleshooting
+
+    this.checkoutService.verifyCart().subscribe({
+      next: (result) => {
+        console.log('Verification completed:', result);
+        this.validItems = result.validItems;
+        this.invalidItems = result.invalidItems;
+
+        if (this.invalidItems.length === 0) {
+          console.log('Cart is valid. Loading PayPal script...');
+          this.loadPayPalScript();
+          this.showPaypalButton = true;
+        } else {
+          console.log("Some cart items are invalid");
+        }
+      },
+      error: (error) => {
+        console.error('Verification failed', error);
+      }
+    });
+  }
+
+
+
+
+
+
+
+    /* const verificationRequests = this.cartItems.map(item => 
       this.eventService.getEventById(item.event.id)
     );
-
-    forkJoin(verificationRequests).subscribe({
+    console.log("Verification requests created:", verificationRequests.length);
+  
+    from(verificationRequests).pipe(
+      mergeMap(request => request),
+      toArray()
+    ).subscribe({
       next: (events) => {
+        console.log('Verification events:', events);
         const isValid = events.every((event, index) => {
           const cartItem = this.cartItems[index];
-          return event && 
-                 event.price === cartItem.event.price;
+          return event && event.price === cartItem.event.price;
         });
-    
+  
         if (isValid) {
-          this.router.navigate(['/checkout']);
+          console.log('Cart is valid. Loading PayPal script...');
+          this.loadPayPalScript();
+          this.showPaypalButton = true;
         } else {
+          console.log("Cart items not valid");
           this.verificationError = 'Some events in your cart are no longer available or have changed.';
         }
       },
       error: (error) => {
         console.error('Verification failed', error);
         this.verificationError = 'An error occurred while verifying your cart. Please try again.';
+      },
+      complete: () => {
+        console.log("Verification process completed");
       }
-    });
+    }); */
+  
+
+  loadPayPalScript(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      if (!document.querySelector('script[src^="https://www.paypal.com/sdk/js"]')) {
+        const script = document.createElement('script');
+        script.src = `https://www.paypal.com/sdk/js?client-id=${this.paypalClientId}&currency=USD&intent=capture`;
+        script.onload = () => {
+          console.log('PayPal SDK loaded');
+          this.initializePayPalButton();
+        };
+        document.body.appendChild(script);
+      } else {
+        this.initializePayPalButton();
+      }
+    }
   }
 
+  initializePayPalButton(): void {
+    if (typeof paypal !== 'undefined') {
+      paypal.Buttons({
+        createOrder: (data, actions) => {
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: this.totalPrice.toString()
+              }
+            }]
+          });
+        },
+        onApprove: (data, actions) => {
+          return actions.order.capture().then((details) => {
+            console.log('Transaction details: ' + JSON.stringify(details, null, 2));
+            console.log("Valid items list: ", JSON.stringify(this.validItems, null, 2));
+  
+            // Process each valid item (event) sequentially
+            from(this.validItems).pipe(
+              concatMap(item => {
+                return from(item.enrollees).pipe(
+                  concatMap((enrollee: User) => 
+                    this.eventService.addUserToEvent(enrollee, item.event.id).pipe(
+                      map(added => ({ enrollee, added } as EnrolleeResult))
+                    )
+                  ),
+                  toArray(),
+                  map((results: EnrolleeResult[]) => {
+                    const addedUsers = results.filter(r => r.added).map(r => r.enrollee);
+                    console.log(`Added ${addedUsers.length} new users to event ${item.event.id}`);
+                    return addedUsers;
+                  }),
+                  catchError(error => {
+                    console.error(`Error processing enrollees for event ${item.event.id}:`, error);
+                    return of([]);
+                  })
+                );
+              }),
+              catchError(error => {
+                console.error('Error in event processing:', error);
+                return of(null);
+              })
+            ).subscribe({
+              next: (result) => {
+                if (result) console.log('Users processed for event successfully:', result);
+              },
+              error: (error) => {
+                console.error('Error in overall process:', error);
+              },
+              complete: () => {
+                
+                // Combine order details with cart contents
+              const combinedOrderData: OrderDetails = {
+              orderDetails: details as PayPalOrderDetails,
+              cartContents: this.validItems
+            };
+
+                this.checkoutService.storeOrderDetails(combinedOrderData);
+                // Handle successful payment (e.g., clear cart, show confirmation)
+                this.checkoutService.clearCart();
+                this.router.navigate(['/confirmation']);
+              }
+            });
+          });
+        }
+      }).render(this.paypalButton.nativeElement);
+    }
+  }
+  
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, PLATFORM_ID } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -14,11 +14,18 @@ import { NgxFileDropModule } from '@bugsplat/ngx-file-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import { CartComponent } from './features/checkout/cart/cart.component';
-import { CheckoutComponent } from './features/checkout/checkout/checkout.component';
+import { ConfirmationComponent } from './features/checkout/confirmation/confirmation.component';
+import { isPlatformBrowser } from '@angular/common';
+import { MessageComponent } from './features/message/message.component';
 
 
-export function tokenGetter() {
-  return localStorage.getItem('token');
+export function tokenGetter(platformId: Object) {
+  return () => {
+    if (isPlatformBrowser(platformId)) {
+      return localStorage.getItem('token');
+    }
+    return null;
+  };
 }
 
 
@@ -27,7 +34,8 @@ export function tokenGetter() {
     AppComponent,
     RegistrationComponent,
     CartComponent,
-    CheckoutComponent
+    ConfirmationComponent,
+    MessageComponent
     
  
   ],
@@ -43,7 +51,7 @@ export function tokenGetter() {
     NgxFileDropModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: tokenGetter,
+        tokenGetter: tokenGetter(PLATFORM_ID),
       }
     })
     //HttpClientModule

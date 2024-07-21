@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
-  compositeKey: { type: String, required: true }
+  compositeKey: { type: String, required: true, unique: true }
 });
 
 module.exports = mongoose.model('User', UserSchema, 'users');

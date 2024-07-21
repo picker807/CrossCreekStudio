@@ -57,6 +57,9 @@ app.use('/admin', adminRoutes);
 app.use('/events', eventRoutes);
 app.use('/galleries', galleryRoutes);
 app.use('/users', userRoutes);
+app.get('/api/paypal-client-id', (req, res) => {
+  res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
+});
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {

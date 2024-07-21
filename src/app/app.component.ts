@@ -29,7 +29,7 @@ export class AppComponent {
     });
 
     this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
-      this.cartItemCount = cartList.length;
+      this.cartItemCount = cartList?.length;
     });
   }
 
