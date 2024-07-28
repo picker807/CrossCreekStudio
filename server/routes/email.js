@@ -36,4 +36,24 @@ router.post('/confirm', async (req, res) => {
   }
 });
 
+router.post('/', (req, res) => {
+  const { recipients, subject, message } = req.body;
+
+  const mailOptions = {
+    from: `"Cross Creek Creates" <${EMAIL_USER}>`,
+    to: '',
+    bcc: recipients, 
+    subject: subject,
+    text: message,
+    html: `<p>${message}</p>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    res.status(200).json({ message: 'Emails sent successfully', info });
+  });
+});
+
 module.exports = router;

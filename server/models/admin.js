@@ -2,8 +2,14 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const adminSchema = new mongoose.Schema({
+  name: { type: String, required: true},
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  role: {
+    type: String,
+    enum: ['superadmin', 'admin'],
+    default: 'admin',
+  },
 });
 
 // Hash password before saving
@@ -13,5 +19,16 @@ adminSchema.pre('save', async function(next) {
   }
   next();
 });
+
+adminSchema.methods.toJSON = function() {
+  const admin = this.toObject();
+  delete admin.password;
+  delete admin.__v;
+  return admin;
+};
+
+adminSchema.statics.findByIdWithFullAccess = function(id) {
+  return this.findById(id);
+};
 
 module.exports = mongoose.model('Admin', adminSchema, 'admin');

@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 const session = require('express-session');
 var logger = require('morgan');
 var mongoose = require('mongoose');
+mongoose.set('debug', true);
 const cors = require('cors');
 require('dotenv').config();
 
@@ -72,9 +73,14 @@ app.get('*', (req, res) => {
 // root directory for your web site
 app.use(express.static(path.join(__dirname, 'dist/cross-creek-creates/browser')));
 
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
 // Establish a connection to the MongoDB database
-console.log(mongoUri);
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+//console.log(mongoUri);
+mongoose.connect(mongoUri)
   .then(() => console.log('Connected to database!'))
   .catch(err => console.error('Connection failed:', err));
 

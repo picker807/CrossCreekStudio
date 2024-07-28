@@ -55,6 +55,7 @@ const sequenceGenerator = {
       case 'admin':
         nextId = ++this.maxAdminId;
         updateObject = { maxAdminId: this.maxAdminId };
+        break;
       default:
         throw new Error('Invalid collection type');
     }

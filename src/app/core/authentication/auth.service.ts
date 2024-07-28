@@ -35,7 +35,7 @@ export class AuthService {
         this.isAdminSubject.next(false);
       }
     } else {
-      console.log("checkAuthStatus in auth service. isPlatformBrowser was false");
+      //console.log("checkAuthStatus in auth service. isPlatformBrowser was false");
       this.isAdminSubject.next(false);
     }
   }
@@ -54,9 +54,9 @@ export class AuthService {
     localStorage.removeItem('token');
   }
 
-  /* getUser(): Observable<Admin | null> {
+  getUser(): Observable<Admin | null> {
     return this.http.get<Admin>(`${this.AUTH_API}/user`, { withCredentials: true });
-  } */
+  }
 
     isAuthenticated(): boolean {
       if (isPlatformBrowser(this.platformId)) {
