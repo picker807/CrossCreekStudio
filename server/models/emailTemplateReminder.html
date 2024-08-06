@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{subject}}</title>
+</head>
+<body>
+    <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+        <header style="background-color: #f0f0f0; padding: 20px; text-align: center;">
+            <img src="{{logoUrl}}" alt="Company Logo" style="max-width: 200px;">
+        </header>
+        <main style="padding: 20px;">
+            <h1>{{subject}}</h1>
+            <p>{{message}}</p>
+            {{#if eventDetails}}
+            <div style="background-color: #f9f9f9; padding: 15px; margin-top: 20px;">
+                <h2>Event Details</h2>
+                <p><strong>Event:</strong> {{eventDetails.name}}</p>
+                <p><strong>Date:</strong> {{eventDetails.date}}</p>
+                <p><strong>Time:</strong> {{eventDetails.time}}</p>
+                <p><strong>Location:</strong> {{eventDetails.location}}</p>
+                <p><strong>Days until event:</strong> {{eventDetails.daysUntil}}</p>
+            </div>
+            {{/if}}
+        </main>
+        <footer style="background-color: #f0f0f0; padding: 20px; text-align: center;">
+            <p>&copy; 2024 Your Company. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

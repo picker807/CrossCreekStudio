@@ -7,9 +7,10 @@ var cookieParser = require('cookie-parser');
 const session = require('express-session');
 var logger = require('morgan');
 var mongoose = require('mongoose');
-mongoose.set('debug', true);
+//mongoose.set('debug', true);
 const cors = require('cors');
 require('dotenv').config();
+
 
 const mongoUri = process.env.MONGO_URI;
 
@@ -20,7 +21,6 @@ const eventRoutes = require('./server/routes/events');
 const galleryRoutes = require('./server/routes/galleries');
 const userRoutes = require('./server/routes/users');
 const emailRoutes = require('./server/routes/email');
-
 
 var app = express(); // create an instance of express
 
@@ -38,11 +38,11 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
-app.use(logger('dev')); // Tell express to use the Morgan logger
+app.use(logger('dev'));
 
 
 app.use(cors({
-  origin: 'http://localhost:4200', // Replace with your frontend's URL
+  origin: 'http://localhost:4200',
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
   credentials: true

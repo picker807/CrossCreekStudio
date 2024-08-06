@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const adminSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
   name: { type: String, required: true},
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -19,6 +20,10 @@ adminSchema.pre('save', async function(next) {
   }
   next();
 });
+
+adminSchema.methods.comparePassword = function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 adminSchema.methods.toJSON = function() {
   const admin = this.toObject();

@@ -16,7 +16,7 @@ exports.getAllAdmins = async (req, res) => {
 
 exports.getAdminById = async (req, res) => {
   try {
-    const admin = await Admin.findByIdWithFullAccess(new mongoose.Types.ObjectId(req.params.id));
+    const admin = await Admin.findOne({id: req.params.id});
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
     res.status(200).json(admin);
   } catch (err) {
@@ -30,7 +30,7 @@ exports.getCurrentAdmin = async (req, res) => {
 
     const { id, role } = req.admin;
 
-    const admin = await Admin.findById(id);  //.select('name email role');
+    const admin = await Admin.findOne( {id: id} );  //.select('name email role');
 
     if (!admin) {
       return res.status(404).json({ message: 'Admin not found' });
@@ -45,12 +45,14 @@ exports.getCurrentAdmin = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    const admin = await Admin.findById(req.admin.id);
+    const admin = await Admin.findOne({id: req.admin.id});
     if (!admin) {
       return res.status(404).json({ message: 'Admin not found' });
     }
     const { oldPassword, newPassword } = req.body;
-    if (!admin.comparePassword(oldPassword)) {
+
+    const isPasswordValid = await admin.comparePassword(oldPassword);
+    if (!isPasswordValid) {
       return res.status(400).json({ message: 'Incorrect old password' });
     }
     admin.password = newPassword;
@@ -63,10 +65,10 @@ exports.changePassword = async (req, res) => {
 
 exports.createAdmin = async (req, res) => {
 
-  //const maxAdminId = await sequenceGenerator.nextId("admin");
+  const maxAdminId = await sequenceGenerator.nextId("admin");
   const admin = new Admin({
     ...req.body,
-    //id: maxAdminId.toString()
+    id: maxAdminId.toString()
   });
   try {
     const newAdmin = await admin.save();
@@ -79,7 +81,7 @@ exports.createAdmin = async (req, res) => {
 
 exports.updateAdmin = async (req, res) => {
   try {
-    const updatedAdmin = await Admin.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, { new: true });
+    const updatedAdmin = await Admin.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
     if (!updatedAdmin) return res.status(404).json({ message: 'Admin not found' });
     res.json(updatedAdmin);
   } catch (err) {
@@ -87,22 +89,33 @@ exports.updateAdmin = async (req, res) => {
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.updateAdmin = async (req, res) => {
   try {
-    const thisAdmin = await Admin.findOne( {id: req.params.id} );
-    if (!thisAdmin) return res.status(404).json({ message: 'Admin not found' });
-    thisAdmin.password = req.body.newPassword;
-    await thisAdmin.save();
-    res.json({message: 'Password changed'})
+    const { id } = req.params;
+
+    const updatedAdmin = await Admin.findOneAndUpdate(
+      { id: id },
+      { $set: req.body },
+      { new: true, runValidators: true, context: 'query' }
+    );
+
+    if (!updatedAdmin) {
+      console.log('Admin not found');
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    //console.log('Updated admin:', updatedAdmin);
+    res.json({ message: 'Admin updated successfully', admin: updatedAdmin });
   } catch (err) {
-    console.error('Password reset error:', err);
-    res.status(500).json({ message: 'An error occurred while resetting the password' });
+    console.error('Error updating admin:', err);
+    res.status(500).json({ message: 'An error occurred while updating the admin' });
   }
 };
 
+
 exports.deleteAdmin = async (req, res) => {
   try {
-    const admin = await Admin.findByIdAndDelete(new mongoose.Types.ObjectId(req.params.id));
+    const admin = await Admin.findOneAndDelete({ id: req.params.id });
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
     res.json({ message: 'Admin deleted' });
   } catch (err) {
@@ -117,7 +130,7 @@ exports.login = async (req, res) => {
     if (!admin || !await bcrypt.compare(password, admin.password)) {
       return res.status(401).send('Invalid email or password');
     }
-    const token = jwt.sign({ _id: admin._id.toString(), role: admin.role }, process.env.JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign({ id: admin.id.toString(), role: admin.role }, process.env.JWT_SECRET, { expiresIn: '12h' });
     res.json({ message: 'Login successful', token });
   } catch (error) {
     console.error('Login error:', error);
@@ -132,7 +145,7 @@ exports.checkAuthStatus = async (req, res) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const admin = await Admin.findById(decoded.id);
+    const admin = await Admin.findOne({id: decoded.id});
     if (!admin) {
       return res.json({ isAuthenticated: false });
     }

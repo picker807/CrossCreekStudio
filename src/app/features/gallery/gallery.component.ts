@@ -22,7 +22,7 @@ export class GalleryComponent {
   private lastScrollTop: number = 0;
 
   constructor(
-    private router: Router,
+    public router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
     private authService: AuthService,
   ) {

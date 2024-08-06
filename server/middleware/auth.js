@@ -20,19 +20,19 @@ exports.authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     //console.log('Decoded token:', decoded);
 
-    const id = decoded._id;
+    //const id = decoded._id;
     //console.log('ID from token:', id);
 
-    if (!isValidObjectId(id)) {
+    /* if (!isValidObjectId(id)) {
       console.error('Invalid ObjectId format:', id);
       return res.status(400).json({ message: 'Invalid token: malformed ID' });
-    }
+    } */
 
     //const admin = await mongoose.connection.db.collection('admin').findOne( {_id: id} ).select('-password -__v');
     /* const objectId = new mongoose.Types.ObjectId(decoded.id);
      console.log(objectId); */
     req.admin = {
-      id: id,
+      id: decoded.id,
       role: decoded.role
     };
     //console.log("Admin found: ", admin);
@@ -55,7 +55,7 @@ exports.authMiddleware = async (req, res, next) => {
       query: req.query,
       body: req.body
     };
-    console.log('Simplified Request Object:', safeStringify(simplifiedReq));
+    //console.log('Simplified Request Object:', safeStringify(simplifiedReq));
     next();
 
   } catch (error) {
@@ -73,9 +73,9 @@ exports.superAdminMiddleware = (req, res, next) => {
   next();
 };
 
-function isValidObjectId(id) {
+/* function isValidObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(id);
-}
+} */
 
 function safeStringify(obj, indent = 2) {
   const cache = new Set();

@@ -2,16 +2,53 @@
 const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
+const fs = require('fs').promises;
+const handlebars = require('handlebars');
+const path = require('path');
 require('dotenv').config();
 
 const { EMAIL_USER, EMAIL_PASS } = process.env;
 
-// Configure your email transporter
+// Configure the email transporter
 let transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS
+  }
+});
+
+// Load and compile the email template
+let emailTemplate;
+fs.readFile(path.join(__dirname, '../models/emailTemplateReminder.html'), 'utf8')
+  .then(template => {
+    emailTemplate = handlebars.compile(template);
+    console.log('Email template loaded and compiled successfully');
+  })
+  .catch(err => console.error('Error loading email template:', err));
+
+  const ensureTemplateLoaded = (req, res, next) => {
+    if (!emailTemplate) {
+      return res.status(500).json({ message: 'Email template not loaded' });
+    }
+    next();
+  };
+
+router.post('/preview', ensureTemplateLoaded, async (req, res) => {
+  const { subject, message, eventDetails } = req.body;
+  console.log('Preview Data:', { subject, message, eventDetails });
+  try {
+    const html = emailTemplate({
+      subject,
+      message,
+      eventDetails,
+      logoUrl: 'https://example.com/logo.png' // Replace with your actual logo URL
+    });
+    console.log('Generated HTML:', html);
+    res.status(200).json({ html });
+  } catch (error) {
+    console.error('Error generating email preview:', error);
+    res.status(500).json({ message: 'Failed to generate email preview' });
   }
 });
 
@@ -36,24 +73,37 @@ router.post('/confirm', async (req, res) => {
   }
 });
 
-router.post('/', (req, res) => {
-  const { recipients, subject, message } = req.body;
+router.post('/send', ensureTemplateLoaded, async (req, res) => {
+  const { users, subject, message, eventDetails } = req.body;
+  console.log('Send Data:', { users, subject, message, eventDetails });
 
-  const mailOptions = {
-    from: `"Cross Creek Creates" <${EMAIL_USER}>`,
-    to: '',
-    bcc: recipients, 
-    subject: subject,
-    text: message,
-    html: `<p>${message}</p>`
-  };
+  try {
+    const sendEmailPromises = users.map(async (user) => {
+      const personalizedMessage = `Dear ${user.firstName},\n\n${message}`;
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-    res.status(200).json({ message: 'Emails sent successfully', info });
-  });
+      const html = emailTemplate({
+        subject,
+        message: personalizedMessage,
+        eventDetails,
+        logoUrl: 'https://example.com/logo.png' // Replace with your actual logo URL
+      });
+
+      const mailOptions = {
+        from: `"Cross Creek Creates" <${EMAIL_USER}>`,
+        to: user.email,
+        subject: subject,
+        html: html
+      };
+
+      return transporter.sendMail(mailOptions);
+    });
+
+    await Promise.all(sendEmailPromises);
+    res.status(200).json({ message: 'Emails sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Failed to send emails' });
+  }
 });
 
 module.exports = router;

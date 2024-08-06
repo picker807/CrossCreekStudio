@@ -17,6 +17,7 @@ export class EventListComponent implements OnInit, OnDestroy{
   isAdmin: boolean = true;
   currentDate: Date = new Date();
   futureEvents: Event[] = [];
+  pastEvents: Event[] = [];
 
   constructor(private eventService: EventService,
     private authService: AuthService,) {
@@ -31,10 +32,10 @@ export class EventListComponent implements OnInit, OnDestroy{
     this.subscription = this.eventService.events$.subscribe((eventsList: Event[]) => {
       this.events = eventsList;
       this.filterFutureEvents();
+      this.filterPastEvents();
     },
     
     )
-    //this.eventService.getEvents();
   }
 
   filterFutureEvents(): void {
@@ -44,7 +45,14 @@ export class EventListComponent implements OnInit, OnDestroy{
       const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
       return eventDate >= now || (eventDate.toDateString() === now.toDateString() && eventDate.getTime() >= now.getTime());
     });
-    
+  }
+
+  filterPastEvents(): void {
+    const now = new Date();
+    this.pastEvents = this.events.filter(event => {
+      const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
+      return eventDate < now;
+    });
   }
   
   search (value: string) {
@@ -54,6 +62,4 @@ export class EventListComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
-
 }
-// event location, virtual auto fills location, zoom or facebook, registration is the function of the date up to day of event, users set up attendies like gallery but different. list of attendies is checked agaisnt user list. if user doesnt exist then new user is created. Fix filtering

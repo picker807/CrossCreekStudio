@@ -17,7 +17,7 @@ router.get('/:id', authMiddleware, superAdminMiddleware, adminController.getAdmi
 router.get('/', authMiddleware, superAdminMiddleware, adminController.getAllAdmins);
 router.post('/', authMiddleware, superAdminMiddleware, adminController.createAdmin);
 router.put('/:id', authMiddleware, superAdminMiddleware, adminController.updateAdmin);
-router.patch('/:id/reset-password', authMiddleware, superAdminMiddleware, adminController.resetPassword);
+router.patch('/:id', authMiddleware, superAdminMiddleware, adminController.updateAdmin);
 router.delete('/:id', authMiddleware, superAdminMiddleware, adminController.deleteAdmin);
 
 

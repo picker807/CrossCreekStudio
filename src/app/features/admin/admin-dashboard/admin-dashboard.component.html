@@ -1,121 +1,117 @@
-<div class="container mx-auto p-4">
-  <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+<div class="container mx-auto px-4 py-6">
+  <!-- Page Header -->
+  <header class="bg-indigo-100 shadow rounded-lg p-6 mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between border-indigo-600">
+    <div class="text-indigo-800">
+      <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
+      <p><strong>Name:</strong> {{ currentAdmin?.name }}</p>
+      <p><strong>Email:</strong> {{ currentAdmin?.email }}</p>
+      <p><strong>Role:</strong> {{ currentAdmin?.role }}</p>
+    </div>
+    <button (click)="logout()" class="mt-4 lg:mt-0 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+      Logout
+    </button>
+  </header>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Password Management Section -->
-    <section class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-2xl font-semibold mb-4">Password Management</h2>
-      <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" class="space-y-4">
-        <div>
-          <label for="oldPassword" class="block text-sm font-medium text-gray-700">Old Password</label>
-          <input id="oldPassword" type="password" formControlName="oldPassword" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-        </div>
-        <div>
-          <label for="newPassword" class="block text-sm font-medium text-gray-700">New Password</label>
-          <input id="newPassword" type="password" formControlName="newPassword" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-        </div>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Change Password</button>
-      </form>
-    </section>
+  <!-- Main Content -->
+  <div class="lg:grid lg:grid-cols-2 lg:gap-6">
 
-     <!-- New Admin Creation Section -->
-     <section *ngIf="currentAdmin?.role === 'superadmin'" class="bg-white shadow rounded-lg p-6 lg:col-span-2">
-      <h2 class="text-2xl font-semibold mb-4">Create New Admin</h2>
-      <form [formGroup]="createAdminForm" (ngSubmit)="createAdmin()" class="space-y-4">
-        <div>
-          <label for="adminEmail" class="block text-sm font-medium text-gray-700">Email</label>
-          <input id="adminEmail" type="email" formControlName="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
-        </div>
-        <div>
-          <label for="adminPassword" class="block text-sm font-medium text-gray-700">Password</label>
-          <input id="adminPassword" type="password" formControlName="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
-        </div>
-        <div>
-          <label for="adminRole" class="block text-sm font-medium text-gray-700">Role</label>
-          <select id="adminRole" formControlName="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
-            <option value="admin">Admin</option>
-            <option value="superadmin">Super Admin</option>
-          </select>
-        </div>
-        <button type="submit" [disabled]="!createAdminForm.valid" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Create Admin</button>
-      </form>
-    </section>
-
-    <!-- Admin List Section -->
-    <section *ngIf="currentAdmin?.role === 'superadmin'" class="bg-white shadow rounded-lg p-6 lg:col-span-2">
-      <h2 class="text-2xl font-semibold mb-4">Admin Management</h2>
-      <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-2">
-          <h3 class="text-lg font-medium mb-2">Admin Email</h3>
-        </div>
-        <div class="col-span-1">
-          <h3 class="text-lg font-medium mb-2">Password Reset</h3>
-        </div>
-      </div>
-      <div *ngFor="let admin of admins" class="grid grid-cols-3 gap-4 mb-4 items-center">
-        <div class="col-span-2">
-          <h3 class="text-lg font-medium">{{ admin.email }}</h3>
-        </div>
-        <div class="col-span-1">
-          <label class="flex items-center">
-            <input type="checkbox" (change)="toggleResetForm(admin.id)" class="form-checkbox h-5 w-5 text-blue-600">
-            <span class="ml-2 text-gray-700">Show/Hide</span>
-          </label>
-          <div *ngIf="showResetForm[admin.id]" class="mt-4">
-            <form [formGroup]="resetForms[admin.id]" (ngSubmit)="resetPassword(admin.id)" class="flex items-center space-x-4">
-              <input type="password" formControlName="newPassword" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-              <button type="submit" [disabled]="!resetForms[admin.id].valid" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Reset
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Event User Management and Message Section -->
-    <section class="bg-white shadow rounded-lg p-6 lg:col-span-2">
-      <h2 class="text-2xl font-semibold mb-4">Event User Management & Send Message</h2>
-      <div class="mb-4">
-        <label for="eventSelect" class="block text-sm font-medium text-gray-700">Select an Event</label>
-        <select id="eventSelect" (change)="onEventSelect($event.target.value)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-          <option value="">Select an event</option>
-          <option *ngFor="let event of events" [value]="event.id">{{ event.name }}</option>
-        </select>
-      </div>
-      <div *ngIf="selectedEventUsers.length > 0">
-        <h3 class="text-lg font-medium mb-2">Users in Selected Event</h3>
-        <label class="flex items-center mb-4">
+     <!-- Event Management and Message Section -->
+   <section class="bg-blue-50 shadow rounded-lg p-6 mb-6">
+    <h2 class="text-2xl font-semibold mb-4 text-blue-800">Send A Message</h2>
+    <select (change)="onEventSelect($event.target.value)" class="w-full px-3 py-2 border rounded-md mb-4 border-blue-300">
+      <option value="">Select an event</option>
+      <option *ngFor="let event of events" [value]="event.id">{{ event.name }}</option>
+    </select>
+    <div *ngIf="selectedEventUsers.length > 0">
+      <h3 class="text-xl font-semibold mb-2 text-blue-700">Event Attendees</h3>
+      <div class="mb-2">
+        <label class="flex items-center">
           <input type="checkbox" (change)="toggleSelectAll($event)" class="form-checkbox h-5 w-5 text-blue-600">
-          <span class="ml-2 text-gray-700">Select All Attendees</span>
+          <span class="ml-2 text-blue-700">Select All</span>
         </label>
-        <ul class="space-y-2">
-          <li *ngFor="let user of selectedEventUsers" class="flex items-center">
-            <input type="checkbox" [id]="user.id" (change)="toggleUserSelection(user.id)" [checked]="selectedUsers.includes(user.id)" class="form-checkbox h-5 w-5 text-blue-600">
-            <label [for]="user.id">{{ user.firstName }} {{ user.lastName }} -- {{ user.phone | phoneFormat }} -- ({{ user.email }})</label>
-          </li>
-        </ul>
       </div>
-      <div class="mt-4">
-        <h3 class="text-lg font-medium mb-2">Message Center - send email to attendees</h3>
-        <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="max-w-lg mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-          <div class="mb-4">
-            <label for="subject" class="block text-gray-700 text-sm font-bold mb-2">Subject:</label>
-            <input type="text" id="subject" formControlName="subject" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-          </div>
-          <div class="mb-6">
-            <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Message:</label>
-            <textarea id="message" formControlName="message" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4" required></textarea>
-          </div>
-          <div class="flex items-center justify-between">
-            <button type="submit" [disabled]="!messageForm.valid || selectedUsers.length === 0" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed">
-              Send Email
-            </button>
-          </div>
-        </form>
+      <div *ngFor="let user of selectedEventUsers" class="mb-2">
+        <label class="flex items-center">
+          <input type="checkbox" [checked]="selectedUsers.includes(user.id)" (change)="toggleUserSelection(user.id)" class="form-checkbox h-5 w-5 text-blue-600">
+          <span class="ml-2 text-blue-700">{{ user.firstName }} {{user.lastName }} ({{ user.email }})</span>
+        </label>
+      </div>
+    </div>
+    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="space-y-4 mt-4">
+      <input type="text" formControlName="subject" placeholder="Subject" class="w-full px-3 py-2 border rounded-md border-blue-300">
+      <textarea formControlName="message" placeholder="Message" rows="4" class="w-full px-3 py-2 border rounded-md border-blue-300"></textarea>
+      <div class="flex space-x-4">
+        <button type="button" 
+        (click)="previewEmail()" [disabled]="!messageForm.valid" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50">Preview Email</button>
+        <button type="submit"
+        [disabled]="!messageForm.valid || selectedUsers.length === 0"
+        class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50">Send Email</button>
+      </div>
+    </form>
+  </section>
+
+  <section *ngIf="showPreview" class="bg-white shadow rounded-lg p-6 mb-6">
+    <h2 class="text-2xl font-semibold mb-4 text-blue-800">Email Preview</h2>
+    <div [innerHTML]="previewHtml"></div>
+  </section>
+
+    <!-- Admin Management Section -->
+    <section *ngIf="currentAdmin?.role === 'superadmin'" class="bg-green-50 shadow rounded-lg p-6 mb-6">
+      <!-- Header row with column labels -->
+      <div class="flex justify-between items-center mb-4 font-medium text-green-800">
+        <h2 class="text-2xl font-semibold mb-4">Admin Information</h2>
+        <span>Update info</span>
+      </div>
+      
+      <div *ngFor="let admin of admins" class="mb-6 pb-4 border-b border-green-400">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-lg font-medium text-green-700">{{admin.name}} ({{ admin.email }}) - {{admin.role}}</h3>
+          <label class="flex items-center">
+            <input type="checkbox" (change)="toggleResetForm(admin.id)" class="form-checkbox h-5 w-5 text-green-600">
+            <span class="ml-2 text-green-700"></span>
+          </label>
+        </div>
+        
+        <div *ngIf="showResetForm[admin.id]" class="mt-4">
+          <form [formGroup]="resetForms[admin.id]" (ngSubmit)="updateAdmin(admin.id)" class="space-y-4">
+            <input type="text" formControlName="name" placeholder="Name" class="w-full px-3 py-2 border rounded-md border-green-300">
+            <input type="email" formControlName="email" placeholder="Email" class="w-full px-3 py-2 border rounded-md border-green-300">
+            <select formControlName="role" class="w-full px-3 py-2 border rounded-md border-green-300">
+              <option value="admin">Admin</option>
+              <option value="superadmin">Super Admin</option>
+            </select>
+            <input type="password" formControlName="newPassword" placeholder="New Password" class="w-full px-3 py-2 border rounded-md border-green-300">
+            <button type="submit" [disabled]="!resetForms[admin.id].valid" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Update Info</button>
+            <button type="button" (click)="deleteAdmin(admin.id)" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Delete Admin</button>
+          </form>
+        </div>
       </div>
     </section>
-  </div>
+
+    <!-- Create Admin Section -->
+    <section *ngIf="currentAdmin?.role === 'superadmin'" class="bg-yellow-50 shadow rounded-lg p-6 mb-6">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-800">Create New Admin</h2>
+      <form [formGroup]="createAdminForm" (ngSubmit)="createAdmin()" class="space-y-4">
+        <input type="text" formControlName="name" placeholder="Name" class="w-full px-3 py-2 border rounded-md border-yellow-300">
+        <input type="email" formControlName="email" placeholder="Email" class="w-full px-3 py-2 border rounded-md border-yellow-300">
+        <input type="password" formControlName="password" placeholder="Password" class="w-full px-3 py-2 border rounded-md border-yellow-300">
+        <select formControlName="role" class="w-full px-3 py-2 border rounded-md border-yellow-300">
+          <option value="admin">Admin</option>
+          <option value="superadmin">Superadmin</option>
+        </select>
+        <button type="submit" [disabled]="!createAdminForm.valid" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Create Admin</button>
+      </form>
+    </section>
+
+    <!-- Change Password Section -->
+    <section class="bg-pink-50 shadow rounded-lg p-6 mb-6">
+      <h2 class="text-2xl font-semibold mb-4 text-pink-800">Change Password</h2>
+      <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" class="space-y-4">
+        <input type="password" formControlName="oldPassword" placeholder="Old Password" class="w-full px-3 py-2 border rounded-md border-pink-300">
+        <input type="password" formControlName="newPassword" placeholder="New Password" class="w-full px-3 py-2 border rounded-md border-pink-300">
+        <button type="submit" [disabled]="!changePasswordForm.valid" class="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700">Change Password</button>
+      </form>
+    </section>
+
+  
 </div>
-
-

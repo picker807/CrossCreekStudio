@@ -104,4 +104,10 @@ export class GalleryService {
     );
   }
 
+  uploadFile(file: File): Observable<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/upload`, formData);
+  }
+
 }

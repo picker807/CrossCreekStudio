@@ -92,6 +92,12 @@ deleteItem(id: string): void {
         });
         this.router.navigate(['/gallery']);
       });
+    } else {
+      this.messageService.showMessage({
+          text: 'Problem deleting item',
+          type: 'error',
+          duration: 5000
+        });
     }
   });
 }

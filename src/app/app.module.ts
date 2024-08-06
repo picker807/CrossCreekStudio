@@ -17,6 +17,7 @@ import { CartComponent } from './features/checkout/cart/cart.component';
 import { ConfirmationComponent } from './features/checkout/confirmation/confirmation.component';
 import { isPlatformBrowser } from '@angular/common';
 import { MessageComponent } from './features/message/message.component';
+import { PageNotFoundComponent } from './features/page-not-found/page-not-found.component';
 
 
 export function tokenGetter(platformId: Object) {
@@ -35,7 +36,8 @@ export function tokenGetter(platformId: Object) {
     RegistrationComponent,
     CartComponent,
     ConfirmationComponent,
-    MessageComponent
+    MessageComponent,
+    PageNotFoundComponent
     
  
   ],

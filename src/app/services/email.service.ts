@@ -1,4 +1,3 @@
-// src/app/services/email.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -17,11 +16,12 @@ export class EmailService {
     return this.http.post(`${this.apiUrl}/confirm`, { user, eventName, eventDate });
   }
 
-  sendEmail(recipients: string[], subject: string, message: string): Observable<any> {
+  getEmailPreview(recipients: string[], subject: string, message: string, eventDetails?: any): Observable<any> {
     const emailData = {
       recipients,
       subject,
-      message
+      message,
+      eventDetails
     };
 
     const headers = new HttpHeaders({
@@ -29,6 +29,22 @@ export class EmailService {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     });
 
-    return this.http.post<any>(this.apiUrl, emailData, { headers });
+    return this.http.post<any>(`${this.apiUrl}/preview`, emailData, { headers });
+  }
+
+  sendEmail(users: any[], subject: string, message: string, eventDetails?: any): Observable<any> {
+    const emailData = {
+      users,
+      subject,
+      message,
+      eventDetails
+    };
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    return this.http.post<any>(`${this.apiUrl}/send`, emailData, { headers });
   }
 }

@@ -1,15 +1,18 @@
-<form [formGroup]="galleryForm" (ngSubmit)="submitEdit()">
-  <mat-form-field appearance="fill">
+<form [formGroup]="galleryForm" (ngSubmit)="submitEdit()" class="w-full flex flex-col overflow-auto" style="height: 80vh;">
+  <!-- Name Field -->
+  <mat-form-field appearance="fill" class="w-full mb-4">
     <mat-label>Name</mat-label>
     <input matInput formControlName="name">
   </mat-form-field>
 
-  <mat-form-field appearance="fill">
+  <!-- Description Field -->
+  <mat-form-field appearance="fill" class="w-full flex-grow mb-4">
     <mat-label>Description</mat-label>
-    <input matInput formControlName="description">
+    <textarea matInput formControlName="description" rows="5"></textarea>
   </mat-form-field>
 
-  <mat-form-field appearance="fill">
+  <!-- Category Field -->
+  <mat-form-field appearance="fill" class="w-full mb-4">
     <mat-label>Category</mat-label>
     <mat-select formControlName="category">
       <mat-option *ngFor="let category of GalleryCategory | keyvalue" [value]="category.value">
@@ -18,16 +21,23 @@
     </mat-select>
   </mat-form-field>
 
-  <div>
-    <img *ngIf="currentImageUrl" [src]="currentImageUrl" alt="Image Preview" class="w-full max-w-md mx-auto h-auto">
+  <!-- Image Preview -->
+  <div class="w-full max-w-md mx-auto my-4">
+    <img *ngIf="currentImageUrl" [src]="currentImageUrl" alt="Image Preview" class="w-full h-auto rounded-md shadow-md">
   </div>
-  
-  <mat-form-field appearance="fill">
+
+   <!-- Azure Blob Storage Upload Button -->
+   <input type="file" (change)="uploadFile($event)" class="mb-4">
+
+  <!-- Image URL Field -->
+  <!-- <mat-form-field appearance="fill" class="w-full mb-4">
     <mat-label>Image URL</mat-label>
     <input matInput formControlName="imageUrl" (input)="onImageUrlChange($event)">
-  </mat-form-field>
+  </mat-form-field> -->
 
-  <button mat-raised-button color="primary" type="submit">Save</button>
-  <button type="button" (click)="cancelEdit()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Cancel</button>
+  <!-- Buttons -->
+  <div class="flex justify-between mt-auto pt-4">
+    <button mat-raised-button color="primary" type="submit">Save</button>
+    <button type="button" (click)="cancelEdit()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Cancel</button>
+  </div>
 </form>
-

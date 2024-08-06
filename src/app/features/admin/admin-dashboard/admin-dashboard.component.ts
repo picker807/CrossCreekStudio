@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RegistrationService } from '../../../services/registration.service';
 import { AdminService } from '../../../services/admin.service';
@@ -10,6 +10,11 @@ import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 import { Router } from '@angular/router';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
+import { EMPTY, filter, Subject, switchMap, takeUntil } from 'rxjs';
+import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'cc-admin-dashboard',
@@ -25,9 +30,14 @@ export class AdminDashboardComponent implements OnInit {
   messageForm: FormGroup;
   createAdminForm: FormGroup;
   selectedUsers: string[] = [];
-  resetForms: { [key: string]: FormGroup } = {};
+  resetForms: {[key: string]: FormGroup } = {};
   showResetForm: { [key: string]: boolean } = {};
   currentAdmin: Admin;
+  previewHtml: SafeHtml = '';
+  showPreview: boolean = false;
+  selectedEvent: Event;
+
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     private userService: RegistrationService,
@@ -36,7 +46,9 @@ export class AdminDashboardComponent implements OnInit {
     private emailService: EmailService,
     private messageService: MessageService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog,
+    private sanitizer: DomSanitizer
   ) {
     this.changePasswordForm = this.fb.group({
       oldPassword: ['', Validators.required],
@@ -57,29 +69,39 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+   
     this.loadCurrentAdmin();
     this.loadEvents();
-    this.loadAdmins();
   }
 
   loadCurrentAdmin(): void {
-    console.log("loading current admin");
-    this.adminService.getCurrentAdmin().subscribe({
-      next: admin => {
+    this.adminService.getCurrentAdmin().pipe(
+      switchMap(admin => {
         console.log("Admin returned to dashboard: ", admin);
         this.currentAdmin = admin;
-        
+        if (this.currentAdmin.role === "superadmin") {
+          return this.adminService.admins$;
+        }
+        return EMPTY;
+      }),
+      filter(admins => Array.isArray(admins)),
+      takeUntil(this.unsubscribe$)
+    ).subscribe({
+      next: admins => {
+        this.admins = admins.filter(admin => admin.id !== this.currentAdmin.id);
+        this.loadAdmins();
       },
       error: err => {
-        console.error(err)
+        console.error(err);
         this.messageService.showMessage({
-          text: 'Failed to load current admin',
+          text: 'Failed to load admins',
           type: 'error',
           duration: 5000
         });
       }
     });
   }
+
 
   loadEvents(): void {
     this.eventService.events$.subscribe({
@@ -97,46 +119,101 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadAdmins(): void {
-    this.adminService.getAllAdmins().subscribe({
-      next: admins => {
-        this.admins = admins;
-        this.admins.forEach(admin => {
-          this.resetForms[admin._id] = this.fb.group({
-            newPassword: ['', Validators.required]
-          });
-          this.showResetForm[admin._id] = false;
+    console.log('Loading admins:', this.admins);
+    this.admins.forEach(admin => {
+      if (!this.resetForms[admin.id]) {
+        this.resetForms[admin.id] = this.fb.group({
+          name: [admin.name, Validators.required],
+          email: [admin.email, [Validators.required, Validators.email]],
+          role: [admin.role, Validators.required],
+          newPassword: ['', Validators.minLength(4)]
         });
-      },
-      error: err => {
-        this.messageService.showMessage({
-          text: 'Failed to load admins',
-          type: 'error',
-          duration: 5000
+      } else {
+        this.resetForms[admin.id].patchValue({
+          name: admin.name,
+          email: admin.email,
+          role: admin.role,
+          newPassword: ''
         });
       }
+      this.showResetForm[admin.id] = false;
     });
   }
 
   toggleResetForm(adminId: string): void {
-    if (this.currentAdmin._id !== adminId) {
-      this.showResetForm[adminId] = !this.showResetForm[adminId];
-    }
+    this.showResetForm[adminId] = !this.showResetForm[adminId];
   }
 
   onEventSelect(eventId: string): void {
-    this.eventService.getEventUsers(eventId).subscribe({
-      next: users => {
-        this.selectedEventUsers = users;
-        this.selectedUsers = [];
-      },
-      error: err => {
-        this.messageService.showMessage({
-          text: 'Failed to load event attendees',
-          type: 'error',
-          duration: 5000
+    const selectedEvent = this.events.find(event => event.id === eventId);
+    if (selectedEvent) {
+      this.selectedEvent = selectedEvent;
+      this.selectedEventUsers = selectedEvent.attendees || [];
+      this.selectedUsers = [];
+  
+      // Calculate days until the event
+      const daysUntil = this.calculateDaysUntil(this.selectedEvent.date);
+  
+      // Pre-load the subject and message fields with the reminder message
+      const subject = `Reminder: Upcoming Event - ${this.selectedEvent.name}`;
+      const message = `This is a reminder for the upcoming Paint Party event "${this.selectedEvent.name}" happening in ${daysUntil} days. We look forward to seeing you there!\n\nBest regards,\nCross Creek Creates`;
+  
+      this.messageForm.patchValue({
+        subject: subject,
+        message: message
+      });
+    } else {
+      this.messageService.showMessage({
+        text: 'Event not found',
+        type: 'error',
+        duration: 5000
       });
     }
-    });
+  }
+
+  previewEmail(): void {
+    if (this.messageForm.valid) {
+      const { subject, message } = this.messageForm.value;
+      const selectedUserEmails = this.selectedEventUsers
+        .filter(user => this.selectedUsers.includes(user.id))
+        .map(user => user.email);
+
+      console.log("Selected evemt foe email: ", this.selectedEvent)
+
+      const eventDetails = this.selectedEvent ? {
+        name: this.selectedEvent.name,
+        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'),
+        time: this.formatTime(this.selectedEvent.date),
+        location: this.selectedEvent.location,
+        daysUntil: this.calculateDaysUntil(this.selectedEvent.date)
+      } : null;
+
+      console.log('Preview Email Data:', { selectedUserEmails, subject, message, eventDetails });
+
+      this.emailService.getEmailPreview(selectedUserEmails, subject, message, eventDetails).subscribe({
+        next: (response) => {
+          this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(response.html);
+          this.showPreview = true;
+        },
+        error: (err) => {
+          this.messageService.showMessage({
+            text: 'Failed to generate email preview',
+            type: 'error',
+            duration: 5000
+          });
+        }
+      });
+    }
+  }
+
+  formatDate(date: Date): string {
+    const eventDate = new Date(date);
+    return eventDate.toLocaleDateString();
+  }
+
+  formatTime(date: Date): string {
+    const eventDate = new Date(date);
+    return eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   changePassword(): void {
@@ -151,31 +228,55 @@ export class AdminDashboardComponent implements OnInit {
         });
         },
         error: err => {
+          console.error('Password change error:', err);
+          let errorMessage = 'Failed to change password';
+          if (err.error && err.error.message) {
+            errorMessage = err.error.message;
+          }
           this.messageService.showMessage({
-            text: 'Failed to change password',
+            text: errorMessage,
             type: 'error',
             duration: 5000
-        });
+          });
         }
       });
     }
   }
 
-  resetPassword(adminId: string): void {
+  updateAdmin(adminId: string): void {
     if (this.resetForms[adminId].valid) {
-      const newPassword = this.resetForms[adminId].value.newPassword;
-      this.adminService.resetPassword(adminId, newPassword).subscribe({
-        next: response => {
+      const updatedData = this.resetForms[adminId].value;
+      if (!updatedData.newPassword) {
+        delete updatedData.newPassword;
+      }
+      console.log("Updated Admin Data: ", updatedData);
+
+      this.adminService.updateAdmin(adminId, updatedData).subscribe({
+        next: updatedAdmin => {
+          console.log("updated admin returned to admin dashboard: ", updatedAdmin);
+          //const index = this.admins.findIndex(admin => admin.id == adminId);
+          console.log("admin id: ", adminId);
+          /* console.log("Index: ", index);
+          if (index !== -1) {
+            this.admins[index] = updatedAdmin;
+          } */
+
+          /* this.admins.forEach(admin => {
+            console.log('Admin:', admin);
+          }); */
+          
+          //this.showResetForm[adminId] = false;
           this.messageService.showMessage({
-            text: 'Password reset successfully',
+            text: 'Admin updated successfully',
             type: 'success',
             duration: 5000
           });
-          this.showResetForm[adminId] = false;
+          location.reload();
+          
         },
         error: err => {
           this.messageService.showMessage({
-            text: 'Failed to reset password',
+            text: 'Failed to update admin',
             type: 'error',
             duration: 5000
           });
@@ -188,7 +289,7 @@ export class AdminDashboardComponent implements OnInit {
     if (this.createAdminForm.valid) {
       const { name, email, password, role } = this.createAdminForm.value;
       const admin: CreateAdminDto = {
-        _id: "",
+        id: "",
         name: name,
         email: email,
         password: password,
@@ -216,24 +317,23 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  editAdmin(adminId: string, updatedData: Partial<Admin>): void {
-    this.adminService.editAdmin(adminId, updatedData).subscribe(updatedAdmin => {
-      const index = this.admins.findIndex(admin => admin._id === adminId);
-      if (index !== -1) {
-        this.admins[index] = updatedAdmin;
-        // Provide user feedback
-      }
-    });
-  }
-
   sendMessage(): void {
     if (this.messageForm.valid && this.selectedUsers.length > 0) {
       const { subject, message } = this.messageForm.value;
-      const selectedUserEmails = this.selectedEventUsers
+      const selectedUsers = this.selectedEventUsers
         .filter(user => this.selectedUsers.includes(user.id))
-        .map(user => user.email);
+        .map(user => ({ firstName: user.firstName, email: user.email }));
+        console.log("selected users sent to email: ", selectedUsers);
 
-      this.emailService.sendEmail(selectedUserEmails, subject, message).subscribe({
+      const eventDetails = this.selectedEvent ? {
+        name: this.selectedEvent.name,
+        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'), 
+        time: this.formatTime(this.selectedEvent.date),
+        location: this.selectedEvent.location,
+        daysUntil: this.calculateDaysUntil(this.selectedEvent.date)
+      } : null;
+
+      this.emailService.sendEmail(selectedUsers, subject, message, eventDetails).subscribe({
         next: response => {
           this.messageService.showMessage({
             text: 'Emails sent successfully',
@@ -254,6 +354,16 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  calculateDaysUntil(eventDate: Date): number {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to beginning of the day
+    const event = new Date(eventDate);
+    event.setHours(0, 0, 0, 0); // Set to beginning of the day
+    const diffTime = event.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }
+
   toggleSelectAll(event: any): void {
     const isChecked = event.target.checked;
     this.selectedUsers = isChecked ? this.selectedEventUsers.map(user => user.id) : [];
@@ -268,6 +378,37 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  deleteAdmin(id: string): void {
+    console.log("111111");
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this Admin?'
+      }
+    });
+    console.log("222222");
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.adminService.deleteAdmin(id).subscribe(() => {
+          this.messageService.showMessage({
+            text: 'Admin deleted successfully',
+            type: 'success',
+            duration: 5000
+          });
+          //this.router.navigate(['/g']);
+        });
+      } else {
+        this.messageService.showMessage({
+            text: 'Problem deleting admin',
+            type: 'error',
+            duration: 5000
+          });
+      }
+    });
+  }
+
   logout(): void {
     this.adminService.logout();
     this.router.navigate(['/admin/login']);
@@ -275,6 +416,11 @@ export class AdminDashboardComponent implements OnInit {
       text: 'Logged out successfully',
       type: 'success',
       duration: 3000
-  });
+    });
   }
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
 }

@@ -170,19 +170,19 @@
           This event is in the past and cannot be edited
         </div>
         <button 
-          [ngClass]="{
-            'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out': showModifyEvent && editForm.valid,
-            'bg-gray-500 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out cursor-not-allowed': !showModifyEvent || !editForm.valid
-          }" 
+        [class]="
+        'text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out ' +
+        (showModifyEvent && editForm.valid ? 'bg-green-500 hover:bg-green-700' : 'bg-gray-500 cursor-not-allowed')
+      " 
           [disabled]="!showModifyEvent || !editForm.valid"
           type="submit">
           Save Changes
         </button>
         <button type="button" (click)="cancelEdit()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded  transition duration-300 ease-in-out">Cancel</button>
-        <button (click)="deleteEvent()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+        <button (click)="deleteEvent()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded float-right">
           Delete Event
       </button>
     </form>
-    <pre>{{ editForm.valid | json }}</pre>
-<pre>{{ editForm.value | json }}</pre>
+    <!-- <pre>{{ editForm.valid | json }}</pre>
+<pre>{{ editForm.value | json }}</pre> -->
 </div>

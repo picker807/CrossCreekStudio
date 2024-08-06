@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Admin, AdminCredentials, PasswordChangeRequest, CreateAdminDto } from '../models/admin.model';
 
 @Injectable({
@@ -9,7 +9,12 @@ import { Admin, AdminCredentials, PasswordChangeRequest, CreateAdminDto } from '
 export class AdminService {
   private apiUrl = 'http://localhost:3000/admin';
 
-  constructor(private http: HttpClient) { }
+  private adminsSubject = new BehaviorSubject<Admin[]>([]);
+  admins$ = this.adminsSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.getAllAdmins();
+   }
 
   private getAuthHeaders(): HttpHeaders {
     return new HttpHeaders({
@@ -26,10 +31,10 @@ export class AdminService {
       );
   }
 
-  getAllAdmins(): Observable<Admin[]> {
-    return this.http.get<Admin[]>(this.apiUrl, {
+  getAllAdmins(): void {
+    this.http.get<Admin[]>(this.apiUrl, {
       headers: this.getAuthHeaders()
-    });
+    }).subscribe(admins => {this.adminsSubject.next(admins)});
   }
 
   getCurrentAdmin(): Observable<any> {
@@ -51,17 +56,62 @@ export class AdminService {
     });
   }
 
-  editAdmin(adminId: string, updatedData: Partial<Admin>): Observable<Admin> {
+ /*  editAdmin(adminId: string, updatedData: Partial<Admin>): Observable<Admin> {
     return this.http.patch<Admin>(`${this.apiUrl}/${adminId}`, updatedData, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(
+      tap(updatedAdmin => {
+        const currentAdmins = this.adminsSubject.value;
+        const index = currentAdmins.findIndex(admin => admin.id === adminId);
+        if (index !== -1) {
+          const updatedAdmins = [
+            ...currentAdmins.slice(0, index),
+            updatedAdmin,
+            ...currentAdmins.slice(index + 1)
+          ];
+          this.adminsSubject.next(updatedAdmins);
+        }
+      })
+    );
+  } */
+
+  //Change the info for another admin - super admin privilege.
+  updateAdmin(adminId: string, updatedData: Partial<Admin>): Observable<Admin> {
+    console.log("Updated Data in the Admin Service: ", updatedData);
+    return this.http.patch<Admin>(`${this.apiUrl}/${adminId}`, updatedData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap(updatedAdmin => {
+        console.log("Updated Admin sent back from serveer: ", updatedAdmin);
+        const currentAdmins = this.adminsSubject.value;
+        const index = currentAdmins.findIndex(admin => admin.id === adminId);
+        if (index !== -1) {
+          const updatedAdmins = [
+            ...currentAdmins.slice(0, index),
+            updatedAdmin,
+            ...currentAdmins.slice(index + 1)
+          ];
+          this.adminsSubject.next(updatedAdmins);
+        }
+      })
+    );
   }
 
-  //Reset the password of another admin
-  resetPassword(adminId: string, newPassword: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${adminId}/reset-password`, { newPassword }, {
+  deleteAdmin(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(
+      tap(() => {
+        const currentAdmins = this.adminsSubject.getValue();
+        const updatedAdmins = currentAdmins.filter(admin => admin.id !== id);
+        this.adminsSubject.next(updatedAdmins);
+        //this.sortAndSend();
+      }),
+      catchError(error => {
+        console.error('Error deleting admin:', error);
+        return throwError(() => new Error('Error deleting admin'));
+      })
+    );
   }
 
   changePassword(request: PasswordChangeRequest): Observable<any> {

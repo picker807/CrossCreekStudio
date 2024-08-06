@@ -15,7 +15,7 @@ export class MessageService {
   public message$: Observable<Message | null> = this.messageSubject.asObservable();
 
   showMessage(message: Message): void {
-    console.log("message triggered");
+    //console.log("message triggered");
     this.messageSubject.next(message);
     if (message.duration) {
       setTimeout(() => this.clearMessage(), message.duration);

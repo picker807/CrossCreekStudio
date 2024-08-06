@@ -7,6 +7,8 @@ import { Gallery, GalleryCategory } from '../../../models/gallery.model';
 import { GalleryService } from '../../../services/gallery.service';
 import { Subscription } from 'rxjs';
 import { MessageService } from '../../../services/message.service';
+import { BlobServiceClient } from '@azure/storage-blob';
+import { ClientSecretCredential } from '@azure/identity';
 
 @Component({
   selector: 'cc-gallery-edit',
@@ -58,10 +60,34 @@ export class GalleryEditComponent implements OnInit {
     }));
   }
 
-  onImageUrlChange(event: Event): void {
+  uploadFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.galleryService.uploadFile(file).subscribe(
+        response => {
+          this.currentImageUrl = response.imageUrl;
+          this.galleryForm.patchValue({ imageUrl: response.imageUrl });
+        },
+        error => {
+          console.error('Error uploading file:', error);
+        }
+      );
+    }
+  }
+
+  /*
+  {
+  "appId": "cb19236f-e218-45dc-9f78-544d7fc765b4",
+  "displayName": "sp_ccs",
+  "password": "p7q8Q~PBwXRYAOpSR-MaGRPAI7zvx1M2H2HRRbxF",
+  "tenant": "edb60027-6c65-4d6b-9f5c-1395eedd433f"
+}*/
+
+  /* onImageUrlChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.currentImageUrl = input.value;
-  }
+  } */
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();

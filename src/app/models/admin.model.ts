@@ -1,7 +1,7 @@
 
 
 export interface Admin {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -18,7 +18,7 @@ export interface PasswordChangeRequest {
 }
 
 export interface CreateAdminDto {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   password: string;
