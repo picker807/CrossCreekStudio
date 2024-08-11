@@ -2,11 +2,30 @@ const sequenceGenerator = require('./sequence');
 const Gallery = require('../models/gallery');
 var express = require('express');
 var router = express.Router();
-const { BlobServiceClient } = require('@azure/storage-blob');
-const { ClientSecretCredential } = require('@azure/identity');
+const AWS = require('aws-sdk');
+//const { BlobServiceClient } = require('@azure/storage-blob');
+//const { ClientSecretCredential } = require('@azure/identity');
 const multer = require('multer');
-const upload = multer();
+const upload = multer({ storage: multer.memoryStorage() });
 require('dotenv').config();
+
+const s3 = new AWS.S3({
+  endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
+  secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
+  region: 'auto',
+  signatureVersion: 'v4',
+});
+
+async function uploadImage(bucketName, key, file) {
+  const params = {
+    Bucket: bucketName,
+    Key: key,
+    Body: file,
+  };
+  const uploadResponse = await s3.upload(params).promise();
+  return uploadResponse;
+}
 
 router.get('/', async (req, res, next) => {
   try {
@@ -80,34 +99,18 @@ router.delete('/:id', async (req, res) => {
 
 // Upload Image File
 router.post('/upload', upload.single('file'), async (req, res) => {
-
-  const credential = new ClientSecretCredential(
-    process.env.AZURE_TENANT_ID,
-    process.env.AZURE_CLIENT_ID,
-    process.env.AZURE_CLIENT_SECRET
-  );
-  
-  const blobServiceClient = new BlobServiceClient(
-    `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    credential
-  );
-
   const file = req.file;
-  if (!file) {
-    return res.status(400).send('No file uploaded.');
-  }
-
-  const containerClient = blobServiceClient.getContainerClient('images');
-  const blockBlobClient = containerClient.getBlockBlobClient(file.originalname);
+  const key = req.body.key;
 
   try {
-    await blockBlobClient.uploadData(file.buffer);
-    const imageUrl = `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/images/${file.originalname}`;
-    res.status(200).json({ imageUrl });
+    const uploadResponse = await uploadImage(process.env.BUCKET_NAME, key, file.buffer);
+    //console.log("uploadResponse in Router: ", uploadResponse);
+    const imageUrl = `https://${process.env.R2_DEV_IDENTIFIER}.r2.dev/${key}`;
+    res.status(200).send({ imageUrl });
   } catch (error) {
-    console.error('Error uploading file to Azure Blob Storage:', error);
-    res.status(500).send('Error uploading file.');
+    res.status(500).send('Error uploading image');
   }
 });
+  
 
 module.exports = router;

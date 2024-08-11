@@ -23,11 +23,11 @@
 
   <!-- Image Preview -->
   <div class="w-full max-w-md mx-auto my-4">
-    <img *ngIf="currentImageUrl" [src]="currentImageUrl" alt="Image Preview" class="w-full h-auto rounded-md shadow-md">
+    <img *ngIf="imagePreview || currentImageUrl" [src]="imagePreview || currentImageUrl" alt="Image Preview" class="w-full h-auto rounded-md shadow-md">
   </div>
 
-   <!-- Azure Blob Storage Upload Button -->
-   <input type="file" (change)="uploadFile($event)" class="mb-4">
+   <!-- Cloudflare Upload Button -->
+   <input type="file" accept="image/*" (change)="onFileSelected($event)" class="mb-4">
 
   <!-- Image URL Field -->
   <!-- <mat-form-field appearance="fill" class="w-full mb-4">

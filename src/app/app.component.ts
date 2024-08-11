@@ -9,7 +9,7 @@ import { CheckoutService } from './services/checkout.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'Cross Creek Creates';
+  title = 'Cross Creek Studio';
   isAdmin: boolean = false;
   cartItemCount: number = 0;
 

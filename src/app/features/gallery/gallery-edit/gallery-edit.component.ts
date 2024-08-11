@@ -22,6 +22,8 @@ export class GalleryEditComponent implements OnInit {
   editMode: boolean = false;
   originalItem: Gallery;
   currentImageUrl: string;
+  selectedFile: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -60,21 +62,41 @@ export class GalleryEditComponent implements OnInit {
     }));
   }
 
-  uploadFile(event: Event): void {
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+
+      // Create a FileReader to read the file and show a preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
+
+
+  /* uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      this.galleryService.uploadFile(file).subscribe(
+      const key = this.generateUniqueKey(file.name);
+
+
+      this.galleryService.uploadFile(file, key).subscribe(
         response => {
           this.currentImageUrl = response.imageUrl;
-          this.galleryForm.patchValue({ imageUrl: response.imageUrl });
+          this.galleryForm.patchValue({ imageUrl: this.currentImageUrl });
         },
         error => {
           console.error('Error uploading file:', error);
         }
       );
     }
-  }
+  } */
+
+  
 
   /*
   {
@@ -104,57 +126,90 @@ export class GalleryEditComponent implements OnInit {
   }
 
   submitEdit(): void {
-
     if (this.galleryForm.valid) {
       const value = this.galleryForm.value;
       const newItem: Gallery = {
         ...value,
       };
+  
+      // Check if a file is selected for upload
+      if (this.selectedFile) {
+        const key = this.generateUniqueKey(this.selectedFile.name);
+  
+        // Upload the file and wait for the response
+        this.galleryService.uploadFile(this.selectedFile, key).subscribe({
+          next: (response) => {
+            console.log("response from uploadFile: ", response);
+            // Update the image URL in the form with the new URL from the response
+            this.currentImageUrl = response.imageUrl;
+            newItem.imageUrl = response.imageUrl;
+            this.galleryForm.patchValue({ imageUrl: this.currentImageUrl });
 
+            // Proceed with creating or updating the gallery item
+            this.saveGalleryItem(newItem);
+          },
+          error: (error) => {
+            console.error('Error uploading file:', error);
+            this.messageService.showMessage({
+              text: 'There was a problem uploading the image.',
+              type: 'error',
+              duration: 5000
+            });
+          }
+        });
+      } else {
+        // No file selected, proceed with creating or updating the gallery item
+        this.saveGalleryItem(newItem);
+      }
+    }
+  }
+  
+  saveGalleryItem(newItem: Gallery): void {
     if (this.editMode) {
       this.galleryService.updateGalleryItem(this.originalItem, newItem)
-      .subscribe({
-        next: (updatedItem) => {
-          this.messageService.showMessage({
-            text: 'Item updated successfully.',
-            type: 'success',
-            duration: 5000
-          });
-          this.router.navigate(['/gallery/detail', updatedItem.id]);
-          
-        },
-        error: (error) => {
-          console.error('Error updating gallery item:', error);
-          this.messageService.showMessage({
-            text: 'There was a problem when attempting to update this item.',
-            type: 'error',
-            duration: 5000
-          });
-        }
-      });
+        .subscribe({
+          next: (updatedItem) => {
+            this.messageService.showMessage({
+              text: 'Item updated successfully.',
+              type: 'success',
+              duration: 5000
+            });
+            this.router.navigate(['/gallery/detail', updatedItem.id]);
+          },
+          error: (error) => {
+            console.error('Error updating gallery item:', error);
+            this.messageService.showMessage({
+              text: 'There was a problem when attempting to update this item.',
+              type: 'error',
+              duration: 5000
+            });
+          }
+        });
     } else {
       this.galleryService.createGalleryItem(newItem)
-      .subscribe({
-        next: (updatedItem) => {
-          this.messageService.showMessage({
-            text: 'Item created successfully',
-            type: 'success',
-            duration: 5000
-          });
-          this.router.navigate(['gallery/detail', updatedItem.id]);
-          
-        },
-        error: (error) => {
-          console.error('Error creating new gallery item', error);
-          this.messageService.showMessage({
-            text: 'There was a problem when attempting to update this item.',
-            type: 'error',
-            duration: 5000
-          });
-        }
-      });
+        .subscribe({
+          next: (updatedItem) => {
+            this.messageService.showMessage({
+              text: 'Item created successfully',
+              type: 'success',
+              duration: 5000
+            });
+            this.router.navigate(['gallery/detail', updatedItem.id]);
+          },
+          error: (error) => {
+            console.error('Error creating new gallery item', error);
+            this.messageService.showMessage({
+              text: 'There was a problem when attempting to create this item.',
+              type: 'error',
+              duration: 5000
+            });
+          }
+        });
     }
-    }
+  }
+
+  generateUniqueKey(fileName: string): string {
+    return `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9_.-]/g, '_')}`;
   }
 
   cancelEdit(): void {

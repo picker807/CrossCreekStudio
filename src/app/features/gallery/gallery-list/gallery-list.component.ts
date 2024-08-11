@@ -28,13 +28,16 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   selectedCategory: string;
   categories = Object.keys(GalleryCategory);
   categoryItems: { [key: string]: Gallery[] } = {};
+  selectedTabIndex: number;
+  //categorySubscription: Subscription;
 
   //currentPage: number = 1;
   //itemsPerPage: number = 20;
   //hasMoreItems: boolean = true;
 
 
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
     private galleryService: GalleryService,
     //private authService: AuthService,
     private messageService: MessageService,
@@ -46,15 +49,18 @@ export class GalleryListComponent implements OnInit, OnDestroy{
       this.isAdmin = isAdmin;
     }); */
 
-    
-
-    this.selectedCategory = this.categories[0]; // Load the first category by default
+    this.selectedTabIndex = this.galleryService.getSelectedCategoryIndex();
+    this.selectedCategory = this.categories[this.selectedTabIndex];
     this.loadCategoryItems(this.selectedCategory);
+    //console.log("loaded category items: ", this.categoryItems);
+    
 
     this.subscription = this.galleryService.galleryList$.subscribe({
       next: (galleryList: Gallery[]) => {
         this.galleryList = galleryList;
         this.galleriesLoaded.emit(this.galleryList);
+        this.updateCategoryItems();
+        //console.log('Updated Category Items:', this.categoryItems);
       },
       error: (error) => {
         this.messageService.showMessage({
@@ -80,6 +86,8 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   }
 
   onTabChange(event: any): void {
+    this.selectedTabIndex = event.index;
+    this.galleryService.setSelectedCategoryIndex(this.selectedTabIndex);
     const selectedCategory = this.categories[event.index];
     this.selectedCategory = selectedCategory;
     this.loadCategoryItems(selectedCategory);
@@ -89,7 +97,10 @@ export class GalleryListComponent implements OnInit, OnDestroy{
     if (!this.categoryItems[category]) {
       this.galleryService.getGalleryItemsByCategory(category).subscribe({
         next: (items) => {
+          
+          //console.log("Items Sorted? ", items);
           this.categoryItems[category] = items;
+          console.log("Category items in component loadCategoryItmes: ", this.categoryItems);
         },
         error: (error) => {
           this.messageService.showMessage({
@@ -102,6 +113,20 @@ export class GalleryListComponent implements OnInit, OnDestroy{
     }
   }
 
+  private updateCategoryItems(): void {
+    this.categoryItems = this.galleryList.reduce((acc, item) => {
+      const category = item.category; // Assuming each item has a 'category' property
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {});
+  }
+
+  /* private updateCategoryItems(): void {
+    this.categoryItems[this.selectedCategory] = this.galleryList.filter(item => item.category === this.selectedCategory);
+  } */
 
    /* private groupItemsByCategory(): void {
     this.groupedItems = this.galleryList.reduce((acc, item) => {

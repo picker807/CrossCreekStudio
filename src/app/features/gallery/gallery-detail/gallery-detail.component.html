@@ -1,9 +1,9 @@
 <!-- gallery-detail.component.html -->
 <ng-container *ngIf="item">
-  <div class="max-w-4xl mx-auto p-4">
+  <div class="max-w-4xl mx-auto p-4 overflow-y-auto">
     <h1 class="text-3xl font-bold text-gray-800">{{ item.name }}</h1>
     <div class="w-full h-auto">
-      <img class="w-full max-w-md mx-auto h-auto" src="{{item.imageUrl}}" alt="{{ item.name }} Image">
+      <img class="w-full max-w-md mx-auto h-auto max-h-[65vh] object-contain" src="{{item.imageUrl}}" alt="{{ item.name }} Image">
     </div>
     <p class="text-lg mb-4"><strong>Description:</strong> {{ item.description }}</p>
     <div>

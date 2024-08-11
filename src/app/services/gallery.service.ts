@@ -14,15 +14,20 @@ export class GalleryService {
   private galleryList: Gallery[] = [];
   private galleryListSubject = new BehaviorSubject<Gallery[]>([]);
   public galleryList$ = this.galleryListSubject.asObservable();
+  private selectedCategoryIndex: number = 0;
 
   constructor(private http: HttpClient){}
+
+  private sortGalleryList(galleries: Gallery[]): Gallery[] {
+    return galleries.sort((a, b) => a.name.localeCompare(b.name));
+  }
 
   getGalleryItemsByCategory(category: string): Observable<Gallery[]> {
     return this.http.get<{ galleries: Gallery[] }>(`${this.apiUrl}?category=${category}`)
       .pipe(
-        map(response => response.galleries),
+        map(response => this.sortGalleryList(response.galleries)),
         tap(galleries => {
-          this.galleryList = [...this.galleryList, ...galleries];
+          this.galleryList = this.sortGalleryList([...this.galleryList, ...galleries]);
           this.galleryListSubject.next(this.galleryList);
         })
       );
@@ -30,17 +35,17 @@ export class GalleryService {
 
   loadAllData(): Observable<Gallery[]> {
     return this.http.get<{galleries: Gallery[]}>(this.apiUrl).pipe(
-      map (response => response.galleries),
+      map(response => this.sortGalleryList(response.galleries)),
       tap(galleries => {
-        this.galleryListSubject.next(galleries);
+        this.galleryList = this.sortGalleryList(galleries);
+        this.galleryListSubject.next(this.galleryList);
       }),
-      
       catchError(error => {
         console.error('Error loading gallery items:', error);
         return throwError(() => new Error('Error loading gallery items'));
       })
     );
-  } 
+  }
 
 
   getItemById(id: string): Observable<Gallery> {
@@ -104,10 +109,19 @@ export class GalleryService {
     );
   }
 
-  uploadFile(file: File): Observable<{ imageUrl: string }> {
+  uploadFile(file: File, key: string): Observable<{ imageUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('key', key);
     return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/upload`, formData);
+  }
+
+  getSelectedCategoryIndex(): number {
+    return this.selectedCategoryIndex;
+  }
+
+  setSelectedCategoryIndex(index: number): void {
+    this.selectedCategoryIndex = index;
   }
 
 }

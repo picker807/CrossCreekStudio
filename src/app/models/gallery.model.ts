@@ -1,8 +1,9 @@
 export enum GalleryCategory {
   Spring = "Spring",
   Summer = "Summer",
-  Winter = "Winter",
-  Fall = "Fall"
+  Fall = "Fall",
+  Winter = "Winter"
+  
 }
 
 // Define the model

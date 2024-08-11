@@ -90,7 +90,9 @@ deleteItem(id: string): void {
           type: 'success',
           duration: 5000
         });
-        this.router.navigate(['/gallery']);
+        this.router.navigateByUrl('/temporary-route', { skipLocationChange: true }).then(() => {
+          this.router.navigate(['/gallery']);
+        });
       });
     } else {
       this.messageService.showMessage({
