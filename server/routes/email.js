@@ -7,7 +7,7 @@ const handlebars = require('handlebars');
 const path = require('path');
 require('dotenv').config();
 
-const { EMAIL_USER, EMAIL_PASS } = process.env;
+const { EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVE1, EMAIL_RECEIVE2 } = process.env;
 
 // Configure the email transporter
 let transporter = nodemailer.createTransport({
@@ -103,6 +103,35 @@ router.post('/send', ensureTemplateLoaded, async (req, res) => {
   } catch (error) {
     console.error('Error sending email:', error);
     res.status(500).json({ message: 'Failed to send emails' });
+  }
+});
+
+router.post('/contact', async (req, res) => {
+  const { name, email, phone, subject, message, contactMethod } = req.body;
+  try {
+    await transporter.sendMail({
+      from: `"Contact at Cross Creek Studio" <${EMAIL_USER}>`,
+      to: `${EMAIL_USER}, ${EMAIL_RECEIVE1}, ${EMAIL_RECEIVE2} `,
+      replyTo: `${name} <${email}>`,
+      subject: `Contact message from ${name} --- ${subject}`,
+      text: `Name: ${name} \n
+            Preferred Contact Method: ${contactMethod} \n
+            email: ${email} \n
+            phone: ${phone} \n
+            subject: ${subject} \n
+            message: ${message}`,
+      html:  `<p>Name: ${name}</p>
+              <p>Preferred Contact Method: ${contactMethod}</p>
+              <p>email: ${email}</p>
+              <p>phone: ${phone}</p>
+              <p>subject: ${subject}</p>
+              <p>message: ${message}</p>`
+    });
+
+    res.status(200).json({ message: 'Contact email sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Failed to send contact email' });
   }
 });
 

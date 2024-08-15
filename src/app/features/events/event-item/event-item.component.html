@@ -11,6 +11,7 @@
     <h4 class="text-lg text-blue-600 font-semibold">{{ event.date | date:'MMM d, y, h:mm a' }}</h4>
     <h5 class="text-xl font-bold text-gray-800 mt-1">{{ event.name }}</h5>
     <h5 class="text-md text-gray-600 mt-1">{{ event.location }}</h5>
+    <div *ngIf="event.isPrivate" class="text-red-500 font-bold mt-2">Private Event</div>
   </div>
 </a>
 

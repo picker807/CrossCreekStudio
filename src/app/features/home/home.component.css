@@ -1,43 +1,35 @@
-@import url('https://cdn.tldrlegal.com/animation/tailwind.css');
-
-@keyframes slide-in-left {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  60% {
-    transform: translateX(10%);
-    opacity: 1;
-  }
-  80% {
-    transform: translateX(-5%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+.parallax-section {
+  position: relative;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  padding: 100px 0;
+  color: white;
+  text-align: center;
 }
 
-@keyframes slide-in-right {
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  60% {
-    transform: translateX(-10%);
-    opacity: 1;
-  }
-  80% {
-    transform: translateX(5%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+.content-section {
+  margin-bottom: 50px;
 }
 
-.animate-slide-in-left {
-  animation: slide-in-left 1s ease-out;
+.text-block {
+  margin-bottom: 30px;
 }
 
-.animate-slide-in-right {
-  animation: slide-in-right 1s ease-out;
+.image-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 50px;
+}
+
+.gallery-image {
+  width: 20%;
+  height: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.gallery-image:hover {
+  transform: scale(1.05);
 }

@@ -10,7 +10,8 @@ export class Event {
     public description: string,
     public price: number,
     public attendees: User[],
-    public images: Gallery[]
-    
+    public images: Gallery[],
+    public isPrivate: boolean = false,
+    public slug?: string
   ) {}
 }

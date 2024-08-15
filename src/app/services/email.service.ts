@@ -47,4 +47,18 @@ export class EmailService {
 
     return this.http.post<any>(`${this.apiUrl}/send`, emailData, { headers });
   }
+
+  sendContactMessage(name: string, email: string, phone: string, subject: string, message: string, contactMethod: string): Observable<any> {
+    const contactData = {
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      contactMethod
+    }
+
+    const headers = new HttpHeaders( {'Content-Type': 'application/json'});
+    return this.http.post<any>(`${this.apiUrl}/contact`, contactData, { headers })
+  }
 }

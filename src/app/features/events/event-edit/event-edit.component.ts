@@ -74,7 +74,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
       description: [''],
       price: [null],
       attendees: this.fb.array([]),
-      images: this.fb.array([])
+      images: this.fb.array([]),
+      isPrivate: [false]
     });
 
     //this.editForm.markAllAsTouched();
@@ -147,6 +148,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       location: this.originalEvent.location,
       description: this.originalEvent.description,
       price: this.originalEvent.price,
+      isPrivate: this.originalEvent.isPrivate
       //attendees: this.originalEvent.attendees,
       //isVirtual: this.originalEvent.isVirtual,
       //images: this.originalEvent.images

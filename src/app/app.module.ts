@@ -19,6 +19,9 @@ import { isPlatformBrowser } from '@angular/common';
 import { MessageComponent } from './features/message/message.component';
 import { PageNotFoundComponent } from './features/page-not-found/page-not-found.component';
 
+import { ContactComponent } from './features/contact/contact.component';
+import { ContactModule } from './features/contact/contact.module';
+
 
 export function tokenGetter(platformId: Object) {
   return () => {
@@ -37,8 +40,7 @@ export function tokenGetter(platformId: Object) {
     CartComponent,
     ConfirmationComponent,
     MessageComponent,
-    PageNotFoundComponent
-    
+    PageNotFoundComponent,
  
   ],
   imports: [
@@ -46,6 +48,7 @@ export function tokenGetter(platformId: Object) {
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
+    ContactModule,
     SharedModule,
     BrowserAnimationsModule,
     StoreModule.forRoot({}, {}),

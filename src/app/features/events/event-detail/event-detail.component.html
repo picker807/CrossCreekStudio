@@ -30,9 +30,14 @@
     </div>
   </div>
 
-  <!-- Buttons moved below the image -->
+  <!-- Conditional Private Event Message -->
+  <div *ngIf="event.isPrivate && !isUniqueUrl" class="text-center mb-6">
+    <p class="text-red-500 font-semibold text-2xl">This is a private event. Contact the event organizer for the registration link.</p>
+  </div>
+
+  <!-- Buttons for registration and navigation -->
   <div class="flex flex-wrap justify-center gap-4 mb-6">
-    <a *ngIf="isRegistrationOpen" routerLink="/events/{{event.id}}/register" 
+    <a *ngIf="isRegistrationOpen && (isUniqueUrl || !event.isPrivate)" routerLink="/events/{{event.id}}/register" 
        class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105">
       Register for Event
     </a>
@@ -46,20 +51,29 @@
     </a>
   </div>
 
+  <!-- Registration Closed Message -->
   <div *ngIf="!isRegistrationOpen" class="text-center mb-6">
     <p class="text-red-500 font-semibold">Registration for this event is currently closed.</p>
   </div>
-  
+
+  <!-- Display Unique URL for Admin -->
+  <div *ngIf="isAdmin && event.isPrivate" class="text-center mb-6">
+    <p class="text-blue-500 font-semibold text-xl">Unique URL for this private event:</p>
+    <p class="text-blue-700 text-xl">{{ getUniqueEventUrl() }}</p>
+  </div>
+
+  <!-- Event Details -->
   <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
       <p class="text-lg"><strong class="text-gray-700">Date:</strong> {{ event.date | date:'MMM d, y' }}</p>
       <p class="text-lg"><strong class="text-gray-700">Time:</strong> {{ event.date | date:'h:mm a' }}</p>
       <p class="text-lg"><strong class="text-gray-700">Location:</strong> {{ event.location }}</p>
-      <p class="text-lg"><strong class="text-gray-700">Cost per person:</strong> {{ event.price }}</p>
+      <p class="text-lg"><strong class="text-gray-700">Cost per person:</strong> ${{ event.price }}</p>
     </div>
     <p class="text-lg mb-4"><strong class="text-gray-700">Description:</strong> {{ event.description }}</p>
   </div>
 
+  <!-- Attendees List for Admin -->
   <div *ngIf="isAdmin" class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Attendees</h2>
     <ul class="space-y-2">

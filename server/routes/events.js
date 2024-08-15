@@ -18,10 +18,17 @@ router.get('/', async (req, res, next) => {
 });
 
 
-// Get event by ID
-router.get('/:id', async (req, res) => {
+// Get event by ID or Slug
+router.get('/:identifier', async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate('attendees').populate('images').exec();
+    const identifier = req.params.identifier;
+    const event = await Event.findOne({ $or: [{ id: identifier }, { slug: identifier }] })
+      .populate('attendees')
+      .populate('images')
+      .exec();
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
     res.status(200).json(event);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -117,7 +124,7 @@ router.put('/:id', async (req, res) => {
 
     // Process new attendees
     if (req.body.attendees && Array.isArray(req.body.attendees)) {
-      const newAttendees = await Promise.all(req.body.attendees.map(async (attendee) => {
+      const updatedAttendees = await Promise.all(req.body.attendees.map(async (attendee) => {
         if (attendee.compositeKey) {
           let user = await User.findOne({ compositeKey: attendee.compositeKey });
           if (!user) {
@@ -133,15 +140,17 @@ router.put('/:id', async (req, res) => {
           }
           return user._id;
         }
-        return null;
+        //return null;
       }));
 
+      existingEvent.attendees = updatedAttendees;
+
       // Use $addToSet to add new attendees without duplicates
-      await Event.findOneAndUpdate(
+     /*  await Event.findOneAndUpdate(
         { id: req.params.id.trim() },
         { $addToSet: { attendees: { $each: newAttendees.filter(id => id) } } },
         { new: true }
-      );
+      ); */
     }
 
     // Update other fields

@@ -31,14 +31,13 @@ export class EventService {
     });
   }
 
-  getEventById(id: string): Observable<Event> {
-    console.log(`Fetching event with ID: ${id}`);
+  getEventById(idOrSlug: string): Observable<Event> {
     return this.events$.pipe(
       take(1),
-      map(events => {
-        const event = events.find(event => event.id === id);
-        console.log(`Found event: ${event.date}`);
-        return event;
+      map(events => events.find(event => event.id === idOrSlug || event.slug === idOrSlug)),
+      catchError(error => {
+        console.error('Error fetching event:', error);
+        return throwError(() => new Error('Error fetching event'));
       })
     );
   }

@@ -16,6 +16,7 @@ export class EventDetailComponent implements OnInit {
   isAdmin: boolean = true;
   currentDate: Date = new Date();
   isRegistrationOpen: boolean = false;
+  isUniqueUrl: boolean = false;
 
   constructor(private eventService: EventService,
     private authService: AuthService,
@@ -26,26 +27,29 @@ export class EventDetailComponent implements OnInit {
       this.authService.isAdmin$.subscribe(isAdmin => {
         this.isAdmin = isAdmin;
       });
+  
       this.route.params.subscribe(params => {
         const id = params['id'];
-      
         if (id) {
           this.eventService.getEventById(id).subscribe(event => {
             this.event = event;
+            this.checkRegistrationStatus();
+            this.checkUniqueUrlAccess();
           });
-        };
-        });
-        if (this.event.date.getTime() >= this.currentDate.getTime()) {
-          this.isRegistrationOpen = true;
-        } else {
-          this.isRegistrationOpen = false;
         }
-        
-      }
+      });
+    }
+  
+    checkRegistrationStatus(): void {
+      this.isRegistrationOpen = this.event.date.getTime() >= this.currentDate.getTime();
+    }
+  
+    checkUniqueUrlAccess(): void {
+      const currentUrl = this.router.url;
+      this.isUniqueUrl = currentUrl.includes(this.event.slug);
+    }
 
-      registerForEvent(): void {
-        
-      }
-
-
+    getUniqueEventUrl(): string {
+      return `${window.location.origin}/events/${this.event.slug}`;
+    }
 }

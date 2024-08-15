@@ -5,25 +5,27 @@
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
       
       <div class="flex items-center">
-        <img src="../../assets/images/mexiduck.png" alt="Cross Creek Creates Logo" class="h-16 mr-3">
+        <a href="/" class="flex items-center">
+        <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS-logo3.png" alt="Cross Creek Studio Logo" class="h-20 mr-2">
         <span class="text-xl font-bold">Cross Creek Studio</span>
+        </a>
       </div>
       
-      <ul class="flex justify-between sm:space-x-4">
+      <ul class="flex justify-between items-center sm:space-x-4">
         <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300">Home</a></li>
         <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300">Events</a></li>
         <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
         <li><a routerLink="/admin" [class.active]="isActive('/admin')" class="hover:text-gray-300">Admin</a></li>
         <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
         <li class="relative">
-          <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300">
-            <img src="../../assets/images/cart.png" alt="Cart" class="h-6 w-6">
-            <span *ngIf="cartItemCount > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {{cartItemCount}}
-            </span>
-          </a>
+            <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300">
+                <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/cart1.png" alt="Cart" class="w-7 h-7 sm:w-11 sm:h-11 md:w-15 md:h-15 lg:w-18 lg:h-18 xl:w-20 xl:h-20 2xl:w-25 2xl:h-25">
+                <span *ngIf="cartItemCount > 0" class="absolute top-4 right-7 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {{cartItemCount}}
+              </span>
+            </a>
         </li>
-      </ul>
+    </ul>
     </nav>
   </header> 
   
@@ -31,7 +33,27 @@
     <router-outlet></router-outlet>
   </main>
   
-  <footer class="bg-gray-700 text-white text-center py-2">
+  <footer class="bg-gray-700 text-white text-center py-6">
+    <div class="container mx-auto">
+      <div class="flex justify-center space-x-4 mb-4">
+        <a href="/home" class="hover:underline">Home</a>
+        <a href="/events" class="hover:underline">Events</a>
+        <a href="/gallery" class="hover:underline">Gallery</a>
+        <a href="/cart" class="hover:underline">Cart</a>
+      </div>
+      <div class="flex justify-center space-x-4 mb-4">
+        <a href="https://www.facebook.com" target="_blank" class="hover:text-blue-500">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://www.x.com" target="_blank" class="hover:text-blue-300">
+          <i class="fa-brands fa-x-twitter"></i>
+        </a>
+        <a href="https://www.instagram.com" target="_blank" class="hover:text-pink-500">
+          <i class="fab fa-instagram"></i>
+        </a>
+      </div>
+      <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
       <p>© 2024 Cross Creek Studio</p>
+    </div>
   </footer>
 </div>
