@@ -67,7 +67,6 @@
               "sourceMap": false,
               "namedChunks": false,
               "aot": true,
-              "extractCss": true,
               "vendorChunk": false,
               "buildOptimizer": true
             },
