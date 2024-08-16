@@ -11,8 +11,7 @@ var mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-
-const mongoUri = process.env.MONGO_URI;
+const mongoUri = process.env.MONGODB_URI;
 
 // Import the routing files
 const authRoutes = require('./server/routes/auth');
