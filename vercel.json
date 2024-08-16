@@ -1,0 +1,16 @@
+{
+  "builds": [
+    {
+      "src": "dist/cross-creek-creates/server/server.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "angular.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist/cross-creek-creates/browser" }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "dist/cross-creek-creates/server/server.mjs" }
+  ]
+}
