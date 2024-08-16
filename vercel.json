@@ -3,6 +3,10 @@
     {
       "src": "dist/cross-creek-creates/server/server.mjs",
       "use": "@vercel/node"
+    },
+    {
+      "src": "dist/cross-creek-creates/browser/**",
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
