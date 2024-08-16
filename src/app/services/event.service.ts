@@ -1,14 +1,15 @@
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Event } from '../models/event.model';
-import { BehaviorSubject, Observable, Subject, catchError, of, tap, throwError, map, take, switchMap } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, of, tap, throwError, map, take, switchMap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventService {
-  private apiUrl = `${process.env.SITE_URL}/events`;
+  private apiUrl = `${environment.SITE_URL}/events`;
   private eventsSubject = new BehaviorSubject<Event[]>([]);
   events$ = this.eventsSubject.asObservable();
 

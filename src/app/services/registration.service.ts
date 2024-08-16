@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { User } from '../models/user.model';
 import { Event } from '../models/event.model';
 import { EventService } from '../services/event.service';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RegistrationService {
-  private apiUrl = `${process.env.SITE_URL}/users`;
+  private apiUrl = `${environment.SITE_URL}/users`;
   private usersSubject = new BehaviorSubject<User[]>([]);
   users$ = this.usersSubject.asObservable();
 

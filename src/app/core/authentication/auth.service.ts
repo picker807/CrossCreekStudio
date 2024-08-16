@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
 import { Admin } from '../../models/admin.model';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 export class AuthService {
   private isAdminSubject = new BehaviorSubject<boolean>(false);
   isAdmin$ = this.isAdminSubject.asObservable();
-  private AUTH_API = `${process.env.SITE_URL}/admin`;
+  private AUTH_API = `${environment.SITE_URL}/admin`;
 
   constructor(
     private http: HttpClient,

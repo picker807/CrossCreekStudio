@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, Observable, throwError, of } from 'rxjs';
-import { Gallery, GalleryCategory } from '../models/gallery.model';
-//import data from '../../../../MOCK_GALLERY_DATA.json';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
+import { Gallery } from '../models/gallery.model';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class GalleryService {
-  private apiUrl = `${process.env.SITE_URL}/galleries`;
+  private apiUrl = `${environment.SITE_URL}/galleries`;
   private galleryList: Gallery[] = [];
   private galleryListSubject = new BehaviorSubject<Gallery[]>([]);
   public galleryList$ = this.galleryListSubject.asObservable();

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, forkJoin, map, of, tap } from 'rxjs';
 import { EventService } from './event.service';
-import { Enrollee, OrderDetails, PayPalOrderDetails } from '../models/interfaces';
+import { Enrollee, OrderDetails } from '../models/interfaces';
 import { Event } from '../models/event.model';
 
 

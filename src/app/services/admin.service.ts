@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Admin, AdminCredentials, PasswordChangeRequest, CreateAdminDto } from '../models/admin.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = `${process.env.SITE_URL}/admin`;
+  private apiUrl = `${environment.SITE_URL}/admin`;
 
   private adminsSubject = new BehaviorSubject<Admin[]>([]);
   admins$ = this.adminsSubject.asObservable();

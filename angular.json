@@ -21,7 +21,7 @@
       "prefix": "cc",
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/cross-creek-creates",
             "index": "src/index.html",
@@ -39,12 +39,7 @@
               "src/custom-theme.scss",
               "src/styles.css"
             ],
-            "customWebpackConfig": {
-               "path": "./custom-webpack.config.js"
-            },
-            "scripts": [
-              
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
