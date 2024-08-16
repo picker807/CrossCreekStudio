@@ -48,14 +48,12 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.subscription = this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
-      //console.log(cartList);
       this.cartItems = cartList;
     });
     this.loadCart();
     this.paypalService.getPaypalClientId().subscribe({
       next: (result) => {
         this.paypalClientId = result.clientId;
-        //this.loadPayPalScript();
       },
       error: (error) => console.error('Error fetching PayPal client ID:', error)
     });
@@ -78,8 +76,6 @@ export class CartComponent implements OnInit {
 
   verifyAndCheckout(): void {
     console.log("starting verification and checkout...");
-    //this.loadPayPalScript(); // temporary for troubleshooting
-    //this.showPaypalButton = true; //temporary for troubleshooting
 
     this.checkoutService.verifyCart().subscribe({
       next: (result) => {

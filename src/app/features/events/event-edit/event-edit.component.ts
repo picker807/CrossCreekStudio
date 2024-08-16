@@ -1,14 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../../../core/authentication/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../../services/event.service';
-import { FormGroup, FormBuilder, FormArray, FormControl, Validators } from '@angular/forms';
-//import { MatDatepickerModule } from '@angular/material/datepicker';
-import { User } from '../../../models/user.model';
+import { FormGroup, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { Event } from '../../../models/event.model';
-import { first, startWith } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Gallery } from '../../../models/gallery.model';
 import { GalleryService } from '../../../services/gallery.service';
 import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
@@ -23,7 +19,6 @@ import { MessageService } from '../../../services/message.service';
   providers: [PhoneFormatPipe]
 })
 export class EventEditComponent implements OnInit, OnDestroy {
-  //isAdmin: boolean = false;
   editForm: FormGroup;
   galleryForm: FormGroup;
   galleries: Gallery[] = [];
@@ -32,16 +27,11 @@ export class EventEditComponent implements OnInit, OnDestroy {
   originalEvent: Event;
   eventSubscription: Subscription;
   gallerySubscription: Subscription;
-  //currentDate: Date = new Date();
   showModifyEvent: boolean = true;
-
-  //tests = [{imageUrl: "this image", name: "thing 1"}, {imageUrl: "other image", name: "thing 2"}];
-  //newEvent: Event;
 
   constructor(private fb: FormBuilder,
     private eventService: EventService,
     private galleryService: GalleryService,
-    //private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
     private phoneFormatPipe: PhoneFormatPipe,
@@ -51,10 +41,6 @@ export class EventEditComponent implements OnInit, OnDestroy {
     }
 
   ngOnInit(): void {
-    /* this.authService.isAdmin$.subscribe(isAdmin => {
-      this.isAdmin = isAdmin;
-    }); */
-
     this.galleryForm = this.fb.group({
       galleries: this.fb.array([])
     });
@@ -77,8 +63,6 @@ export class EventEditComponent implements OnInit, OnDestroy {
       images: this.fb.array([]),
       isPrivate: [false]
     });
-
-    //this.editForm.markAllAsTouched();
 
     this.newAttendeeForm = this.fb.group({
       id: [''],
@@ -110,20 +94,9 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
       this.editMode = true;
       this.updateForm();
-      //this.event = JSON.parse(JSON.stringify(this.originalEvent));
     });
 
     this.updateShowModifyEvent();
-    /* this.editForm.get('date').valueChanges
-    .pipe(startWith(this.editForm.get('date').value))
-    .subscribe(val => {
-      const eventDate = new Date(val);
-      const now = new Date(); 
-      console.log("event Date: ", eventDate);
-      console.log("Now: ", now);
-      // Check if the event is today or in the future
-      this.showModifyEvent = eventDate >= now || (eventDate.toDateString() === now.toDateString() && eventDate.getTime() >= now.getTime());
-    }); */
   }
 
   onGalleriesLoaded(galleries: Gallery[]): void {
@@ -149,9 +122,6 @@ export class EventEditComponent implements OnInit, OnDestroy {
       description: this.originalEvent.description,
       price: this.originalEvent.price,
       isPrivate: this.originalEvent.isPrivate
-      //attendees: this.originalEvent.attendees,
-      //isVirtual: this.originalEvent.isVirtual,
-      //images: this.originalEvent.images
     });
     this.setAttendees();
     this.setImages();
@@ -192,7 +162,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
   async submitEdit(): Promise<void> {
     this.checkFormValidity();
-    //if (this.editForm.valid) {
+    
       console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
 
@@ -296,33 +266,23 @@ export class EventEditComponent implements OnInit, OnDestroy {
     }
   }
  
-  
-  
-  
-    //(this.editForm.get('attendees') as FormArray).push(attendeeGroup);
+  removeAttendee(index: string) {
+    this.attendees.removeAt(+index);
+    this.messageService.showMessage({
+      text: 'Attendee removed',
+      type: 'info',
+      duration: 3000
+    });
+  }
 
-
-    //const attendeesFormArray = this.editForm.get('attendees') as FormArray;
-    //attendeesFormArray.push(this.fb.control(''));
-  
-
-    removeAttendee(index: string) {
-      this.attendees.removeAt(+index);
-      this.messageService.showMessage({
-        text: 'Attendee removed',
-        type: 'info',
-        duration: 3000
-      });
-    }
-
-    removeImage(index: string) {
-      this.images.removeAt(+index);
-      this.messageService.showMessage({
-        text: 'Image removed',
-        type: 'info',
-        duration: 3000
-      });
-    }
+  removeImage(index: string) {
+    this.images.removeAt(+index);
+    this.messageService.showMessage({
+      text: 'Image removed',
+      type: 'info',
+      duration: 3000
+    });
+  }
     
   drop(event: CdkDragDrop<Gallery[]>): void {
     if (event.previousContainer !== event.container) {

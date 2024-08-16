@@ -10,7 +10,7 @@ import { catchError, tap, map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class GalleryService {
-  private apiUrl = 'http://localhost:3000/galleries';
+  private apiUrl = `${process.env.SITE_URL}/galleries`;
   private galleryList: Gallery[] = [];
   private galleryListSubject = new BehaviorSubject<Gallery[]>([]);
   public galleryList$ = this.galleryListSubject.asObservable();
@@ -66,7 +66,6 @@ export class GalleryService {
         //console.log("newly created gallery item: ", newGallery);
         const currentGalleries = this.galleryListSubject.getValue();
         this.galleryListSubject.next([...currentGalleries, newGallery]);
-        //this.sortAndSend();
       }),
       catchError(error => {
         console.error('Error creating gallery item:', error);
@@ -85,7 +84,7 @@ export class GalleryService {
         const galleryIndex = currentGalleries.findIndex(g => g.id === originalGallery.id);
         currentGalleries[galleryIndex] = updatedGallery;
         this.galleryListSubject.next([...currentGalleries]);
-        //this.sortAndSend();
+        
       }),
       catchError(error => {
         console.error('Error updating gallery item:', error);
@@ -100,7 +99,7 @@ export class GalleryService {
         const currentGalleries = this.galleryListSubject.getValue();
         const updatedGalleries = currentGalleries.filter(gallery => gallery.id !== id);
         this.galleryListSubject.next(updatedGalleries);
-        //this.sortAndSend();
+        
       }),
       catchError(error => {
         console.error('Error deleting gallery item:', error);

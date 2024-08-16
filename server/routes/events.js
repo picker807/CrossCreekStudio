@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
     if (req.body.attendees) {
       const userIds = await Promise.all(
         req.body.attendees.map(async user => {
-          const foundUser = await User.findOne({ id: user.id }); // Adjust the query as necessary
+          const foundUser = await User.findOne({ id: user.id });
           return foundUser ? foundUser._id : null;
         })
       );
@@ -55,7 +55,7 @@ router.post('/', async (req, res) => {
     if (req.body.images) {
       const galleryIds = await Promise.all(
         req.body.images.map(async gallery => {
-          const foundGallery = await Gallery.findOne({ id: gallery.id }); // Adjust the query as necessary
+          const foundGallery = await Gallery.findOne({ id: gallery.id });
           return foundGallery ? foundGallery._id : null;
         })
       );
@@ -67,7 +67,6 @@ router.post('/', async (req, res) => {
     });
 
     const newEvent = await event.save();
-    //.populate('attendees').populate('images').exec()
     res.status(201).json(newEvent);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -90,12 +89,7 @@ router.post('/:id/register', async (req, res) => {
         compositeKey: req.body.compositeKey
       });
       await user.save();
-    } /* else {
-      // Update the existing user
-      user.firstName = req.body.firstName;
-      user.lastName = req.body.lastName;
-      await user.save();
-    } */
+    }
 
     // Add the user to the event attendees
     const event = await Event.findById(req.params.id);
@@ -111,7 +105,7 @@ router.post('/:id/register', async (req, res) => {
 });
 
 
-// Update event using findOneAndUpdate
+// Update event using findOne
 router.put('/:id', async (req, res) => {
   try {
     const existingEvent = await Event.findOne({ id: req.params.id.trim() });
@@ -144,13 +138,6 @@ router.put('/:id', async (req, res) => {
       }));
 
       existingEvent.attendees = updatedAttendees;
-
-      // Use $addToSet to add new attendees without duplicates
-     /*  await Event.findOneAndUpdate(
-        { id: req.params.id.trim() },
-        { $addToSet: { attendees: { $each: newAttendees.filter(id => id) } } },
-        { new: true }
-      ); */
     }
 
     // Update other fields

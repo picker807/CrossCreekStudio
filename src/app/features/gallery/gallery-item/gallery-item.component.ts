@@ -1,6 +1,5 @@
 import { Component, Inject, Input, PLATFORM_ID } from '@angular/core';
 import { Gallery } from '../../../models/gallery.model';
-import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
 @Component({
@@ -12,7 +11,6 @@ export class GalleryItemComponent {
   @Input() item: Gallery;
 
   constructor(
-    private router:Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 

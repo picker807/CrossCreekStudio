@@ -58,10 +58,7 @@ router.put('/:id', (req, res, next) => {
       }
 
       Object.assign(user, req.body);
-      //user.id = maxUserId;
-      //user.firstName = req.body.firstName;
-      //user.lastName = req.body.lastName;
-      //user.email = req.body.email;
+      
 
       return user.save().then(updatedUser => {
         console.log("user saved", updatedUser)

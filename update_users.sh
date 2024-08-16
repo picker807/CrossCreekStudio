@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the API URL
-API_URL="http://localhost:3000/users"
+API_URL="${SITE_URL}/users"
 
 # Fetch all users
 echo "Fetching all users..."

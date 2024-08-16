@@ -13,11 +13,9 @@ import { Subscription } from 'rxjs';
   styleUrl: './gallery.component.css'
 })
 export class GalleryComponent {
-  //showModal: boolean = false;
   selectedItem: any = null;
   isAdmin: boolean = false;
   private subscriptions: Subscription = new Subscription();
-  //isSmallScreen: boolean = false;
   isModalOpen: boolean = false;
   private lastScrollTop: number = 0;
 
@@ -56,12 +54,8 @@ export class GalleryComponent {
     if (isPlatformBrowser(this.platformId)) {
       return window.innerWidth < 768;
     }
-    return false; // or handle the server-side case appropriately
+    return false;
   }
-
-/*private checkScreenSize() {
-  this.isSmallScreen = window.innerWidth < 768; // Example breakpoint
-} */
 
   openModal(item: any): void {
     this.selectedItem = item;
@@ -72,7 +66,6 @@ export class GalleryComponent {
     this.isModalOpen = false;
     this.selectedItem = null;
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      // Navigate back to the desired route
       this.router.navigate(['/gallery']);
     });
     setTimeout(() => this.restoreScrollPosition(), 100);

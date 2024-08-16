@@ -7,7 +7,7 @@ import { Admin, AdminCredentials, PasswordChangeRequest, CreateAdminDto } from '
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = 'http://localhost:3000/admin';
+  private apiUrl = `${process.env.SITE_URL}/admin`;
 
   private adminsSubject = new BehaviorSubject<Admin[]>([]);
   admins$ = this.adminsSubject.asObservable();
@@ -55,25 +55,6 @@ export class AdminService {
       headers: this.getAuthHeaders()
     });
   }
-
- /*  editAdmin(adminId: string, updatedData: Partial<Admin>): Observable<Admin> {
-    return this.http.patch<Admin>(`${this.apiUrl}/${adminId}`, updatedData, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap(updatedAdmin => {
-        const currentAdmins = this.adminsSubject.value;
-        const index = currentAdmins.findIndex(admin => admin.id === adminId);
-        if (index !== -1) {
-          const updatedAdmins = [
-            ...currentAdmins.slice(0, index),
-            updatedAdmin,
-            ...currentAdmins.slice(index + 1)
-          ];
-          this.adminsSubject.next(updatedAdmins);
-        }
-      })
-    );
-  } */
 
   //Change the info for another admin - super admin privilege.
   updateAdmin(adminId: string, updatedData: Partial<Admin>): Observable<Admin> {

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-//const { Schema } = mongoose;
 
 const GallerySchema = new mongoose.Schema({
   id: { type: String, required: true },

@@ -40,16 +40,6 @@ ngOnInit(): void {
     this.isAdmin = isAdmin;
   })); 
   this.loadItemDetails();
-
- /* this.subscriptions.add(this.route.params.subscribe(params => {
-    const id = params['id'];
-    if (id) {
-      this.subscriptions.add(this.galleryService.galleryList$.subscribe(list => {
-        this.item = list.find(item => item.id === id);
-      }));
-    }
-  }));
-  */
 }
 
 ngOnDestroy(): void {

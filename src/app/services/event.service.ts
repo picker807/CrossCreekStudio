@@ -8,7 +8,7 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class EventService {
-  private apiUrl = 'http://localhost:3000/events';
+  private apiUrl = `${process.env.SITE_URL}/events`;
   private eventsSubject = new BehaviorSubject<Event[]>([]);
   events$ = this.eventsSubject.asObservable();
 
@@ -26,7 +26,6 @@ export class EventService {
         ...event,
         date: new Date(event.date)
       }));
-      //this.eventsSubject.next(eventsWithDates);
       this.sortAndSend(eventsWithDates);
     });
   }
@@ -41,11 +40,6 @@ export class EventService {
       })
     );
   }
-
-    /*sortAndSend(): void {
-      this.events.sort((a, b) => a.date.getTime() - b.date.getTime());
-      this.eventListChangedEvent.next(this.events.slice());
-    } */
 
   createEvent(event: Event): Observable<Event> {
     event.id = '';
@@ -113,7 +107,7 @@ export class EventService {
         const currentEvents = this.eventsSubject.getValue();
         const updatedEvents = currentEvents.filter(event => event.id !== id);
         this.eventsSubject.next(updatedEvents);
-        //this.sortAndSend();
+       
       }),
       catchError(error => {
         console.error('Error deleting event:', error);

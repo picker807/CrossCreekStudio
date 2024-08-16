@@ -11,15 +11,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { NgxFileDropModule } from '@bugsplat/ngx-file-drop';
-import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import { CartComponent } from './features/checkout/cart/cart.component';
 import { ConfirmationComponent } from './features/checkout/confirmation/confirmation.component';
 import { isPlatformBrowser } from '@angular/common';
 import { MessageComponent } from './features/message/message.component';
 import { PageNotFoundComponent } from './features/page-not-found/page-not-found.component';
-
-import { ContactComponent } from './features/contact/contact.component';
 import { ContactModule } from './features/contact/contact.module';
 
 

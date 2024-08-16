@@ -256,16 +256,7 @@ export class AdminDashboardComponent implements OnInit {
           console.log("updated admin returned to admin dashboard: ", updatedAdmin);
           //const index = this.admins.findIndex(admin => admin.id == adminId);
           console.log("admin id: ", adminId);
-          /* console.log("Index: ", index);
-          if (index !== -1) {
-            this.admins[index] = updatedAdmin;
-          } */
-
-          /* this.admins.forEach(admin => {
-            console.log('Admin:', admin);
-          }); */
-          
-          //this.showResetForm[adminId] = false;
+         
           this.messageService.showMessage({
             text: 'Admin updated successfully',
             type: 'success',
@@ -397,7 +388,6 @@ export class AdminDashboardComponent implements OnInit {
             type: 'success',
             duration: 5000
           });
-          //this.router.navigate(['/g']);
         });
       } else {
         this.messageService.showMessage({

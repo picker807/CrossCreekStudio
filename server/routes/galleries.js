@@ -3,8 +3,6 @@ const Gallery = require('../models/gallery');
 var express = require('express');
 var router = express.Router();
 const AWS = require('aws-sdk');
-//const { BlobServiceClient } = require('@azure/storage-blob');
-//const { ClientSecretCredential } = require('@azure/identity');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 require('dotenv').config();

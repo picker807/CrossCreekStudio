@@ -1,6 +1,6 @@
-import { Component,ElementRef, Renderer2 } from '@angular/core';
+import { Component } from '@angular/core';
 import { GalleryService } from '../../services/gallery.service';
-import { interval, Subscription } from 'rxjs';
+
 
 @Component({
   selector: 'cc-home',

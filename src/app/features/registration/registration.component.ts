@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
@@ -56,26 +56,14 @@ export class RegistrationComponent {
 
     this.applyPhoneFormatPipe();
 
-    /*
-    this.registrationForm.get('phone').valueChanges.subscribe(value => {
-      const formatted = this.phoneFormatPipe.transform(value);
-      this.registrationForm.get('phone').setValue(formatted, { emitEvent: false });
-    });
-    */
+    
   }
   
   private initializeForm(): void {
     this.numAttendeesControl = new FormControl(1, [Validators.required, Validators.min(1)]);
     this.registrationForm = this.fb.group({
-      /* 
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      confirmEmail: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]],
-      */
       attendees: this.fb.array([])
-    } /*, { validators: this.emailMatchValidator } */); 
+    }); 
   }
 
   get attendeesArray() {
@@ -220,30 +208,6 @@ export class RegistrationComponent {
 
     if (this.registrationForm.valid) {
       this.previewCart();
-
-      /*
-      const attendees = this.registrationForm.value.attendees.map(attendee => {
-        const compositeKey = `${attendee.firstName.toLowerCase()}_${attendee.lastName.toLowerCase()}_${attendee.email.toLowerCase()}`;
-        return {
-          ...attendee,
-          compositeKey,
-          phone: attendee.phone.replace(/\D/g, '')
-        };
-      });
-
-      from(attendees).pipe(
-        mergeMap(attendee => this.registrationService.addUserToCart(attendee, this.event))
-      ).subscribe({
-        next: () => {
-          console.log('All attendees added to cart successfully');
-          // Navigate to cart or show success message
-        },
-        error: (err) => {
-          console.error('Error adding attendees to cart:', err);
-          // Show error message to user
-        }
-      });
-      */
     }
   } 
   

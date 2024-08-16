@@ -124,14 +124,7 @@
               </div>
           </div>
 
-        <!--
-            <div class="form-group">
-            <label for="imageUrl" class="block text-sm font-medium text-gray-700">Image URL:</label>
-            <input formControlName="imageUrl" type="text" id="imageUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-    -->
         <!-- Gallery Images -->
-          
         <div class="flex space-x-4">
           <!-- Available Gallery Items -->
           <div class="flex-1 pr-4">
@@ -164,15 +157,7 @@
           </div>
         </div>
           
-          
-          
-<!--  
-        <div class="form-group">
-            <label for="isRegistrationOpen" class="block text-sm font-medium text-gray-700">Registration Open:</label>
-            <input formControlName="isRegistrationOpen" type="checkbox" id="isRegistrationOpen" class="form-checkbox h-5 w-5 text-green-600">
-        </div>
-
-        -->
+        <!--Message if event is in the past-->
         <div *ngIf="!showModifyEvent" class="text-red-500 font-bold mb-2">
           This event is in the past and cannot be edited
         </div>

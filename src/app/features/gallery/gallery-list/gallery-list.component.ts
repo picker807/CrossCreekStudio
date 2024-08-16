@@ -1,10 +1,8 @@
-import { Component, ElementRef, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, PLATFORM_ID, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { Gallery, GalleryCategory } from '../../../models/gallery.model';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../../core/authentication/auth.service';
 import { GalleryService } from '../../../services/gallery.service';
-import { isPlatformBrowser } from '@angular/common';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { MessageService } from '../../../services/message.service';
 
@@ -19,35 +17,23 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   @Output() itemDropped = new EventEmitter<CdkDragDrop<Gallery[]>>();
   @Output() galleriesLoaded = new EventEmitter<Gallery[]>();
   
-  //isAdmin = false; // This should come from an authentication service
+  
   galleryList: Gallery[] = [];
   term: string;
   private subscription: Subscription;
-  //galleryCategories = GalleryCategory;
-  //groupedItems: { [key: string]: any[] } = {};
   selectedCategory: string;
   categories = Object.keys(GalleryCategory);
   categoryItems: { [key: string]: Gallery[] } = {};
   selectedTabIndex: number;
-  //categorySubscription: Subscription;
-
-  //currentPage: number = 1;
-  //itemsPerPage: number = 20;
-  //hasMoreItems: boolean = true;
 
 
   constructor(
     private router: Router,
     private galleryService: GalleryService,
-    //private authService: AuthService,
     private messageService: MessageService,
-    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-   /*  this.authService.isAdmin$.subscribe(isAdmin => {
-      this.isAdmin = isAdmin;
-    }); */
 
     this.selectedTabIndex = this.galleryService.getSelectedCategoryIndex();
     this.selectedCategory = this.categories[this.selectedTabIndex];
@@ -115,7 +101,7 @@ export class GalleryListComponent implements OnInit, OnDestroy{
 
   private updateCategoryItems(): void {
     this.categoryItems = this.galleryList.reduce((acc, item) => {
-      const category = item.category; // Assuming each item has a 'category' property
+      const category = item.category; 
       if (!acc[category]) {
         acc[category] = [];
       }
@@ -123,21 +109,6 @@ export class GalleryListComponent implements OnInit, OnDestroy{
       return acc;
     }, {});
   }
-
-  /* private updateCategoryItems(): void {
-    this.categoryItems[this.selectedCategory] = this.galleryList.filter(item => item.category === this.selectedCategory);
-  } */
-
-   /* private groupItemsByCategory(): void {
-    this.groupedItems = this.galleryList.reduce((acc, item) => {
-      const categoryKey = item.category;
-      if (!acc[categoryKey]) {
-        acc[categoryKey] = [];
-      }
-      acc[categoryKey].push(item);
-      return acc;
-    }, {});
-  } */
  
   ngOnDestroy(): void {
     if (this.subscription) {

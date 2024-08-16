@@ -21,7 +21,7 @@
       "prefix": "cc",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "outputPath": "dist/cross-creek-creates",
             "index": "src/index.html",
@@ -39,6 +39,9 @@
               "src/custom-theme.scss",
               "src/styles.css"
             ],
+            "customWebpackConfig": {
+               "path": "./custom-webpack.config.js"
+            },
             "scripts": [
               
             ],
@@ -73,9 +76,12 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "browserTarget": "cross-creek-creates:build",
+            "customWebpackConfig": {
+              "path": "./custom-webpack.config.js"
+            }
           },
           "configurations": {
             "production": {

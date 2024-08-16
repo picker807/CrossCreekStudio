@@ -42,7 +42,7 @@ app.use(logger('dev'));
 
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: process.env.SITE_URL,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
   credentials: true
@@ -105,5 +105,5 @@ const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
 server.listen(port, function() {
-  console.log('API running on localhost: ' + port);
+  console.log('API running on port: ' + port);
 });

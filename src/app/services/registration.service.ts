@@ -10,7 +10,7 @@ import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class RegistrationService {
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = `${process.env.SITE_URL}/users`;
   private usersSubject = new BehaviorSubject<User[]>([]);
   users$ = this.usersSubject.asObservable();
 
@@ -43,56 +43,6 @@ export class RegistrationService {
       })
     );
   }
-
-  /* addUser(newUser: User, event: Event): Observable<void> {
-    return this.updateUser(newUser).pipe(
-      switchMap(user => this.eventService.addUserToEvent(user, event.id)),
-      tap({
-        next: () => console.log('User added to event successfully'),
-        error: (err) => console.error('Error adding user to event:', err)
-      }),
-      map(() => {})
-    );
-  } */
-
-  /* private updateUser(newUser: User): Observable<User> {
-    //console.log(newUser);
-    return this.users$.pipe(
-      take(1),
-      switchMap(users => {
-        let user = users.find(u => u.email === newUser.email);
-        //console.log("user in updateUser: ", user);
-        if (user) {
-          user.firstName = newUser.firstName;
-          user.lastName = newUser.lastName;
-          user.phone = newUser.phone;
-          return this.http.put<User>(`${this.apiUrl}/${user.id}`, user).pipe(
-            tap(updatedUser => {
-              //console.log('User updated successfully:', updatedUser);
-              this.usersSubject.next(users);
-            }),
-            catchError(err => {
-              console.error('Error updating user:', err);
-              return throwError(() => err);
-            })
-          );
-        } else {
-          newUser.id = '';
-          return this.http.post<User>(this.apiUrl, newUser).pipe(
-            tap(createdUser => {
-              console.log('User created successfully:', createdUser);
-              users.push(createdUser);
-              this.usersSubject.next(users);
-            }),
-            catchError(err => {
-              console.error('Error creating user:', err);
-              return throwError(() => err);
-            })
-          );
-        }
-      })
-    );
-  } */
 }
 
 

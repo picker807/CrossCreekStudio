@@ -1,6 +1,5 @@
 // gallery-routing.module.ts
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { GalleryComponent } from './gallery.component';
 import { GalleryDetailComponent } from './gallery-detail/gallery-detail.component';
@@ -15,8 +14,6 @@ const routes: Routes = [
       { path: 'new', component: GalleryEditComponent },
       { path: 'detail/:id', component: GalleryDetailComponent },
       { path: 'edit/:id', component: GalleryEditComponent },
-      //{ path: 'detail/:id', component: GalleryDetailComponent, outlet: 'modal' },
-      //{ path: 'edit/:id', component: GalleryEditComponent, outlet: 'modal' }
     ]
   }
 ];
