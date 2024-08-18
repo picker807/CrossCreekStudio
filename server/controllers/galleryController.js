@@ -69,7 +69,7 @@ exports.createGalleryItem = async (req, res) => {
 };
 
 // Update gallery
-exports.updateGalleryitem = async (req, res) => {
+exports.updateGalleryItem = async (req, res) => {
   //console.log('req.body in router.put: ', req.body);
   try {
     const updatedGallery = await Gallery.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
