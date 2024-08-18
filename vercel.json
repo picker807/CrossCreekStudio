@@ -1,11 +1,22 @@
 {
   "version": 2,
   "builds": [
-    { "src": "server.js", "use": "@vercel/node" },
-    { "src": "dist/**", "use": "@vercel/static" }
+    {
+      "src": "server.ts",
+      "use": "@vercel/node",
+      "config": { "tsconfig": "tsconfig.server.json" }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "npm run build:ssr",
+        "outputDirectory": "dist/cross-creek-creates/browser"
+      }
+    }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "server.js" },
-    { "src": "/(.*)", "dest": "dist/index.html" }
+    { "src": "/api/(.*)", "dest": "server.ts" },
+    { "src": "/(.*)", "dest": "dist/cross-creek-creates/server/server.mjs" }
   ]
 }
