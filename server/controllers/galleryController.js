@@ -1,4 +1,4 @@
-const sequenceGenerator = require('./sequence');
+const sequenceGenerator = require('../routes/sequence');
 const Gallery = require('../models/gallery');
 const AWS = require('aws-sdk');
 require('dotenv').config();

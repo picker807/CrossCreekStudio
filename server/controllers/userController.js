@@ -1,4 +1,4 @@
-const sequenceGenerator = require('../utils/sequence');
+const sequenceGenerator = require('../routes/sequence');
 const User = require('../models/user');
 
 exports.getAllUsers = (req, res, next) => {
