@@ -10,7 +10,7 @@ router.get('/', galleryController.getAllGalleryItems);
 router.post('/', galleryController.createGalleryItem);
 
 router.put('/:id', galleryController.updateGalleryItem);
-router.delete('/:id', galleryController.deletegalleryitem);
+router.delete('/:id', galleryController.deleteGalleryItem);
 
 
 module.exports = router;
