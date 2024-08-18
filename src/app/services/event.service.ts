@@ -9,12 +9,12 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class EventService {
-  private apiUrl = `${environment.SITE_URL}/events`;
+  private apiUrl = `${environment.SITE_URL}/api/events`;
   private eventsSubject = new BehaviorSubject<Event[]>([]);
   events$ = this.eventsSubject.asObservable();
 
-  maxEventId: number = 100;
-  url: string = 'mongo uri here';
+  //maxEventId: number = 100;
+  //url: string = 'mongo uri here';
 
   constructor( private http: HttpClient ) {
     this.loadEvents();

@@ -1,7 +1,7 @@
 const Admin = require('../models/admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+//const mongoose = require('mongoose');
 const sequenceGenerator = require('../routes/sequence');
 
 exports.getAllAdmins = async (req, res) => {
@@ -158,25 +158,3 @@ exports.checkAuthStatus = async (req, res) => {
 exports.logout = (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
 };
-
-/* exports.logout = (req, res) => {
-  // Clear the authentication cookie
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/'
-  });
-
-  // Optionally, destroy the session if you're using session-based authentication
-  if (req.session) {
-    req.session.destroy(err => {
-      if (err) {
-        return res.status(500).json({ message: 'Failed to log out' });
-      }
-      res.status(200).json({ message: 'Logout successful' });
-    });
-  } else {
-    res.status(200).json({ message: 'Logout successful' });
-  }
-}; */

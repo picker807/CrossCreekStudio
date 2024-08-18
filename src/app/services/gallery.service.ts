@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class GalleryService {
-  private apiUrl = `${environment.SITE_URL}/galleries`;
+  private apiUrl = `${environment.SITE_URL}/api/galleries`;
   private galleryList: Gallery[] = [];
   private galleryListSubject = new BehaviorSubject<Gallery[]>([]);
   public galleryList$ = this.galleryListSubject.asObservable();

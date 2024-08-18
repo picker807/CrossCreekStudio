@@ -53,11 +53,11 @@ app.options('*', cors());
 
 
 // Register the routes with the Express application
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/events', eventRoutes);
-app.use('/galleries', galleryRoutes);
-app.use('/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/galleries', galleryRoutes);
+app.use('/api/users', userRoutes);
 app.get('/api/paypal-client-id', (req, res) => {
   res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
 });

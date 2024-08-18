@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class RegistrationService {
-  private apiUrl = `${environment.SITE_URL}/users`;
+  private apiUrl = `${environment.SITE_URL}/api/users`;
   private usersSubject = new BehaviorSubject<User[]>([]);
   users$ = this.usersSubject.asObservable();
 
