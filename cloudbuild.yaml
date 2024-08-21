@@ -1,30 +1,37 @@
 steps:
-  # Step 1: Build the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-app:$COMMIT_SHA', '.']
+  # Step 1: Install dependencies
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['install']
 
-  # Step 2: Push the Docker image to Google Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/my-app:$COMMIT_SHA']
+  # Step 2: Build the application with SSR
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['run', 'build:ssr']
 
-  # Step 3: Deploy the Docker image to Google Cloud Run
+  # Step 3: Build Docker image using the Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/crosscreekcreates:$COMMIT_SHA', '.']
+
+  # Step 4: Push the Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/crosscreekcreates:$COMMIT_SHA']
+
+  # Step 5: Deploy the Docker image to Google Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
       - 'run'
       - 'deploy'
-      - 'my-app'
+      - 'crosscreekcreates'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/my-app:$COMMIT_SHA'
+      - 'gcr.io/$PROJECT_ID/crosscreekcreates:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
 
-# Specify logging options
-options:
-  logging: CLOUD_LOGGING_ONLY  # Options: CLOUD_LOGGING_ONLY, GCS_ONLY, NONE
-
 images:
-  - 'gcr.io/$PROJECT_ID/my-app:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/crosscreekcreates:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY  # Adjust logging as needed
