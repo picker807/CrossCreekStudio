@@ -8,7 +8,6 @@ router.post('/upload', upload.single('file'), galleryController.uploadImage);
 router.get('/:id', galleryController.getGalleryItemById);
 router.get('/', galleryController.getAllGalleryItems);
 router.post('/', galleryController.createGalleryItem);
-
 router.put('/:id', galleryController.updateGalleryItem);
 router.delete('/:id', galleryController.deleteGalleryItem);
 
