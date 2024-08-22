@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "node server.ts",
     
-  "build": "node_modules/.bin/ng build && node_modules/.bin/ng run CrossCreekCreates:server",
+  "build": "npm build",
 
     
     "build:ssr": "ng build && ng run CrossCreekCreates:server",
