@@ -103,6 +103,6 @@ app.set('port', port);
 const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
-server.listen(port, function() {
+server.listen(port, '0.0.0.0', function() {
   console.log('API running on port: ' + port);
 });
