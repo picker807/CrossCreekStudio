@@ -1,11 +1,11 @@
 # Use an official Node.js 20 runtime as a parent image
 FROM node:20
 
-# Set the working directory in the container to the root of the project
-WORKDIR /
+# Set the working directory in the container to /app
+WORKDIR /app
 
-# Copy package.json and package-lock.json to the root
-COPY package*.json ./
+# Copy package.json and package-lock.json to the /app directory
+COPY CrossCreekCreates/package*.json ./
 
 # Install dependencies
 RUN npm install
@@ -13,11 +13,8 @@ RUN npm install
 # Install Angular CLI globally
 RUN npm install -g @angular/cli
 
-# Copy the rest of the application code to the root
-COPY . .
-
-# Set the working directory to the app directory
-WORKDIR /
+# Copy the rest of the application code to the /app directory
+COPY CrossCreekCreates ./
 
 # Build the Angular application
 RUN ng build
