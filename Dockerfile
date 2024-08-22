@@ -17,7 +17,7 @@ RUN npm install -g @angular/cli
 COPY . .
 
 # Build the Angular application
-RUN ng build --prod
+RUN ng build --configuration=production
 
 # Expose the port the app runs on
 EXPOSE 8080
