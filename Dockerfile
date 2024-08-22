@@ -1,4 +1,4 @@
-# Use an official Node.js 18 runtime as a parent image
+# Use an official Node.js 20 runtime as a parent image
 FROM node:20
 
 # Set the working directory in the container to the root of the project
@@ -17,7 +17,7 @@ RUN npm install -g @angular/cli
 COPY . .
 
 # Set the working directory to the app directory
-WORKDIR /src
+WORKDIR /
 
 # Build the Angular application
 RUN ng build
