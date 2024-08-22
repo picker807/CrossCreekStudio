@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node dist/cross-creek-creates/server/main.js",
-    "build": "npx ng build && npx ng run CrossCreekCreates:server",
+    "start": "node server.ts",
+    "build": "ng build && ng run CrossCreekCreates:server",
     "build:ssr": "ng build && ng run CrossCreekCreates:server",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
