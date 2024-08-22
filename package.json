@@ -4,7 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "node server.ts",
-    "build": "ng build && ng run CrossCreekCreates:server",
+    
+  "build": "node_modules/.bin/ng build && node_modules/.bin/ng run CrossCreekCreates:server",
+
+    
     "build:ssr": "ng build && ng run CrossCreekCreates:server",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
