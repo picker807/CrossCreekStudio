@@ -96,13 +96,13 @@ db.on('disconnected', () => {
 });
 
 // Define the port address and tell express to use this port
-const port = process.env.PORT || '8080';
-app.set('port', port);
+const port = process.env.PORT || 4000;
+//app.set('port', port);
 
 // Create HTTP server.
-const server = http.createServer(app);
+//const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
-server.listen(port, '0.0.0.0', function() {
+app.listen(port, () => {
   console.log('API running on port: ' + port);
 });
