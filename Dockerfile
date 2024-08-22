@@ -17,7 +17,7 @@ RUN npm install -g @angular/cli
 COPY . .
 
 # Set the working directory to the app directory
-# WORKDIR /src/app
+WORKDIR /src
 
 # Build the Angular application
 RUN ng build
