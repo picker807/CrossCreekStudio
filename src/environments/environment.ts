@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  SITE_URL: 'http://localhost:4200'
+  SITE_URL: 'http://localhost:8080'
 };
