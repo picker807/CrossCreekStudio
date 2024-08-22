@@ -5,7 +5,7 @@ FROM node:20
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the /app directory
-COPY CrossCreekCreates/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
@@ -14,7 +14,7 @@ RUN npm install
 RUN npm install -g @angular/cli
 
 # Copy the rest of the application code to the /app directory
-COPY CrossCreekCreates ./
+COPY . .
 
 # Build the Angular application
 RUN ng build
