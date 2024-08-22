@@ -20,7 +20,7 @@ COPY . .
 WORKDIR /src/app
 
 # Build the Angular application
-RUN ng build --prod
+RUN ng build
 
 # Expose the port the app runs on
 EXPOSE 8080
