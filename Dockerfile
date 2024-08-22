@@ -16,11 +16,11 @@ RUN npm install -g @angular/cli
 # Copy the rest of the application code
 COPY . .
 
-# Build the Angular application
-RUN ng build --prod
+# Build the Angular application with verbose logging
+RUN ng build --prod --verbose
 
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Start the Node.js server
-CMD ["node", "server.js"]
+CMD ["node", "server.ts"]
