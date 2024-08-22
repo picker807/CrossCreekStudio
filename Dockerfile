@@ -17,7 +17,7 @@ RUN npm install -g @angular/cli
 COPY . .
 
 # Build the Angular application with verbose logging
-RUN ng build --prod --verbose
+RUN ng build --verbose
 
 # Expose the port the app runs on
 EXPOSE 8080
