@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "node dist/cross-creek-creates/server/main.js",
+    "build": "ng build && ng run CrossCreekCreates:server",
     "build:ssr": "ng build && ng run CrossCreekCreates:server",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:CrossCreekCreates": "node dist/cross-creek-creates/server/server.mjs",
+    "serve:ssr:CrossCreekCreates": "node dist/cross-creek-creates/server/main.js",
     "dev": "concurrently \"ng serve\" \"node server.ts\""
   },
   "private": true,
