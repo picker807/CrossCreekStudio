@@ -40,10 +40,11 @@ app.use(session({
 app.use(logger('dev'));
 
 
+// Configure CORS to allow requests from the Render domain
 app.use(cors({
-  origin: process.env.SITE_URL,
-  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  origin: 'https://crosscreekcreates.onrender.com',
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], 
   credentials: true
 }));
 
