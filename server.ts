@@ -63,14 +63,14 @@ app.get('/api/paypal-client-id', (req, res) => {
 });
 app.use('/api/email', emailRoutes);
 
+// Tell express to use the specified directory as the
+// root directory for your web site
+app.use(express.static(path.join(__dirname, 'dist/cross-creek-creates/browser')));
+
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/cross-creek-creates/browser/index.html'));
 });
-
-// Tell express to use the specified directory as the
-// root directory for your web site
-app.use(express.static(path.join(__dirname, 'dist/cross-creek-creates/browser')));
 
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
