@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = `${environment.SITE_URL}/admin`;
+  private apiUrl = `${environment.SITE_URL}/api/admin`;
 
   private adminsSubject = new BehaviorSubject<Admin[]>([]);
   admins$ = this.adminsSubject.asObservable();
