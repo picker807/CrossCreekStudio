@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
-import { Admin } from '../../models/admin.model';
+import { Admin, AdminCredentials } from '../../models/admin.model';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from '../../../environments/environment';
 
@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
 export class AuthService {
   private isAdminSubject = new BehaviorSubject<boolean>(false);
   isAdmin$ = this.isAdminSubject.asObservable();
-  private AUTH_API = `${environment.SITE_URL}/admin`;
+  private AUTH_API = `${environment.SITE_URL}/api/admin`;
 
   constructor(
     private http: HttpClient,
@@ -41,8 +41,8 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.AUTH_API}/login`, { email, password })
+  login(credentials: AdminCredentials): Observable<any> {
+    return this.http.post<any>(`${this.AUTH_API}/login`, { credentials })
       .pipe(
         tap((response: any) => {
             localStorage.setItem('token', response.token);

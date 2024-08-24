@@ -42,7 +42,10 @@ app.use(logger('dev'));
 
 // Configure CORS to allow requests from the Render domain
 app.use(cors({
-  origin: 'https://crosscreekcreates.onrender.com',
+  origin: [
+    'https://crosscreekcreates.onrender.com',
+    'http://localhost:4200',
+    'http://localhost:8080'],
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], 
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], 
   credentials: true
@@ -104,6 +107,6 @@ const port = process.env.PORT || 8080;
 //const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log('API running on port: ' + port);
 });

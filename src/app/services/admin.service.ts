@@ -23,14 +23,15 @@ export class AdminService {
     });
   }
 
-  login(credentials: AdminCredentials): Observable<{ token: string }> {
+ /*  login(credentials: AdminCredentials): Observable<{ token: string }> {
+    console.log(`API URL: ${this.apiUrl}/login`);
     return this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap(response => {
           localStorage.setItem('token', response.token);
         })
       );
-  }
+  } */
 
   getAllAdmins(): void {
     this.http.get<Admin[]>(this.apiUrl, {
@@ -102,8 +103,8 @@ export class AdminService {
     });
   }
 
-  logout(): void {
+  /* logout(): void {
     localStorage.removeItem('token');
-  }
+  } */
   
 }

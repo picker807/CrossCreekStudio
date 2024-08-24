@@ -59,7 +59,7 @@
   <!-- Display Unique URL for Admin -->
   <div *ngIf="isAdmin && event.isPrivate" class="text-center mb-6">
     <p class="text-blue-500 font-semibold text-xl">Unique URL for this private event:</p>
-    <p class="text-blue-700 text-xl">{{ getUniqueEventUrl() }}</p>
+    <p><a [href]="getUniqueEventUrl()" class="text-blue-700 text-xl">{{ getUniqueEventUrl() }}</a></p>
   </div>
 
   <!-- Event Details -->

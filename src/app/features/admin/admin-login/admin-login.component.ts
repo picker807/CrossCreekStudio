@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AdminService } from '../../../services/admin.service';
+import { AdminCredentials } from '../../../models/admin.model';
 import { AuthService } from '../../../core/authentication/auth.service';
 
 @Component({
@@ -28,7 +30,11 @@ export class AdminLoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-      this.authService.login(email, password).subscribe({
+      const credentials: AdminCredentials = {
+        email: email,
+        password: password
+      }
+      this.authService.login(credentials).subscribe({
         next: () => {
           this.router.navigate(['/admin']);
         },

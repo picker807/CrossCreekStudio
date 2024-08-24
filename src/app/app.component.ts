@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AuthService } from './core/authentication/auth.service';
 import { Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
+import { AdminService } from './services/admin.service';
 
 @Component({
   selector: 'cc-root',
@@ -16,7 +17,8 @@ export class AppComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private checkoutService: CheckoutService
+    private checkoutService: CheckoutService,
+    private adminService: AdminService
   ) {}
 
   isActive(route: string): boolean {

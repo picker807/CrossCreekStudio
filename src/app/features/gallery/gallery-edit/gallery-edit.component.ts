@@ -174,7 +174,11 @@ export class GalleryEditComponent implements OnInit {
   }
 
   cancelEdit(): void {
-    this.router.navigate(['/gallery/detail', this.originalItem.id]);
+    if (this.originalItem){
+      this.router.navigate(['/gallery/detail', this.originalItem.id]);
+    } else {
+      this.router.navigate(['/gallery']);
+    }
   }
     
 }

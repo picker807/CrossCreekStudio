@@ -124,7 +124,8 @@ exports.deleteAdmin = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  console.log(req.body);
+  const { email, password } = req.body.credentials;
   try {
     const admin = await Admin.findOne({ email });
     if (!admin || !await bcrypt.compare(password, admin.password)) {

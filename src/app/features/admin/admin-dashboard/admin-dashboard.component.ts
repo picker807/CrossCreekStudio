@@ -15,6 +15,7 @@ import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-d
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { format } from 'date-fns';
+import { AuthService } from '../../../core/authentication/auth.service';
 
 @Component({
   selector: 'cc-admin-dashboard',
@@ -48,7 +49,8 @@ export class AdminDashboardComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) {
     this.changePasswordForm = this.fb.group({
       oldPassword: ['', Validators.required],
@@ -400,7 +402,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   logout(): void {
-    this.adminService.logout();
+    this.authService.logout();
     this.router.navigate(['/admin/login']);
     this.messageService.showMessage({
       text: 'Logged out successfully',
