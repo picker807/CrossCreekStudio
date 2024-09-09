@@ -103,12 +103,18 @@ db.on('disconnected', () => {
 
 // Define the port address and tell express to use this port
 const port = process.env.PORT || 8080;
+console.log(`Attempting to start server on port ${port}`);
 //app.set('port', port);
 
 // Create HTTP server.
 //const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log('API running on port: ' + port);
+});
+
+app.on('error', (error) => {
+  console.error('Server failed to start:', error);
+  process.exit(1);  // Exit with error code
 });
