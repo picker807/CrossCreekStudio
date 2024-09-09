@@ -2,21 +2,13 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
+RUN npm install -g @angular/cli typescript
 
-# Copy the rest of the application code
 COPY . .
 
-# Build the Angular Universal application
-RUN npm run build:ssr
+RUN ng build --configuration=production
+RUN tsc server.ts
 
-# Expose the port your app runs on
-ENV PORT=10000
-EXPOSE 10000
-
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

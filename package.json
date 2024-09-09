@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node -e \"setTimeout(() => require('./dist/cross-creek-creates/server/main.js'), 5000)\"",
+    "start": "node dist/cross-creek-creates/server/main.js",
     "build": "ng build --configuration=production",
     "build:ssr": "ng build && ng run CrossCreekCreates:server",
     "watch": "ng build --watch --configuration development",
