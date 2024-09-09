@@ -15,7 +15,8 @@ COPY . .
 RUN npm run build:ssr
 
 # Expose the port your app runs on
-EXPOSE 4000
+ENV PORT=10000
+EXPOSE 10000
 
 # Start the application
 CMD ["npm", "start"]
