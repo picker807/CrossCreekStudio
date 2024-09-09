@@ -9,7 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:CrossCreekCreates": "node dist/cross-creek-creates/server/main.js",
-    "dev": "concurrently \"ng serve\" \"node server.ts\""
+    "dev": "concurrently \"ng serve\" \"npx ts-node server.ts\""
   },
   "private": true,
   "dependencies": {

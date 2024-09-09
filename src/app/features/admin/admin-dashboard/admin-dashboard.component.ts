@@ -28,7 +28,7 @@ export class AdminDashboardComponent implements OnInit {
   events: Event[] = [];
   selectedEventUsers: User[] = [];
   changePasswordForm: FormGroup;
-  messageForm: FormGroup;
+  notificationForm: FormGroup;
   createAdminForm: FormGroup;
   selectedUsers: string[] = [];
   resetForms: {[key: string]: FormGroup } = {};
@@ -37,6 +37,7 @@ export class AdminDashboardComponent implements OnInit {
   previewHtml: SafeHtml = '';
   showPreview: boolean = false;
   selectedEvent: Event;
+  eventDetails: any;
 
   private unsubscribe$ = new Subject<void>();
 
@@ -57,7 +58,7 @@ export class AdminDashboardComponent implements OnInit {
       newPassword: ['', Validators.required]
     });
 
-    this.messageForm = this.fb.group({
+    this.notificationForm = this.fb.group({
       subject: ['', Validators.required],
       message: ['', Validators.required]
     });
@@ -153,17 +154,24 @@ export class AdminDashboardComponent implements OnInit {
       this.selectedEventUsers = selectedEvent.attendees || [];
       this.selectedUsers = [];
   
-      // Calculate days until the event
       const daysUntil = this.calculateDaysUntil(this.selectedEvent.date);
   
-      // Pre-load the subject and message fields with the reminder message
       const subject = `Reminder: Upcoming Event - ${this.selectedEvent.name}`;
-      const message = `This is a reminder for the upcoming Paint Party event "${this.selectedEvent.name}" happening in ${daysUntil} days. We look forward to seeing you there!\n\nBest regards,\nCross Creek Creates`;
+      const message = `This is a reminder for the upcoming Paint Party event "${this.selectedEvent.name}" happening in ${daysUntil} days. We look forward to seeing you there!`;
   
-      this.messageForm.patchValue({
+      this.notificationForm.patchValue({
         subject: subject,
         message: message
       });
+  
+      // Prepare the event details for the template
+      this.eventDetails = {
+        name: this.selectedEvent.name,
+        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'),
+        time: this.formatTime(this.selectedEvent.date),
+        location: this.selectedEvent.location,
+        daysUntil: daysUntil
+      };
     } else {
       this.messageService.showMessage({
         text: 'Event not found',
@@ -174,25 +182,27 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   previewEmail(): void {
-    if (this.messageForm.valid) {
-      const { subject, message } = this.messageForm.value;
+    if (this.notificationForm.valid) {
+      const { subject, message } = this.notificationForm.value;
       const selectedUserEmails = this.selectedEventUsers
         .filter(user => this.selectedUsers.includes(user.id))
         .map(user => user.email);
-
-      console.log("Selected evemt foe email: ", this.selectedEvent)
-
-      const eventDetails = this.selectedEvent ? {
-        name: this.selectedEvent.name,
-        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'),
-        time: this.formatTime(this.selectedEvent.date),
-        location: this.selectedEvent.location,
-        daysUntil: this.calculateDaysUntil(this.selectedEvent.date)
-      } : null;
-
-      console.log('Preview Email Data:', { selectedUserEmails, subject, message, eventDetails });
-
-      this.emailService.getEmailPreview(selectedUserEmails, subject, message, eventDetails).subscribe({
+  
+      console.log('Preview Email Data:', { selectedUserEmails, subject, message, eventDetails: this.eventDetails });
+  
+      // Prepare the data for the email template
+      const templateData = {
+        subject,
+        message,
+        eventDetails: this.eventDetails,
+        recipients: selectedUserEmails // Include this if you want to show recipients in the preview
+      };
+  
+      // Use the EmailService to get the email preview
+      this.emailService.getEmailPreview(
+        'notification', // Template name
+        templateData
+      ).subscribe({
         next: (response) => {
           this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(response.html);
           this.showPreview = true;
@@ -203,7 +213,14 @@ export class AdminDashboardComponent implements OnInit {
             type: 'error',
             duration: 5000
           });
+          console.error('Error generating email preview:', err);
         }
+      });
+    } else {
+      this.messageService.showMessage({
+        text: 'Please fill out all required fields.',
+        type: 'error',
+        duration: 5000
       });
     }
   }
@@ -310,39 +327,66 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  sendMessage(): void {
-    if (this.messageForm.valid && this.selectedUsers.length > 0) {
-      const { subject, message } = this.messageForm.value;
+  sendNotification(): void {
+    if (this.notificationForm.valid && this.selectedUsers.length > 0) {
+      const { subject, message } = this.notificationForm.value;
       const selectedUsers = this.selectedEventUsers
         .filter(user => this.selectedUsers.includes(user.id))
         .map(user => ({ firstName: user.firstName, email: user.email }));
-        console.log("selected users sent to email: ", selectedUsers);
-
+  
+      console.log("Selected users sent to email: ", selectedUsers);
+  
       const eventDetails = this.selectedEvent ? {
         name: this.selectedEvent.name,
-        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'), 
+        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'),
         time: this.formatTime(this.selectedEvent.date),
         location: this.selectedEvent.location,
         daysUntil: this.calculateDaysUntil(this.selectedEvent.date)
       } : null;
-
-      this.emailService.sendEmail(selectedUsers, subject, message, eventDetails).subscribe({
-        next: response => {
-          this.messageService.showMessage({
-            text: 'Emails sent successfully',
-            type: 'success',
-            duration: 3000
+  
+      // Iterate over each selected user and send an email
+      selectedUsers.forEach(user => {
+        // Prepare the data for the email template
+        const templateData = {
+          user, // Include the user object with firstName
+          message,
+          eventDetails
+        };
+  
+        // Use the EmailService to send the email
+        this.emailService.sendEmail(
+          [user.email], // Send to the individual user's email
+          subject,
+          'notification', // Email template to be used
+          templateData,
+          true // notifications require authentication
+        ).subscribe({
+          next: () => {
+            console.log(`Email sent successfully to ${user.email}`);
+          },
+          error: (err) => {
+            console.error(`Failed to send email to ${user.email}`, err);
+            this.messageService.showMessage({
+              text: `Failed to send email to ${user.email}`,
+              type: 'error',
+              duration: 5000
+            });
+          }
         });
-          this.messageForm.reset();
-          this.selectedUsers = [];
-        },
-        error: err => {
-          this.messageService.showMessage({
-            text: 'Failed to send emails',
-            type: 'error',
-            duration: 5000
-        });
-        }
+      });
+  
+      this.messageService.showMessage({
+        text: 'Emails sent successfully',
+        type: 'success',
+        duration: 3000
+      });
+      this.notificationForm.reset();
+      this.selectedUsers = [];
+    } else {
+      this.messageService.showMessage({
+        text: 'Please fill out all required fields and select users.',
+        type: 'error',
+        duration: 5000
       });
     }
   }

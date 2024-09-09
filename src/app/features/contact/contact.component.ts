@@ -39,24 +39,48 @@ export class ContactComponent {
 
   sendContactMessage(): void {
     if (this.contactForm.valid) {
-      const { name, email, phone, subject, message, contactMethod } = this.contactForm.value;
-      this.emailService.sendContactMessage(name, email, phone, subject, message, contactMethod).subscribe({
-        next: response => {
+      const formData = this.contactForm.value;
+      
+      // Prepare the data for the email template
+      const templateData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        contactMethod: formData.contactMethod
+      };
+
+      // Use the EmailService to send the email
+      this.emailService.sendEmail(
+        [],
+        `New CCS Contact Form Message from ${formData.name} --- ${formData.subject}`,
+        'contact', // Email template name
+        templateData,
+        false // contact form doesn't require authentication
+      ).subscribe({
+        next: (response) => {
           this.messageService.showMessage({
-            text: 'Contact Message sent successfully',
+            text: 'Your message has been sent successfully',
             type: 'success',
             duration: 5000
-        });
+          });
           this.contactForm.reset();
-    
         },
-        error: err => {
+        error: (error) => {
           this.messageService.showMessage({
-            text: 'Error submitting Contact Message',
+            text: 'There was an error sending your message. Please try again.',
             type: 'error',
             duration: 5000
-        });
+          });
+          console.error('Error sending contact message:', error);
         }
+      });
+    } else {
+      this.messageService.showMessage({
+        text: 'Please fill out all required fields correctly.',
+        type: 'error',
+        duration: 5000
       });
     }
   }

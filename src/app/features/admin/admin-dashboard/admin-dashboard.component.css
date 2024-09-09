@@ -1,0 +1,19 @@
+.email-preview-container {
+  max-width: 800px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+
+.email-preview-container * {
+  max-width: 100%;
+}
+
+.email-preview-container table {
+  width: 100% !important;
+  border-collapse: collapse;
+}
+
+.email-preview-container img {
+  max-width: 100%;
+  height: auto;
+}

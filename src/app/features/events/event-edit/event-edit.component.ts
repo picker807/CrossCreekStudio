@@ -58,7 +58,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       time: ['', Validators.required],
       location: [''],
       description: [''],
-      price: [null],
+      price: [null,[Validators.min(0), Validators.max(999)]],
       attendees: this.fb.array([]),
       images: this.fb.array([]),
       isPrivate: [false]

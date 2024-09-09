@@ -12,6 +12,8 @@ const cors = require('cors');
 require('dotenv').config();
 
 const mongoUri = process.env.MONGODB_URI;
+console.log('PAYPAL_CLIENT_ID:', process.env.PAYPAL_CLIENT_ID);
+console.log('SITE_URL:', process.env.SITE_URL);
 
 // Import the routing files
 const authRoutes = require('./server/routes/auth');

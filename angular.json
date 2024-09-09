@@ -105,7 +105,8 @@
               "buildTarget": "CrossCreekCreates:build:production"
             },
             "development": {
-              "buildTarget": "CrossCreekCreates:build:development"
+              "buildTarget": "CrossCreekCreates:build:development",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

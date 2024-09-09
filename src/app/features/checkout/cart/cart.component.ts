@@ -139,7 +139,7 @@ export class CartComponent implements OnInit {
           return actions.order.capture().then((details) => {
             console.log('Transaction details: ' + JSON.stringify(details, null, 2));
             console.log("Valid items list: ", JSON.stringify(this.validItems, null, 2));
-  
+
             // Process each valid item (event) sequentially
             from(this.validItems).pipe(
               concatMap(item => {
@@ -183,13 +183,12 @@ export class CartComponent implements OnInit {
                 console.error('Error in overall process:', error);
               },
               complete: () => {
-                
                 // Combine order details with cart contents
-              const combinedOrderData: OrderDetails = {
-              orderDetails: details as PayPalOrderDetails,
-              cartContents: this.validItems
-            };
-
+                const combinedOrderData: OrderDetails = {
+                  orderDetails: details as PayPalOrderDetails,
+                  cartContents: this.validItems
+                };
+                this.sendReceiptEmail(combinedOrderData);
                 this.checkoutService.storeOrderDetails(combinedOrderData);
                 // Handle successful payment (e.g., clear cart, show confirmation)
                 this.checkoutService.clearCart();
@@ -203,7 +202,18 @@ export class CartComponent implements OnInit {
   }
 
   private sendConfirmationEmail(enrollee: User, event: any) {
-    this.emailService.sendConfirmationEmail(enrollee, event.name, event.date).subscribe({
+    const templateData = {
+      user: enrollee,
+      eventName: event.name,
+      eventDate: event.date
+    };
+
+    this.emailService.sendEmail(
+      [enrollee.email],
+      `Confirmation for ${event.name}`,
+      'confirmation', // Template name
+      templateData
+    ).subscribe({
       next: () => {
         console.log(`Confirmation email sent to ${enrollee.email}`);
       },
@@ -211,6 +221,33 @@ export class CartComponent implements OnInit {
         console.error(`Failed to send confirmation email to ${enrollee.email}`, error);
         this.messageService.showMessage({
           text: `Failed to send confirmation email to ${enrollee.email}.`,
+          type: 'error',
+          duration: 5000
+        });
+      }
+    });
+  }
+
+  private sendReceiptEmail(orderDetails: OrderDetails) {
+    const userEmail = orderDetails.orderDetails.payer.email_address
+    
+    const templateData = {
+      orderDetails
+    };
+
+    this.emailService.sendEmail(
+      [userEmail],
+      'Your Purchase Receipt',
+      'receipt', // Template name
+      templateData
+    ).subscribe({
+      next: () => {
+        console.log(`Receipt email sent to ${userEmail}`);
+      },
+      error: (error) => {
+        console.error(`Failed to send receipt email to ${userEmail}`, error);
+        this.messageService.showMessage({
+          text: `Failed to send receipt email to ${userEmail}.`,
           type: 'error',
           duration: 5000
         });

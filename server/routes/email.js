@@ -1,4 +1,3 @@
-// server/routes/email.js
 const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
@@ -18,87 +17,76 @@ let transporter = nodemailer.createTransport({
   }
 });
 
-// Load and compile the email template
-let emailTemplate;
-fs.readFile(path.join(__dirname, '../models/emailTemplateReminder.html'), 'utf8')
-  .then(template => {
-    emailTemplate = handlebars.compile(template);
-    console.log('Email template loaded and compiled successfully');
-  })
-  .catch(err => console.error('Error loading email template:', err));
+async function registerPartials() {
+  const header = await fs.readFile(path.join(__dirname, '../models/templates', 'header.hbs'), 'utf8');
+  const footer = await fs.readFile(path.join(__dirname, '../models/templates', 'footer.hbs'), 'utf8');
+  handlebars.registerPartial('header', header);
+  handlebars.registerPartial('footer', footer);
+}
 
-  const ensureTemplateLoaded = (req, res, next) => {
-    if (!emailTemplate) {
-      return res.status(500).json({ message: 'Email template not loaded' });
-    }
+registerPartials().catch(err => console.error('Error registering partials:', err));
+
+// Function to load and compile a template
+async function loadTemplate(templateName, data) {
+  const filePath = path.join(__dirname, '../models/templates', `${templateName}.hbs`);
+  const templateContent = await fs.readFile(filePath, 'utf8');
+  const template = handlebars.compile(templateContent);
+  return template(data);
+}
+
+// Middleware to ensure the template exists
+const ensureTemplateExists = async (req, res, next) => {
+  console.log("req.body: ", req.body);
+  const templateType = req.body.templateType || req.body.emailData?.templateType;
+  try {
+    const filePath = path.join(__dirname, '../models/templates', `${templateType}.hbs`);
+    await fs.access(filePath);
     next();
+  } catch (error) {
+    res.status(404).json({ message: 'Template not found' });
+  }
+};
+
+// Endpoint for sending emails
+router.post('/send', ensureTemplateExists, async (req, res) => {
+  const { recipients, subject, templateType, templateData } = req.body; // Accessing from emailData
+  //console.log('Send Data:', { recipients, subject, templateType, templateData });
+
+  let finalRecipients = recipients;
+  let mailOptions = {
+    from: `"Cross Creek Studio" <${EMAIL_USER}>`,
+    subject: subject
   };
 
-router.post('/preview', ensureTemplateLoaded, async (req, res) => {
-  const { subject, message, eventDetails } = req.body;
-  console.log('Preview Data:', { subject, message, eventDetails });
   try {
-    const html = emailTemplate({
-      subject,
-      message,
-      eventDetails,
-      logoUrl: 'https://example.com/logo.png' // Replace with your actual logo URL
-    });
-    console.log('Generated HTML:', html);
-    res.status(200).json({ html });
-  } catch (error) {
-    console.error('Error generating email preview:', error);
-    res.status(500).json({ message: 'Failed to generate email preview' });
-  }
-});
+    const html = await loadTemplate(templateType, templateData);
 
-router.post('/confirm', async (req, res) => {
-  const { user, eventName, eventDate } = req.body;
-  try {
-    await transporter.sendMail({
-      from: `"Cross Creek Creates" <${EMAIL_USER}>`,
-      to: `${user.firstName} ${user.lastName} <${user.email}>`,
-      subject: `You are registered for ${eventName}`,
-      text: `${user.firstName},\n\nThank you for registering for ${eventName} on ${eventDate}. We look forward to seeing you!`,
-      html: `<p>${user.firstName},</p>
-             <p>Thank you for registering for <strong>${eventName}</strong> on ${eventDate}.<br>We look forward to seeing you!</p>
-             <br><p>An email receipt should go here</p>
-             <p> and we really should include more event data<p>`
-    });
-
-    res.status(200).json({ message: 'Confirmation email sent successfully' });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Failed to send confirmation email' });
-  }
-});
-
-router.post('/send', ensureTemplateLoaded, async (req, res) => {
-  const { users, subject, message, eventDetails } = req.body;
-  console.log('Send Data:', { users, subject, message, eventDetails });
-
-  try {
-    const sendEmailPromises = users.map(async (user) => {
-      const personalizedMessage = `Dear ${user.firstName},\n\n${message}`;
-
-      const html = emailTemplate({
-        subject,
-        message: personalizedMessage,
-        eventDetails,
-        logoUrl: 'https://example.com/logo.png' // Replace with your actual logo URL
-      });
-
-      const mailOptions = {
-        from: `"Cross Creek Creates" <${EMAIL_USER}>`,
-        to: user.email,
-        subject: subject,
+    if (templateType === 'contact') {
+      // For contact template, send a single email to all recipients
+      finalRecipients = [EMAIL_RECEIVE1, EMAIL_RECEIVE2, EMAIL_USER].filter(Boolean);
+      mailOptions = {
+        ...mailOptions,
+        to: finalRecipients.join(', '), // Join all recipients for a single email
+        replyTo: `${templateData.name} <${templateData.email}>`,
         html: html
       };
 
-      return transporter.sendMail(mailOptions);
-    });
+      await transporter.sendMail(mailOptions);
+    } else {
+      // For all other templates, send individual emails
+      const sendEmailPromises = finalRecipients.map(async (recipient) => {
+        const options = {
+          ...mailOptions,
+          to: recipient,
+          html: html
+        };
 
-    await Promise.all(sendEmailPromises);
+        return transporter.sendMail(options);
+      });
+
+      await Promise.all(sendEmailPromises);
+    }
+
     res.status(200).json({ message: 'Emails sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
@@ -106,32 +94,18 @@ router.post('/send', ensureTemplateLoaded, async (req, res) => {
   }
 });
 
-router.post('/contact', async (req, res) => {
-  const { name, email, phone, subject, message, contactMethod } = req.body;
-  try {
-    await transporter.sendMail({
-      from: `"Contact at Cross Creek Studio" <${EMAIL_USER}>`,
-      to: `${EMAIL_USER}, ${EMAIL_RECEIVE1}, ${EMAIL_RECEIVE2} `,
-      replyTo: `${name} <${email}>`,
-      subject: `Contact message from ${name} --- ${subject}`,
-      text: `Name: ${name} \n
-            Preferred Contact Method: ${contactMethod} \n
-            email: ${email} \n
-            phone: ${phone} \n
-            subject: ${subject} \n
-            message: ${message}`,
-      html:  `<p>Name: ${name}</p>
-              <p>Preferred Contact Method: ${contactMethod}</p>
-              <p>email: ${email}</p>
-              <p>phone: ${phone}</p>
-              <p>subject: ${subject}</p>
-              <p>message: ${message}</p>`
-    });
+// Endpoint for previewing emails
+router.post('/preview', ensureTemplateExists, async (req, res) => {
+  const { subject, templateType, templateData } = req.body.emailData; 
+  //console.log('Preview Data:', { subject, templateType, templateData });
 
-    res.status(200).json({ message: 'Contact email sent successfully' });
+  try {
+    const html = await loadTemplate(templateType, templateData);
+    //console.log('Generated HTML:', html);
+    res.status(200).json({ html });
   } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Failed to send contact email' });
+    console.error('Error generating email preview:', error);
+    res.status(500).json({ message: 'Failed to generate email preview' });
   }
 });
 

@@ -1,0 +1,35 @@
+{{> header}}
+
+<h2>Order Receipt</h2>
+<p>Dear {{orderDetails.orderDetails.payer.name.given_name}},</p> <!-- Using given_name from PayPal details -->
+
+<p>Thank you for your purchase. Here's a summary of your order:</p>
+
+<h3>Order Details:</h3>
+<ul>
+    <li><strong>Order ID:</strong> {{orderDetails.orderDetails.id}}</li>
+    <li><strong>Date:</strong> {{orderDetails.orderDetails.create_time}}</li>
+    <li><strong>Total Amount:</strong> ${{orderDetails.orderDetails.purchase_units.[0].amount.value}}</li>
+</ul>
+
+<h3>Items Purchased:</h3>
+<table style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Item</th>
+        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Quantity</th>
+        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Price</th>
+    </tr>
+    {{#each orderDetails.cartContents}}
+    <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">{{this.name}}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">{{this.quantity}}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${{this.price}}</td>
+    </tr>
+    {{/each}}
+</table>
+
+<p>If you have any questions about your order, please don't hesitate to contact us.</p>
+
+<p>Thank you for your business!</p>
+
+{{> footer}}

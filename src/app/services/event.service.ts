@@ -17,24 +17,35 @@ export class EventService {
   //url: string = 'mongo uri here';
 
   constructor( private http: HttpClient ) {
+    console.log("Initializing Event Service")
     this.loadEvents();
 
   }
 
   private loadEvents(): void {
+    if (this.eventsSubject.getValue().length > 0) return;
     this.http.get<Event[]>(this.apiUrl).subscribe(events => {
+      console.log('Loading events:', events);
       const eventsWithDates = events.map(event => ({
         ...event,
         date: new Date(event.date)
       }));
       this.sortAndSend(eventsWithDates);
+      console.log('Events loaded into BehaviorSubject');
     });
   }
 
   getEventById(idOrSlug: string): Observable<Event> {
     return this.events$.pipe(
-      take(1),
-      map(events => events.find(event => event.id === idOrSlug || event.slug === idOrSlug)),
+      switchMap(events => {
+        if (events.length === 0) {
+          return this.http.get<Event[]>(this.apiUrl).pipe(
+            tap(loadedEvents => this.sortAndSend(loadedEvents)),
+            map(() => this.eventsSubject.getValue().find(event => event.id === idOrSlug || event.slug === idOrSlug))
+          );
+        }
+        return of(events.find(event => event.id === idOrSlug || event.slug === idOrSlug));
+      }),
       catchError(error => {
         console.error('Error fetching event:', error);
         return throwError(() => new Error('Error fetching event'));
