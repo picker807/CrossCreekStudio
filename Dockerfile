@@ -11,4 +11,4 @@ COPY . .
 RUN ng build --configuration=production
 RUN tsc -p tsconfig.server.json
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "server.js"]
