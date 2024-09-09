@@ -8,8 +8,8 @@
     "noEmit": false,
     "types": ["node"]
   },
+  "files": ["server.ts"],
   "include": [
-    "server.ts",
     "src/main.server.ts",
     "server/**/*.ts"
   ]

@@ -8,7 +8,8 @@ RUN npm install -g @angular/cli typescript
 
 COPY . .
 
-RUN ng build --configuration=production
-RUN tsc server.ts
+RUN npm run build:ssr
 
-CMD ["node", "server.js"]
+EXPOSE 8080
+
+CMD ["npm", "start"]
