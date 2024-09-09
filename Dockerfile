@@ -9,6 +9,6 @@ RUN npm install -g @angular/cli typescript
 COPY . .
 
 RUN ng build --configuration=production
-RUN tsc server.ts
+RUN tsc -p tsconfig.server.json
 
-CMD ["node", "server.js"]
+CMD ["node", "dist/server.js"]
