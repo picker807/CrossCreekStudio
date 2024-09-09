@@ -2,20 +2,20 @@ FROM node:20
 
 WORKDIR /app
 
+# Copy package.json and package-lock.json
 COPY package*.json ./
-RUN npm install
-RUN npm install -g @angular/cli typescript
 
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
 COPY . .
 
-# Build the Angular application (including SSR)
+# Build the Angular Universal application
 RUN npm run build:ssr
 
-# Compile your custom server
-RUN npm run build:server
+# Expose the port your app runs on
+EXPOSE 4000
 
-# List contents for debugging (remove this later)
-RUN ls -la dist
-
-# Start the server
-CMD ["node", "dist/cross-creek-creates/server/main.js"]
+# Start the application
+CMD ["npm", "start"]

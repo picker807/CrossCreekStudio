@@ -5,7 +5,6 @@
     "ng": "ng",
     "start": "node dist/cross-creek-creates/server/main.js",
     "build": "ng build --configuration=production",
-    "build:server": "tsc -p tsconfig.server.json",
     "build:ssr": "ng build && ng run CrossCreekCreates:server",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
