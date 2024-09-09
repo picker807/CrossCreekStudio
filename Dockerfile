@@ -8,7 +8,14 @@ RUN npm install -g @angular/cli typescript
 
 COPY . .
 
-RUN ng build --configuration=production
-RUN tsc -p tsconfig.server.json
+# Build the Angular application (including SSR)
+RUN npm run build:ssr
 
-CMD ["node", "server.js"]
+# Compile your custom server
+RUN npm run build:server
+
+# List contents for debugging (remove this later)
+RUN ls -la dist
+
+# Start the server
+CMD ["node", "dist/cross-creek-creates/server/main.js"]
