@@ -10,6 +10,7 @@ COPY . .
 
 RUN npm run build:ssr
 
-EXPOSE 8080
+ENV PORT=10000
+EXPOSE 10000
 
 CMD ["npm", "start"]
