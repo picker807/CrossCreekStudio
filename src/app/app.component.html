@@ -15,7 +15,7 @@
         <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300">Home</a></li>
         <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300">Events</a></li>
         <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
-        <li><a routerLink="/admin" [class.active]="isActive('/admin')" class="hover:text-gray-300">Admin</a></li>
+        <!-- <li><a routerLink="/admin" [class.active]="isActive('/admin')" class="hover:text-gray-300">Admin</a></li> -->
         <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
         <li class="relative">
             <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300">
@@ -33,7 +33,7 @@
     <router-outlet></router-outlet>
   </main>
   
-  <footer class="bg-gray-700 text-white text-center py-6">
+  <!-- <footer class="bg-gray-700 text-white text-center py-6">
     <div class="container mx-auto">
       <div class="flex justify-center space-x-4 mb-4">
         <a href="/home" class="hover:underline">Home</a>
@@ -54,6 +54,37 @@
       </div>
       <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
       <p>© 2024 Cross Creek Studio</p>
+    </div>
+  </footer> -->
+  <footer class="bg-gray-700 text-white text-center py-6 relative">
+    <div class="container mx-auto">
+      <div class="flex justify-center space-x-4 mb-4">
+        <a href="/home" class="hover:underline">Home</a>
+        <a href="/events" class="hover:underline">Events</a>
+        <a href="/gallery" class="hover:underline">Gallery</a>
+        <a href="/cart" class="hover:underline">Cart</a>
+      </div>
+      <div class="flex justify-center space-x-4 mb-4">
+        <a href="https://www.facebook.com" target="_blank" class="hover:text-blue-500">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://www.x.com" target="_blank" class="hover:text-blue-300">
+          <i class="fa-brands fa-x-twitter"></i>
+        </a>
+        <a href="https://www.instagram.com" target="_blank" class="hover:text-pink-500">
+          <i class="fab fa-instagram"></i>
+        </a>
+      </div>
+      <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
+      <p>© 2024 Cross Creek Studio</p>
+    </div>
+    
+    <!-- Hidden Admin Button -->
+    <div class="absolute bottom-0 right-0 p-1">
+      <a routerLink="/admin" 
+         class="text-gray-700 hover:text-gray-500 text-xs opacity-20 hover:opacity-100 transition-opacity duration-300">
+        Admin
+      </a>
     </div>
   </footer>
 </div>

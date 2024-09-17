@@ -12,8 +12,8 @@ const cors = require('cors');
 require('dotenv').config();
 
 const mongoUri = process.env.MONGODB_URI;
-console.log('PAYPAL_CLIENT_ID:', process.env.PAYPAL_CLIENT_ID);
-console.log('SITE_URL:', process.env.SITE_URL);
+
+//console.log('SITE_URL:', process.env.SITE_URL);
 
 // Import the routing files
 const authRoutes = require('./server/routes/auth');
@@ -47,7 +47,8 @@ app.use(cors({
   origin: [
     'https://crosscreekcreates.onrender.com',
     'http://localhost:4200',
-    'http://localhost:8080'],
+    'http://localhost:8080',
+    'https://crosscreekstudio.net'],
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'], 
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], 
   credentials: true
@@ -62,10 +63,17 @@ app.options('*', cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
+
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/users', userRoutes);
 app.get('/api/paypal-client-id', (req, res) => {
-  res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
+  try {
+    console.log("PayPal ID requested");
+    res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 app.use('/api/email', emailRoutes);
 
@@ -109,6 +117,16 @@ const port = process.env.PORT || 8080;
 //const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
-app.listen(port, () => {
-  console.log('API running on port: ' + port);
-});
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+if (isDevelopment) {
+  // For development, listen on localhost
+  app.listen(port, () => {
+    console.log(`Development server running on http://localhost:${port}`);
+  });
+} else {
+  // For production, listen on all interfaces
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Production server running on port ${port}`);
+  });
+}

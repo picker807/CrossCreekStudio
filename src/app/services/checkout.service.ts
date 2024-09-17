@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, forkJoin, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, concatMap, finalize, forkJoin, from, map, of, reduce, take, tap, throwError, toArray } from 'rxjs';
 import { EventService } from './event.service';
-import { Enrollee, OrderDetails } from '../models/interfaces';
+import { Enrollee, OrderDetails, CartItem } from '../models/interfaces';
 import { Event } from '../models/event.model';
 
 
@@ -67,47 +67,58 @@ export class CheckoutService {
   }
 
   verifyCart(): Observable<{
-    validItems: any[],
-    invalidItems: { item: any, reason: string }[]
+    validItems: CartItem[],
+    invalidItems: { item: CartItem, reason: string }[]
   }> {
+    console.log("Starting verifyCart");
     const cartItems = this.getCart();
-    const verificationObservables = cartItems.map(item => 
-      this.eventService.getEventById(item.event.id).pipe(
-        map(event => this.verifyCartItem(item, event)),
-        catchError(error => {
-          console.error(`Error fetching event ${item.event.id}:`, error);
-          return of({ isValid: false, item: item, reason: 'Error fetching event' });
-        })
-      )
-    );
-
-    console.log("verified items: ", verificationObservables);
-
-    return forkJoin(verificationObservables).pipe(
-      tap(results => console.log('ForkJoin results:', results)),
-      map((results: { isValid: boolean, item: any, reason?: string }[])=> {
-        const validItems = results.filter(result => result.isValid).map(result => result.item);
-        const invalidItems = results.filter(result => !result.isValid).map(result => ({
-          item: result.item,
-          reason: result.reason
-        }));
-        console.log("valid items: ", validItems);
-        console.log("invalid items: ", invalidItems);
-        return { validItems, invalidItems };
-      })
+    console.log("Cart items:", cartItems);
+  
+    return from(cartItems).pipe(
+      concatMap((item: CartItem) => {
+        console.log(`Verifying item ${item.event.id}`);
+        return this.eventService.getEventById(item.event.id).pipe(
+          map(event => this.verifyCartItem(item, event)),
+          catchError(error => {
+            console.error(`Error fetching event ${item.event.id}:`, error);
+            return of({ isValid: false, item: item, reason: 'Error fetching event' });
+          })
+        );
+      }),
+      take(cartItems.length), // Ensure the Observable completes after processing all items
+      tap(() => console.log("Finished processing all items")),
+      reduce((acc, curr) => {
+        if (curr.isValid) acc.validItems.push(curr.item);
+        else acc.invalidItems.push({item: curr.item, reason: curr.reason || 'Unknown reason'});
+        return acc;
+      }, {validItems: [], invalidItems: []} as {
+        validItems: CartItem[],
+        invalidItems: { item: CartItem, reason: string }[]
+      }),
+      tap(result => console.log("Final verification result:", result)),
+      catchError(error => {
+        console.error("Error in verifyCart:", error);
+        return of({ validItems: [], invalidItems: [] });
+      }),
+      finalize(() => console.log("verifyCart observable completed"))
     );
   }
   
   private verifyCartItem(cartItem: any, event: any): { isValid: boolean, item: any, reason?: string } {
+    console.log("Verifying cart item:", cartItem, "with event:", event);
     if (!event) {
+      console.log("event invalid: not found");
       return { isValid: false, item: cartItem, reason: 'Event no longer exists' };
     }
     if (new Date(event.date) < new Date()) {
+      console.log("Event invalid: in the past");
       return { isValid: false, item: cartItem, reason: 'Event date has passed' };
     }
     if (event.price !== cartItem.event.price) {
+      console.log("evnt invalid: price changed");
       return { isValid: false, item: cartItem, reason: 'Event price has changed' };
     }
+    console.log("event is valid");
     return { isValid: true, item: cartItem };
   }
 

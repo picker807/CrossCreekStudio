@@ -46,6 +46,7 @@ export class EventService {
         }
         return of(events.find(event => event.id === idOrSlug || event.slug === idOrSlug));
       }),
+      map(event => event || null),
       catchError(error => {
         console.error('Error fetching event:', error);
         return throwError(() => new Error('Error fetching event'));

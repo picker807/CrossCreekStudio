@@ -2,11 +2,11 @@ import { Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@
 import { CheckoutService } from '../../../services/checkout.service';
 import { EventService } from '../../../services/event.service';
 import { Router } from '@angular/router';
-import { catchError, concatMap, forkJoin, from, map, mergeMap, of, Subscription, toArray } from 'rxjs';
+import { catchError, concatMap, finalize, forkJoin, from, map, mergeMap, of, Subscription, tap, toArray } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { PaypalService } from '../../../services/paypal.service';
 import { User } from '../../../models/user.model';
-import { OrderDetails, PayPalOrderDetails } from '../../../models/interfaces';
+import { OrderDetails, PayPalOrderDetails, CartItem } from '../../../models/interfaces';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
 
@@ -24,11 +24,11 @@ interface EnrolleeResult {
   styleUrl: './cart.component.css'
 })
 export class CartComponent implements OnInit {
-  cartItems: any[] = [];
+  cartItems: CartItem[] = [];
   totalPrice: number = 0;
   verificationError: string = '';
   subscription: Subscription;
-  validItems: any[] = [];
+  validItems: CartItem[] = [];
   invalidItems: { item: any, reason: string }[] = [];
 
   @ViewChild('paypalButton') paypalButton: ElementRef;
@@ -66,7 +66,7 @@ export class CartComponent implements OnInit {
 
   calculateTotalPrice(): void {
     this.totalPrice = this.cartItems?.reduce((total, item) => 
-      total + item.event.price * item.enrollees.length, 0) ?? 0;
+      total + Number(item.event.price) * item.enrollees.length, 0) ?? 0;
   }
 
   removeFromCart(eventId: string): void {
@@ -77,14 +77,17 @@ export class CartComponent implements OnInit {
   verifyAndCheckout(): void {
     console.log("starting verification and checkout...");
 
-    this.checkoutService.verifyCart().subscribe({
+    this.checkoutService.verifyCart().pipe(
+      tap(result => console.log("Received result in component:", result)),
+      finalize(() => console.log('verifyCart observable completed'))
+    ).subscribe({
       next: (result) => {
         console.log('Verification completed:', result);
         this.validItems = result.validItems;
         this.invalidItems = result.invalidItems;
 
         if (this.invalidItems.length === 0) {
-          console.log('Cart is valid. Loading PayPal script...');
+          console.log('Cart is valid. Loading PayPal script...', this.invalidItems);
           this.loadPayPalScript();
           this.showPaypalButton = true;
         } else {
@@ -205,7 +208,8 @@ export class CartComponent implements OnInit {
     const templateData = {
       user: enrollee,
       eventName: event.name,
-      eventDate: event.date
+      eventDate: event.date,
+      eventLocation: event.location
     };
 
     this.emailService.sendEmail(
