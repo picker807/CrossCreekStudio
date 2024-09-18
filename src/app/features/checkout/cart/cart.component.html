@@ -6,6 +6,7 @@
     <div *ngFor="let item of cartItems" class="bg-white shadow-md rounded-lg p-4 mb-4">
       <h3 class="text-xl font-semibold">{{ item.event.name }}</h3>
       <p class="text-gray-600">Date: {{ item.event.date | date:'mediumDate' }}</p>
+      <p class="text-gray-600">Time: {{ item.event.date | date:'shortTime' }}</p>
       <p class="text-gray-600">Location: {{ item.event.location }}</p>
       <p class="text-gray-600">Price: ${{ item.event.price }}</p>
       <p class="text-gray-600">Enrollees: {{ item.enrollees.length }}</p>

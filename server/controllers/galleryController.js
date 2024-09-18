@@ -1,12 +1,14 @@
 const sequenceGenerator = require('../routes/sequence');
 const Gallery = require('../models/gallery');
-const AWS = require('aws-sdk');
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 require('dotenv').config();
 
-const s3 = new AWS.S3({
+const s3Client = new S3Client({
   endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
-  secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
+  credentials: {
+    accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
+  },
   region: 'auto',
   signatureVersion: 'v4',
 });
@@ -17,7 +19,9 @@ async function uploadImage(bucketName, key, file) {
     Key: key,
     Body: file,
   };
-  const uploadResponse = await s3.upload(params).promise();
+  
+  const command = new PutObjectCommand(params);
+  const uploadResponse = await s3Client.send(command);
   return uploadResponse;
 }
 

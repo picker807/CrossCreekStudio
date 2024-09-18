@@ -8,7 +8,7 @@
 <h3>Event Details:</h3>
 <ul>
     <li><strong>Date:</strong> {{dateFormat eventDate "MMMM D, YYYY"}}</li>
-    <li><strong>Time:</strong> {{dateFormat eventDate "h:mm A"}}</li>
+    <li><strong>Time:</strong> {{formatDateWithTimeZone eventDate "h:mm A z" "America/New_York"}}</li>
     <li><strong>Location:</strong> {{eventLocation}}</li>
 </ul>
 

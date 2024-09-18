@@ -110,9 +110,17 @@ export class CheckoutService {
       console.log("event invalid: not found");
       return { isValid: false, item: cartItem, reason: 'Event no longer exists' };
     }
-    if (new Date(event.date) < new Date()) {
-      console.log("Event invalid: in the past");
-      return { isValid: false, item: cartItem, reason: 'Event date has passed' };
+    const eventDate = new Date(event.date).valueOf();
+    const cartItemDate = new Date(cartItem.event.date).valueOf();
+    const currentDate = new Date().valueOf();
+
+    if (eventDate < currentDate || eventDate !== cartItemDate) {
+      console.log("Event invalid: in the past or time has changed");
+      return { isValid: false, item: cartItem, reason: 'Event date has passed or time has changed' };
+    }
+    if (event.location !== cartItem.event.location){
+      console.log("Event invalid: Event location changed");
+      return { isValid: false, item: cartItem, reason: "Event location has changed"}
     }
     if (event.price !== cartItem.event.price) {
       console.log("evnt invalid: price changed");

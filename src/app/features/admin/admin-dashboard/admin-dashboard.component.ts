@@ -167,8 +167,8 @@ export class AdminDashboardComponent implements OnInit {
       // Prepare the event details for the template
       this.eventDetails = {
         name: this.selectedEvent.name,
-        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'),
-        time: this.formatTime(this.selectedEvent.date),
+        date: this.selectedEvent.date,
+        /* time: this.formatTime(this.selectedEvent.date), */
         location: this.selectedEvent.location,
         daysUntil: daysUntil
       };

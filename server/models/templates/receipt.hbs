@@ -21,7 +21,7 @@
     </tr>
     {{#each orderDetails.cartContents}}
     <tr>
-        <td style="border: 1px solid #ddd; padding: 8px;">{{this.event.name}} on {{dateFormat this.event.date "MMMM D, YYYY, h:mm A"}}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">{{this.event.name}} on {{dateFormat this.event.date "MMMM D, YYYY"}} at {{formatDateWithTimeZone this.event.date "h:mm A z" "America/New_York"}}</td>
         <td style="border: 1px solid #ddd; padding: 8px;">{{this.enrollees.length}}</td>
         <td style="border: 1px solid #ddd; padding: 8px;">${{this.event.price}}</td>
     </tr>
