@@ -10,6 +10,7 @@ import { EventEditComponent } from './event-edit/event-edit.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { GalleryModule } from '../gallery/gallery.module';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { GalleryModule } from '../gallery/gallery.module';
         MatDatepickerModule,
         MatNativeDateModule,
         SharedModule, 
-        GalleryModule       
+        GalleryModule,
+        NgxMaterialTimepickerModule       
     ]
 })
 export class EventsModule { }

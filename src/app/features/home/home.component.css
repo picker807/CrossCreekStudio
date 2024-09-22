@@ -33,3 +33,16 @@
 .gallery-image:hover {
   transform: scale(1.05);
 }
+
+
+
+.text-cutout {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: inherit;
+  background-attachment: fixed;
+  background-position: inherit;
+  background-repeat: inherit;
+  background-size: inherit;
+}

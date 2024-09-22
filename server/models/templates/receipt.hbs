@@ -8,7 +8,7 @@
 <h3>Order Details:</h3>
 <ul>
     <li><strong>Order ID:</strong> {{orderDetails.orderDetails.id}}</li>
-    <li><strong>Date:</strong> {{orderDetails.orderDetails.create_time}}</li>
+    <li><strong>Date:</strong> {{dateFormat orderDetails.orderDetails.create_time "MMMM D, YYYY, h:mm A"}}</li>
     <li><strong>Total Amount:</strong> ${{orderDetails.orderDetails.purchase_units.[0].amount.value}}</li>
 </ul>
 
@@ -21,9 +21,9 @@
     </tr>
     {{#each orderDetails.cartContents}}
     <tr>
-        <td style="border: 1px solid #ddd; padding: 8px;">{{this.name}}</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">{{this.quantity}}</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">${{this.price}}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">{{this.event.name}} on {{dateFormat this.event.date "MMMM D, YYYY"}} at {{formatDateWithTimeZone this.event.date "h:mm A z" "America/New_York"}}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">{{this.enrollees.length}}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${{this.event.price}}</td>
     </tr>
     {{/each}}
 </table>

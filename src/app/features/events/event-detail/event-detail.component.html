@@ -4,27 +4,27 @@
   <div class="flex justify-center mb-6">
     <div *ngFor="let image of event.images" class="m-2 max-w-sm">
       <div class="relative">
-        <!-- Ornate SVG Frame -->
+        <!--  Ornate SVG Frame 
         <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <!-- Background -->
+          <!-- Background 
           <rect x="0" y="0" width="100" height="100" fill="#f9f9f9"/>
           
-          <!-- Ornate corners -->
+          <!-- Ornate corners 
           <path d="M0,0 Q25,0 25,25 Q0,25 0,0 Z" fill="#e0e0e0"/>
           <path d="M100,0 Q75,0 75,25 Q100,25 100,0 Z" fill="#e0e0e0"/>
           <path d="M0,100 Q25,100 25,75 Q0,75 0,100 Z" fill="#e0e0e0"/>
           <path d="M100,100 Q75,100 75,75 Q100,75 100,100 Z" fill="#e0e0e0"/>
           
-          <!-- Border lines -->
+          <!-- Border lines 
           <line x1="0" y1="0" x2="100" y2="0" stroke="#b0b0b0" stroke-width="4"/>
           <line x1="0" y1="100" x2="100" y2="100" stroke="#b0b0b0" stroke-width="4"/>
           <line x1="0" y1="0" x2="0" y2="100" stroke="#b0b0b0" stroke-width="4"/>
           <line x1="100" y1="0" x2="100" y2="100" stroke="#b0b0b0" stroke-width="4"/>
-        </svg>
+        </svg> -->
         
         <!-- Image container -->
         <div class="relative p-4 z-10">
-          <img class="max-h-48 sm:max-h-64 w-full object-cover" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
+          <img class="max-h-48 sm:max-h-64 w-full object-cover frame" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
         </div>
       </div>
     </div>

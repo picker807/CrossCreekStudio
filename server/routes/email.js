@@ -3,8 +3,15 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const fs = require('fs').promises;
 const handlebars = require('handlebars');
+const dateFormat = require('handlebars-dateformat');
 const path = require('path');
 require('dotenv').config();
+const moment = require('moment-timezone');
+
+handlebars.registerHelper('formatDateWithTimeZone', function(date, format, timeZone) {
+  return moment(date).tz(timeZone).format(format);
+});
+handlebars.registerHelper('dateFormat', dateFormat);
 
 const { EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVE1, EMAIL_RECEIVE2 } = process.env;
 

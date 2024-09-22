@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const GallerySchema = new mongoose.Schema({
   id: { type: String, required: true },
-  name: { type: String, required: true },
-  description: { type: String, required: true },
+  name: { type: String, required: true, maxlength: 100 },
+  description: { type: String, required: true, maxlength: 2000 },
   imageUrl: { type: String, required: true },
   category: { 
     type: String, 

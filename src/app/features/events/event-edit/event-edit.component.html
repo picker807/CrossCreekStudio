@@ -8,7 +8,7 @@
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 type="text"
                 id="name"
-                required>
+                required maxLength="50" >
             <mat-error *ngIf="editForm.get('name').invalid && editForm.get('name').touched">
               Name is required
             </mat-error>
@@ -17,17 +17,21 @@
         <div class="form-group">
           <mat-form-field appearance="fill">
             <mat-label>Date:</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="date" placeholder="MM/DD/YYYY" (dateChange)="updateShowModifyEvent()">
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+            <input matInput [matDatepicker]="datePicker" formControlName="date" placeholder="MM/DD/YYYY" (dateChange)="updateShowModifyEvent()">
+            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+            <mat-datepicker #datePicker></mat-datepicker>
             <mat-hint>Format: MM/DD/YYYY</mat-hint>
             <mat-error *ngIf="editForm.get('date').invalid && editForm.get('date').touched">
               Date is required
             </mat-error>
           </mat-form-field>
+        
           <mat-form-field appearance="fill">
             <mat-label>Time:</mat-label>
-            <input matInput type="time" formControlName="time" (blur)="updateShowModifyEvent()">
+            <input matInput [ngxTimepicker]="timePicker" [format]="12" formControlName="time" placeholder="HH:MM AM/PM" readonly>
+            <ngx-material-timepicker-toggle matSuffix [for]="timePicker"></ngx-material-timepicker-toggle>
+            <ngx-material-timepicker #timePicker [format]="12"></ngx-material-timepicker>
+            <mat-hint>Click the clock icon to select time</mat-hint>
             <mat-error *ngIf="editForm.get('time').invalid && editForm.get('time').touched">
               Time is required
             </mat-error>
@@ -41,7 +45,7 @@
                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   type="text"
                   id="location"
-                  required>
+                  required maxLength="100" >
               <mat-error *ngIf="editForm.get('location').invalid && editForm.get('location').touched">
                 Location is required
               </mat-error>
@@ -51,9 +55,11 @@
             <input
                 formControlName="price"
                 id="price"
+                min="0"
+                max="999"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
             <mat-error *ngIf="editForm.get('price').invalid && editForm.get('price').touched">
-              Price is required and must be a positive number
+              Price is required and must be a positive number less than 1000.
             </mat-error>
           </div>
 
@@ -78,9 +84,9 @@
               </label>
               <div  *ngIf="showModifyEvent; else showPastEvent" >
               <form [formGroup]="newAttendeeForm" (ngSubmit)="addAttendee()">
-                  <input type="text" formControlName="firstName" placeholder="First Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  <input type="text" formControlName="lastName" placeholder="Last Name" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  <input type="email" formControlName="email" placeholder="Email" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <input type="text" formControlName="firstName" placeholder="First Name" maxLength="50" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <input type="text" formControlName="lastName" placeholder="Last Name" maxLength="50" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <input type="email" formControlName="email" placeholder="Email" maxLength="100" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                   <input type="text" formControlName="phone" placeholder="Phone" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                   <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300 ease-in-out">Add Attendee</button>
               </form>
@@ -144,7 +150,7 @@
           <div class="flex-1 pl-4">
             <h3 class="text-lg font-bold mb-2">Selected Images</h3>
             <p class="text-sm text-gray-500 mb-2">Drag and drop items here</p>
-            <div cdkDropList id="selectedImages" formArrayName="images" [cdkDropListData]="editForm.get('images').value" (cdkDropListDropped)="drop($event)" class="flex flex-wrap gap-2 p-4 border-2 border-dashed border-gray-300">
+            <div cdkDropList id="selectedImages" formArrayName="images" [cdkDropListData]="editForm.get('images').value" (cdkDropListDropped)="drop($event)" class="flex flex-wrap gap-2 p-4 border-2 border-dashed border-gray-300 min-h-[300px] min-w-full">
               <div *ngFor="let image of images.controls; let i=index" [formGroupName]="i" cdkDrag class="relative w-32 h-32">
                 <img [src]="image.get('imageUrl').value" [alt]="'Selected Image ' + i" class="w-full h-full object-cover">
                 <button (click)="removeImage(i)" class="absolute top-0 right-0 m-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">

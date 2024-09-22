@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Gallery, GalleryCategory } from '../../../models/gallery.model';
 import { GalleryService } from '../../../services/gallery.service';
@@ -34,9 +34,15 @@ export class GalleryEditComponent implements OnInit {
     
 
     this.galleryForm = this.fb.group({
-      name: [''],
-      description: [''],
-      category: [''],
+      name: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      description: ['', [
+        Validators.required,
+        Validators.maxLength(2000)
+      ]],
+      category: ['', Validators.required],
       imageUrl: ['']
     });
 

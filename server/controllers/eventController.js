@@ -64,7 +64,12 @@ exports.createEvent = async (req, res) => {
     });
 
     const newEvent = await event.save();
-    res.status(201).json(newEvent);
+
+    const populatedEvent = await Event.findById(newEvent._id)
+      .populate('attendees')
+      .populate('images')
+      .exec();
+    res.status(201).json(populatedEvent);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

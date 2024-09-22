@@ -9,8 +9,8 @@
   <h3 style="color: #444; font-size: 20px;">Event Details:</h3>
   <ul style="padding-left: 20px;">
     <li><strong>Event Name:</strong> {{eventDetails.name}}</li>
-    <li><strong>Date:</strong> {{eventDetails.date}}</li>
-    <li><strong>Time:</strong> {{eventDetails.time}}</li>
+    <li><strong>Date:</strong> {{dateFormat eventDetails.date "MMMM D, YYYY"}}</li>
+    <li><strong>Time:</strong> {{formatDateWithTimeZone eventDetails.date "h:mm A z" "America/New_York"}}</li>
     <li><strong>Location:</strong> {{eventDetails.location}}</li>
     <li><strong>Days Until Event:</strong> {{eventDetails.daysUntil}}</li>
   </ul>

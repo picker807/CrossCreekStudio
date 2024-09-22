@@ -25,7 +25,12 @@
           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           placeholder="Password"
         />
-        <div *ngIf="loginForm.get('password')?.hasError('required')" class="mt-1 text-sm text-red-600">Password is required</div>
+          <ul>
+          <li><small class="text-red-500" *ngIf="loginForm.get('password').errors?.required">Password is required</small></li>
+          <li><small class="text-red-500" *ngIf="loginForm.get('password').errors?.minlength || loginForm.get('password').errors?.passwordStrength">Invalid Password</small></li>
+          <!-- <li><small class="text-red-500" *ngIf="changePasswordForm.get('newPassword').errors?.passwordStrength">Password must contain at least one uppercase letter, one lowercase letter, and one number</small></li> -->
+          </ul>
+        <!-- <div *ngIf="loginForm.get('password')?.hasError('required')" class="mt-1 text-sm text-red-600">Password is required</div> -->
       </div>
       <button
         type="submit"

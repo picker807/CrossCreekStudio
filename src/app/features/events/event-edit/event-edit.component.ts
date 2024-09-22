@@ -53,11 +53,14 @@ export class EventEditComponent implements OnInit, OnDestroy {
     this.galleryService.loadAllData().subscribe();
 
     this.editForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
       date: ['', Validators.required],
       time: ['', Validators.required],
-      location: [''],
-      description: [''],
+      location: ['', Validators.maxLength(100)],
+      description: ['', Validators.maxLength(2000)],
       price: [null,[Validators.min(0), Validators.max(999)]],
       attendees: this.fb.array([]),
       images: this.fb.array([]),
@@ -66,9 +69,19 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
     this.newAttendeeForm = this.fb.group({
       id: [''],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      lastName: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      email: ['', [
+        Validators.required, 
+        Validators.email,
+        Validators.maxLength(100)
+      ]],
       phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]]
     });
 
@@ -166,11 +179,25 @@ export class EventEditComponent implements OnInit, OnDestroy {
       console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
 
-      // Combine date and time
       const combinedDateTime = new Date(value.date);
-      const [hours, minutes] = value.time.split(':');
-      combinedDateTime.setHours(parseInt(hours, 10));
-      combinedDateTime.setMinutes(parseInt(minutes, 10));
+    
+    // Parse the time string from "11:30 PM" format
+    const [time, period] = value.time.split(' ');
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours, 10);
+    minutes = parseInt(minutes, 10);
+
+    // Adjust hours for PM
+    if (period.toLowerCase() === 'pm' && hours !== 12) {
+      hours += 12;
+    }
+    // Adjust for midnight (12 AM)
+    if (period.toLowerCase() === 'am' && hours === 12) {
+      hours = 0;
+    }
+
+    combinedDateTime.setHours(hours);
+    combinedDateTime.setMinutes(minutes);
 
       const processedAttendees = value.attendees.map(attendee => ({
         ...attendee,
@@ -207,13 +234,13 @@ export class EventEditComponent implements OnInit, OnDestroy {
         });
       } else {
         this.eventService.createEvent(newEvent).subscribe({
-          next: () => {
+          next: (createdEvent) => {
             this.messageService.showMessage({
               text: 'Event created successfully',
               type: 'success',
               duration: 3000
             });
-            this.router.navigate(['/events']);
+            setTimeout(() => this.router.navigate(['/events']), 100);
           },
           error: (err) => {
             console.error('Error creating event:', err);
