@@ -111,6 +111,7 @@ db.on('disconnected', () => {
 
 // Define the port address and tell express to use this port
 const port = process.env.PORT || 8080;
+console.log(`Attempting to start server on port ${port}`);
 //app.set('port', port);
 
 // Create HTTP server.
@@ -130,3 +131,4 @@ if (isDevelopment) {
     console.log(`Production server running on port ${port}`);
   });
 }
+
