@@ -23,11 +23,27 @@ export class ContactComponent {
 
   ngOnInit(): void{
     this.contactForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)]],
-      subject: ['', Validators.required],
-      message: ['', Validators.required],
+      name: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      email: ['', [
+        Validators.required, 
+        Validators.email, 
+        Validators.maxLength(100)
+      ]],
+      phone: ['', [
+        Validators.required, 
+        Validators.pattern(/^\(\d{3}\)\s\d{3}-\d{4}$/)
+      ]],
+      subject: ['', [
+        Validators.required,
+        Validators.maxLength(100)
+      ]],
+      message: ['', [
+        Validators.required,
+        Validators.maxLength(5000)
+      ]],
       contactMethod: ['', Validators.required]
     });
 

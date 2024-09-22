@@ -74,22 +74,32 @@ deleteItem(id: string): void {
 
   dialogRef.afterClosed().subscribe(result => {
     if (result) {
-      this.galleryService.deleteGalleryItem(id).subscribe(() => {
-        this.messageService.showMessage({
-          text: 'Item deleted successfully',
-          type: 'success',
-          duration: 5000
-        });
-        this.router.navigateByUrl('/temporary-route', { skipLocationChange: true }).then(() => {
-          this.router.navigate(['/gallery']);
-        });
+      this.galleryService.deleteGalleryItem(id).subscribe({
+        next: () => {
+          this.messageService.showMessage({
+            text: 'Item deleted successfully',
+            type: 'success',
+            duration: 5000
+          });
+          this.router.navigateByUrl('/temporary-route', { skipLocationChange: true }).then(() => {
+            this.router.navigate(['/gallery']);
+          });
+        },
+        error: (error) => {
+          console.error('Error deleting item:', error);
+          this.messageService.showMessage({
+            text: 'Problem deleting item',
+            type: 'error',
+            duration: 5000
+          });
+        }
       });
     } else {
       this.messageService.showMessage({
-          text: 'Problem deleting item',
-          type: 'error',
-          duration: 5000
-        });
+        text: 'Delete aborted',
+        type: 'info',
+        duration: 5000
+      });
     }
   });
 }

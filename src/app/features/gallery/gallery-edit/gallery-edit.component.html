@@ -2,13 +2,13 @@
   <!-- Name Field -->
   <mat-form-field appearance="fill" class="w-full mb-4">
     <mat-label>Name</mat-label>
-    <input matInput formControlName="name">
+    <input matInput formControlName="name" maxLength="50">
   </mat-form-field>
 
   <!-- Description Field -->
   <mat-form-field appearance="fill" class="w-full flex-grow mb-4">
     <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description" rows="5"></textarea>
+    <textarea matInput formControlName="description" rows="5" maxLength="2000"></textarea>
   </mat-form-field>
 
   <!-- Category Field -->
@@ -29,9 +29,28 @@
    <!-- Cloudflare Upload Button -->
    <input type="file" accept="image/*" (change)="onFileSelected($event)" class="mb-4">
 
-  <!-- Buttons -->
-  <div class="flex justify-between mt-auto pt-4">
-    <button mat-raised-button color="primary" type="submit">Save</button>
-    <button type="button" (click)="cancelEdit()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">Cancel</button>
+   <!-- Buttons -->
+   <div class="flex justify-between mt-auto pt-4">
+    <button 
+  mat-raised-button 
+  type="submit"
+  [disabled]="!galleryForm.valid"
+  [ngClass]="{
+    'mat-primary': galleryForm.valid,
+    'mat-button-disabled': !galleryForm.valid
+  }"
+  class="transition duration-300 ease-in-out hover:cursor-pointer"
+>
+  Save
+</button>
+    <button 
+      type="button" 
+      (click)="cancelEdit()" 
+      class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out hover:cursor-pointer"
+    >
+      Cancel
+    </button>
   </div>
+  <!-- <pre>{{ galleryForm.valid | json }}</pre>
+<pre>{{ galleryForm.value | json }}</pre> -->
 </form>

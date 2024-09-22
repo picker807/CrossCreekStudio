@@ -36,7 +36,7 @@
     <div class="bg-white shadow-md rounded-lg p-4">
       <h3 class="text-xl font-semibold">Total: ${{ totalPrice }}</h3>
       <button *ngIf="!showPaypalButton" (click)="verifyAndCheckout()" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Proceed to Checkout</button>
-      <div *ngIf="showPaypalButton" #paypalButton></div>
+      <div *ngIf="showPaypalButton" #paypalButton ></div>
     </div>
   </ng-container>
 

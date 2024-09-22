@@ -13,6 +13,7 @@ export class AppComponent {
   title = 'Cross Creek Studio';
   isAdmin: boolean = false;
   cartItemCount: number = 0;
+  isMenuOpen = false;
 
   constructor(
     private router: Router,
@@ -33,6 +34,10 @@ export class AppComponent {
     this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
       this.cartItemCount = cartList?.length;
     });
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
   }
 
   logout(): void {

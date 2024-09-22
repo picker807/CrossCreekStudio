@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Event } from '../../../models/event.model';
 import { Subscription } from 'rxjs';
 import { EventService } from '../../../services/event.service';
@@ -17,9 +17,11 @@ export class EventListComponent implements OnInit, OnDestroy{
   currentDate: Date = new Date();
   futureEvents: Event[] = [];
   pastEvents: Event[] = [];
+  loading = true;
 
   constructor(private eventService: EventService,
-    private authService: AuthService,) {
+    private authService: AuthService,
+    private cdRef: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
@@ -29,9 +31,12 @@ export class EventListComponent implements OnInit, OnDestroy{
     });
     
     this.subscription = this.eventService.events$.subscribe((eventsList: Event[]) => {
+      console.log('Received events in list component:', eventsList);
       this.events = eventsList;
+      this.loading = false;
       this.filterFutureEvents();
       this.filterPastEvents();
+      this.cdRef.detectChanges();
     },
     
     )

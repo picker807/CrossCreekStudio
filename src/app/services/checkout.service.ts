@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, concatMap, finalize, forkJoin, from, map, of, reduce, take, tap, throwError, toArray } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, concatMap, defaultIfEmpty, finalize, forkJoin, from, map, mergeMap, of, reduce, take, takeWhile, tap, throwError, toArray } from 'rxjs';
 import { EventService } from './event.service';
 import { Enrollee, OrderDetails, CartItem } from '../models/interfaces';
 import { Event } from '../models/event.model';
@@ -75,32 +75,29 @@ export class CheckoutService {
     console.log("Cart items:", cartItems);
   
     return from(cartItems).pipe(
-      concatMap((item: CartItem) => {
-        console.log(`Verifying item ${item.event.id}`);
+      concatMap((item: CartItem, index) => {
+        console.log(`Starting verification for item ${index + 1}/${cartItems.length}: ${item.event.id}`);
         return this.eventService.getEventById(item.event.id).pipe(
-          map(event => this.verifyCartItem(item, event)),
+          map(event => {
+            console.log(`Fetched event for item ${index + 1}: ${item.event.id}`);
+            const result = this.verifyCartItem(item, event);
+            console.log(`Verification result for item ${index + 1}: ${item.event.id}`, result);
+            return result;
+          }),
           catchError(error => {
-            console.error(`Error fetching event ${item.event.id}:`, error);
-            return of({ isValid: false, item: item, reason: 'Error fetching event' });
-          })
+            console.error(`Error processing item ${index + 1}: ${item.event.id}`, error);
+            return of({ isValid: false, item: item, reason: 'Error processing item' });
+          }),
+          tap(() => console.log(`Finished processing item ${index + 1}: ${item.event.id}`))
         );
       }),
-      take(cartItems.length), // Ensure the Observable completes after processing all items
-      tap(() => console.log("Finished processing all items")),
-      reduce((acc, curr) => {
-        if (curr.isValid) acc.validItems.push(curr.item);
-        else acc.invalidItems.push({item: curr.item, reason: curr.reason || 'Unknown reason'});
-        return acc;
-      }, {validItems: [], invalidItems: []} as {
-        validItems: CartItem[],
-        invalidItems: { item: CartItem, reason: string }[]
+      toArray(),
+      map(results => {
+        const validItems = results.filter(r => r.isValid).map(r => r.item);
+        const invalidItems = results.filter(r => !r.isValid).map(r => ({item: r.item, reason: r.reason || 'Unknown reason'}));
+        return {validItems, invalidItems};
       }),
-      tap(result => console.log("Final verification result:", result)),
-      catchError(error => {
-        console.error("Error in verifyCart:", error);
-        return of({ validItems: [], invalidItems: [] });
-      }),
-      finalize(() => console.log("verifyCart observable completed"))
+      tap(result => console.log("Final verification result:", result))
     );
   }
   

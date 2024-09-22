@@ -4,11 +4,11 @@ const crypto = require('crypto');
 
 const EventSchema = new mongoose.Schema({
   id:          { type: String, required: true},
-  name:        { type: String, required: true },
+  name:        { type: String, required: true, maxlength: 100 },
   date:        { type: Date, required: true },
-  location:    { type: String, required: true },
-  description: { type: String, required: true },
-  price:       { type: Number, required: true },
+  location:    { type: String, required: true, maxlength: 100 },
+  description: { type: String, required: true, maxlength: 2000 },
+  price:       { type: Number, required: true, min: 0, max: 999 },
   attendees:   [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   images:      [{ type: mongoose.Schema.Types.ObjectId, ref: 'Gallery' }],
   isPrivate:   { type: Boolean, default: false },

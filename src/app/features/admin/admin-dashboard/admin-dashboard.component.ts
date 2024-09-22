@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { RegistrationService } from '../../../services/registration.service';
 import { AdminService } from '../../../services/admin.service';
 import { User } from '../../../models/user.model';
@@ -10,7 +10,7 @@ import { PhoneFormatPipe } from '../../../core/shared/phone-format.pipe';
 import { Router } from '@angular/router';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
-import { EMPTY, filter, Subject, switchMap, takeUntil } from 'rxjs';
+import { EMPTY, filter, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { ConfirmationDialogComponent } from '../../../core/shared/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -54,19 +54,45 @@ export class AdminDashboardComponent implements OnInit {
     private authService: AuthService
   ) {
     this.changePasswordForm = this.fb.group({
-      oldPassword: ['', Validators.required],
-      newPassword: ['', Validators.required]
+      oldPassword: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      newPassword: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(50),
+        this.passwordStrengthValidator
+      ]]
     });
 
     this.notificationForm = this.fb.group({
-      subject: ['', Validators.required],
-      message: ['', Validators.required]
+      subject: ['', [
+        Validators.required,
+        Validators.maxLength(100)
+      ]],
+      message: ['', [
+        Validators.required, 
+        Validators.maxLength(5000)
+      ]]
     });
 
     this.createAdminForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
+      name: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      email: ['', [
+        Validators.required, 
+        Validators.email,
+        Validators.maxLength(100)
+      ]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(8), 
+        Validators.maxLength(50),
+        this.passwordStrengthValidator
+      ]],
       role: ['admin', Validators.required]
     });
   }
@@ -77,23 +103,34 @@ export class AdminDashboardComponent implements OnInit {
     this.loadEvents();
   }
 
+  passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
+    const value: string = control.value || '';
+    const hasUpperCase = /[A-Z]+/.test(value);
+    const hasLowerCase = /[a-z]+/.test(value);
+    const hasNumeric = /[0-9]+/.test(value);
+  
+    const passwordValid = hasUpperCase && hasLowerCase && hasNumeric;
+  
+    return !passwordValid ? { passwordStrength: true } : null;
+  }
+
   loadCurrentAdmin(): void {
     this.adminService.getCurrentAdmin().pipe(
       switchMap(admin => {
         console.log("Admin returned to dashboard: ", admin);
         this.currentAdmin = admin;
         if (this.currentAdmin.role === "superadmin") {
-          return this.adminService.admins$;
+          return this.adminService.admins$.pipe(
+            tap(admins => {
+              this.admins = admins.filter(a => a.id !== this.currentAdmin.id);
+              this.loadAdmins();
+            })
+          );
         }
         return EMPTY;
       }),
-      filter(admins => Array.isArray(admins)),
       takeUntil(this.unsubscribe$)
     ).subscribe({
-      next: admins => {
-        this.admins = admins.filter(admin => admin.id !== this.currentAdmin.id);
-        this.loadAdmins();
-      },
       error: err => {
         console.error(err);
         this.messageService.showMessage({
@@ -104,6 +141,7 @@ export class AdminDashboardComponent implements OnInit {
       }
     });
   }
+  
 
 
   loadEvents(): void {
@@ -265,6 +303,9 @@ export class AdminDashboardComponent implements OnInit {
   updateAdmin(adminId: string): void {
     if (this.resetForms[adminId].valid) {
       const updatedData = this.resetForms[adminId].value;
+      if (updatedData.email) {
+        updatedData.email = updatedData.email.toLowerCase();
+      }
       if (!updatedData.newPassword) {
         delete updatedData.newPassword;
       }
@@ -301,7 +342,7 @@ export class AdminDashboardComponent implements OnInit {
       const admin: CreateAdminDto = {
         id: "",
         name: name,
-        email: email,
+        email: email.toLowerCase(),
         password: password,
         role: role
       };

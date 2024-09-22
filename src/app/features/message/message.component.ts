@@ -8,12 +8,13 @@ import { MessageService, Message } from '../../services/message.service';
 })
 export class MessageComponent {
   message: Message | null = null;
+  
 
   constructor(private messageService: MessageService) {}
 
   ngOnInit() {
     this.messageService.message$.subscribe(message => {
       this.message = message;
-    });
+    }); 
   }
 }

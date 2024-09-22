@@ -1,33 +1,43 @@
 <div class="app-container flex flex-col min-h-screen">
-  <cc-message class="fixed top-0 left-0 right-0 z-50"></cc-message>
+  <cc-message class="fixed top-30 left-0 right-0 z-[900]">test Message</cc-message>
 
-  <header class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-50">
+  <header class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-[800]">
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-      
       <div class="flex items-center">
         <a href="/" class="flex items-center">
-        <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS-logo3.png" alt="Cross Creek Studio Logo" class="h-20 mr-2">
-        <span class="text-xl font-bold">Cross Creek Studio</span>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_logo_image.PNG" alt="Cross Creek Studio Logo" class="h-20 mr-2">
+          <span class="text-xl font-bold">Cross Creek Studio</span>
         </a>
       </div>
       
-      <ul class="flex justify-between items-center sm:space-x-4">
-        <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300">Home</a></li>
-        <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300">Events</a></li>
-        <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
-        <!-- <li><a routerLink="/admin" [class.active]="isActive('/admin')" class="hover:text-gray-300">Admin</a></li> -->
-        <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
-        <li class="relative">
-            <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300">
-                <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/cart1.png" alt="Cart" class="w-7 h-7 sm:w-11 sm:h-11 md:w-15 md:h-15 lg:w-18 lg:h-18 xl:w-20 xl:h-20 2xl:w-25 2xl:h-25">
-                <span *ngIf="cartItemCount > 0" class="absolute top-4 right-7 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {{cartItemCount}}
-              </span>
-            </a>
-        </li>
-    </ul>
+      <div class="flex items-center">
+        <!-- Hamburger menu button for small screens -->
+        <button class="lg:hidden mr-4" (click)="toggleMenu()">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+        </button>
+  
+        <!-- Menu items -->
+        <ul class="hidden lg:flex justify-end items-center space-x-4" [ngClass]="{'hidden': !isMenuOpen, 'flex flex-col absolute top-full left-0 right-0 bg-gray-800 p-4 space-y-2 lg:flex-row lg:static lg:bg-transparent lg:p-0 lg:space-y-0': isMenuOpen}">
+          <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300">Home</a></li>
+          <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300">Events</a></li>
+          <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
+          <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
+        </ul>
+  
+        <!-- Cart icon -->
+        <div class="relative ml-4">
+          <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300 block">
+            <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/cart1.png" alt="Cart" class="size-12 sm:size-10 md:size-12 lg:size-14 xl:size-16">
+            <span *ngIf="cartItemCount > 0" class="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {{cartItemCount}}
+            </span>
+          </a>
+        </div>
+      </div>
     </nav>
-  </header> 
+  </header>
   
   <main class="flex-grow mx-auto w-[95%] px-4 sm:px-6 py-4 mt-[95px]">
     <router-outlet></router-outlet>

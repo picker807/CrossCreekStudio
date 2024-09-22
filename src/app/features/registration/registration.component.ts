@@ -85,10 +85,24 @@ export class RegistrationComponent {
 
   createAttendeeForm(): FormGroup {
     return this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      confirmEmail: ['', [Validators.required, Validators.email]],
+      firstName: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      lastName: ['', [
+        Validators.required,
+        Validators.maxLength(50)
+      ]],
+      email: ['', [
+        Validators.required, 
+        Validators.email,
+        Validators.maxLength(100)
+      ]],
+      confirmEmail: ['', [
+        Validators.required, 
+        Validators.email,
+        Validators.maxLength(100)
+      ]],
       phone: ['', Validators.required]
     }, { validators: this.emailMatchValidator });
   }

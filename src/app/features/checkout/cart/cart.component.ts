@@ -76,7 +76,7 @@ export class CartComponent implements OnInit {
 
   verifyAndCheckout(): void {
     console.log("starting verification and checkout...");
-
+  
     this.checkoutService.verifyCart().pipe(
       tap(result => console.log("Received result in component:", result)),
       finalize(() => console.log('verifyCart observable completed'))
@@ -85,7 +85,7 @@ export class CartComponent implements OnInit {
         console.log('Verification completed:', result);
         this.validItems = result.validItems;
         this.invalidItems = result.invalidItems;
-
+  
         if (this.invalidItems.length === 0) {
           console.log('Cart is valid. Loading PayPal script...', this.invalidItems);
           this.loadPayPalScript();
@@ -129,6 +129,9 @@ export class CartComponent implements OnInit {
   initializePayPalButton(): void {
     if (typeof paypal !== 'undefined') {
       paypal.Buttons({
+        /* onClick: (data, actions) => {
+          return actions.resolve();
+        }, */
         createOrder: (data, actions) => {
           return actions.order.create({
             purchase_units: [{

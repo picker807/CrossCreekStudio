@@ -65,9 +65,9 @@ export class GalleryComponent {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedItem = null;
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+    /* this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate(['/gallery']);
-    });
+    }); */
     setTimeout(() => this.restoreScrollPosition(), 100);
   }
 

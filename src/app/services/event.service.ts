@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event } from '../models/event.model';
-import { BehaviorSubject, Observable, catchError, of, tap, throwError, map, take, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, of, tap, throwError, map, take, switchMap, mergeMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
@@ -37,11 +37,12 @@ export class EventService {
 
   getEventById(idOrSlug: string): Observable<Event> {
     return this.events$.pipe(
-      switchMap(events => {
+      take(1), // Take only the latest value of events$
+      mergeMap(events => {
         if (events.length === 0) {
           return this.http.get<Event[]>(this.apiUrl).pipe(
             tap(loadedEvents => this.sortAndSend(loadedEvents)),
-            map(() => this.eventsSubject.getValue().find(event => event.id === idOrSlug || event.slug === idOrSlug))
+            map(loadedEvents => loadedEvents.find(event => event.id === idOrSlug || event.slug === idOrSlug))
           );
         }
         return of(events.find(event => event.id === idOrSlug || event.slug === idOrSlug));
@@ -49,7 +50,7 @@ export class EventService {
       map(event => event || null),
       catchError(error => {
         console.error('Error fetching event:', error);
-        return throwError(() => new Error('Error fetching event'));
+        return of(null); // Return null instead of throwing an error
       })
     );
   }
@@ -57,9 +58,11 @@ export class EventService {
   createEvent(event: Event): Observable<Event> {
     event.id = '';
     return this.http.post<Event>(this.apiUrl, event).pipe(
+      tap(newEvent => console.log('New event from server:', newEvent)),
       tap(newEvent => {
         const currentEvents = this.eventsSubject.getValue();
         const updatedEvents = [...currentEvents, newEvent];
+        console.log('Updated events before sort:', updatedEvents);
         this.sortAndSend(updatedEvents);
       }),
       catchError(error => {
@@ -109,7 +112,7 @@ export class EventService {
       const bDate = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return aDate - bDate;
     });
-    //console.log("event service is broadcasting")
+    console.log('Sorted events before emitting:', sortedEvents);
     this.eventsSubject.next(sortedEvents);
   }
 
