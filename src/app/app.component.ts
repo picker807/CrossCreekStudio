@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { AuthService } from './core/authentication/auth.service';
 import { Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
@@ -45,5 +45,18 @@ export class AppComponent {
     this.router.navigate(['/admin']).then(() => {
       window.location.reload();
     });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const menuElement = document.querySelector('.menu');
+    const hamburgerButton = document.querySelector('.hamburger7');
+
+    if (this.isMenuOpen && menuElement && hamburgerButton) {
+      if (!menuElement.contains(event.target as Node) && 
+          !hamburgerButton.contains(event.target as Node)) {
+        this.isMenuOpen = false;
+      }
+    }
   }
 }

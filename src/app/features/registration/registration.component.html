@@ -3,7 +3,7 @@
   
   <div class="flex flex-wrap justify-center mb-4">
     <div *ngFor="let image of event.images" class="m-2 max-w-xs">
-      <img class="max-h-64 w-full object-contain rounded-lg shadow-md" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
+      <img class="max-h-64 w-full object-contain rounded-lg shadow-md frame" src="{{image.imageUrl}}" alt="{{ event.name }} Image">
     </div>
   </div>
   
@@ -19,7 +19,7 @@
         <input type="number" id="numAttendees" [formControl]="numAttendeesControl" min="1" class="w-20 px-3 py-2 border-t border-b border-gray-300 text-center">
         <button type="button" (click)="incrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-r-md bg-gray-100 hover:bg-gray-200">+</button>
       </div>
-      <div *ngIf="!registrationForm.valid" class="text-red-500 text-sm mt-1">
+      <div *ngIf="!registrationForm.valid && registrationForm.enabled" class="text-red-500 text-sm mt-1">
         Please complete all attendee information.
       </div>
     </div>
@@ -83,6 +83,7 @@
         </ul>
       </div>
       <button (click)="addToCart()" class="mt-4 px-4 py-2 font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">Add to Cart</button>
+      <button (click)="cancelPreview()" class="mt-4 ml-5 px-4 py-2 font-medium text-white bg-gray-600 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Cancel</button>
     </div>
   </form>
 </div>

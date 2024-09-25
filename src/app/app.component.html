@@ -2,28 +2,28 @@
   <cc-message class="fixed top-30 left-0 right-0 z-[900]">test Message</cc-message>
 
   <header class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-[800]">
-    <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-      <div class="flex items-center">
+    <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-start">
+      <div class="flex items-start">
         <a href="/" class="flex items-center">
           <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_logo_image.PNG" alt="Cross Creek Studio Logo" class="h-20 mr-2">
           <span class="text-xl font-bold">Cross Creek Studio</span>
         </a>
       </div>
       
-      <div class="flex items-center">
+      <div class="flex items-center menu">
         <!-- Hamburger menu button for small screens -->
-        <button class="lg:hidden mr-4" (click)="toggleMenu()">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-          </svg>
+        <button class="lg:hidden mr-4 hamburger7" (click)="toggleMenu()" [class.active]="isMenuOpen">
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
   
         <!-- Menu items -->
-        <ul class="hidden lg:flex justify-end items-center space-x-4" [ngClass]="{'hidden': !isMenuOpen, 'flex flex-col absolute top-full left-0 right-0 bg-gray-800 p-4 space-y-2 lg:flex-row lg:static lg:bg-transparent lg:p-0 lg:space-y-0': isMenuOpen}">
-          <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300">Home</a></li>
-          <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300">Events</a></li>
-          <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300">Gallery</a></li>
-          <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</a></li>
+        <ul class="hidden lg:flex justify-end items-center" [ngClass]="{'hidden': !isMenuOpen, 'flex flex-col absolute top-full left-0 right-0 bg-gray-800 p-6 lg:flex-row lg:static lg:bg-transparent lg:p-0 lg:space-y-0': isMenuOpen}">
+          <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Home</a></li>
+          <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Events</a></li>
+          <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Gallery</a></li>
+          <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer py-1 lg:py-0 lg:px-4">Logout</a></li>
         </ul>
   
         <!-- Cart icon -->

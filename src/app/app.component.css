@@ -26,3 +26,56 @@ debug {
   height: 50px !important;
   opacity: 1 !important;
 }
+
+.hamburger7 {
+  width: 30px;
+  height: 22px;
+  position: relative;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.hamburger7 span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: #ffffff; /* Adjust color as needed */
+  border-radius: 3px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .25s ease-in-out;
+  transform-origin: center;
+}
+
+.hamburger7 span:nth-of-type(1) {
+  top: 0px;
+}
+
+.hamburger7 span:nth-of-type(2) {
+  top: 9px;
+}
+
+.hamburger7 span:nth-of-type(3) {
+  top: 18px;
+}
+
+.hamburger7.active span:nth-of-type(1) {
+  transform: rotate(45deg);
+  top: 9px;
+  left: 0;
+}
+
+.hamburger7.active span:nth-of-type(2) {
+  width: 0%;
+  opacity: 0;
+}
+
+.hamburger7.active span:nth-of-type(3) {
+  transform: rotate(-45deg);
+  top: 9px;
+  left: 0;
+}

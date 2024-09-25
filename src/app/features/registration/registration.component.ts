@@ -26,6 +26,7 @@ export class RegistrationComponent {
   newUser: User;
   previewEnrollees: any[] = [];
   validationErrors: string[] = [];
+  showPreview: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -131,11 +132,13 @@ export class RegistrationComponent {
   }
 
   incrementAttendees() {
+    if (!this.showPreview) {
     this.numAttendeesControl.setValue(this.numAttendeesControl.value + 1);
+    }
   }
 
   decrementAttendees() {
-    if (this.numAttendeesControl.value > 1) {
+    if (this.numAttendeesControl.value > 1 && !this.showPreview) {
       this.numAttendeesControl.setValue(this.numAttendeesControl.value - 1);
     }
   }
@@ -221,10 +224,19 @@ export class RegistrationComponent {
   onSubmit(): void {
 
     if (this.registrationForm.valid) {
+      this.showPreview = true;
+      this.registrationForm.disable();
+      this.numAttendeesControl.disable();
       this.previewCart();
     }
   } 
-  
+
+  cancelPreview() {
+    this.showPreview = false;
+    this.previewEnrollees = [];
+    this.registrationForm.enable();
+    this.numAttendeesControl.enable();
+  }
 
   addToCart() {
     if (this.previewEnrollees.length > 0) {

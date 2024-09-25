@@ -15,7 +15,7 @@
   <!-- Scrollable content container -->
   <div class=" h-[calc(100vh-4rem)]">
     <ng-container *ngIf="categoryItems[selectedCategory]">
-      <div class="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 mt-4 border-l-4 border-green-500">
+      <div class="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 mt-4 border-l-4 border-blue-500">
         <h1 class="text-3xl font-bold text-gray-800">{{ selectedCategory }}</h1>
         <div cdkDropList 
              [cdkDropListData]="categoryItems[selectedCategory]"
