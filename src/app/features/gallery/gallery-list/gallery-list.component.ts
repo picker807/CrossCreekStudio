@@ -25,6 +25,7 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   categories = Object.keys(GalleryCategory);
   categoryItems: { [key: string]: Gallery[] } = {};
   selectedTabIndex: number;
+  isDragEnabled: boolean = false;
 
 
   constructor(
@@ -34,6 +35,8 @@ export class GalleryListComponent implements OnInit, OnDestroy{
   ) {}
 
   ngOnInit(): void {
+
+    this.isDragEnabled = this.router.url.includes('/events');
 
     this.selectedTabIndex = this.galleryService.getSelectedCategoryIndex();
     this.selectedCategory = this.categories[this.selectedTabIndex];

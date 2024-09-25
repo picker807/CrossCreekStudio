@@ -22,7 +22,7 @@
              [cdkDropListConnectedTo]="cdkDropListConnectedTo"
              (cdkDropListDropped)="onDrop($event)"
              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div *ngFor="let item of categoryItems[selectedCategory]" cdkDrag>
+          <div *ngFor="let item of categoryItems[selectedCategory]" [cdkDragDisabled]="!isDragEnabled" cdkDrag>
             <cc-gallery-item [item]="item"></cc-gallery-item>
           </div>
         </div>
