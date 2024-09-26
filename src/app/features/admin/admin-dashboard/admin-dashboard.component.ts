@@ -379,8 +379,8 @@ export class AdminDashboardComponent implements OnInit {
   
       const eventDetails = this.selectedEvent ? {
         name: this.selectedEvent.name,
-        date: format(new Date(this.selectedEvent.date), 'EEEE, MMMM do, yyyy'),
-        time: this.formatTime(this.selectedEvent.date),
+        date: this.selectedEvent.date,
+        /* time: this.formatTime(this.selectedEvent.date), */
         location: this.selectedEvent.location,
         daysUntil: this.calculateDaysUntil(this.selectedEvent.date)
       } : null;

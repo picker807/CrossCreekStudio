@@ -264,7 +264,11 @@ export class EventEditComponent implements OnInit, OnDestroy {
   }
 
   cancelEdit(): void {
-    this.router.navigate(['/events', this.originalEvent.id]);
+    if (this.originalEvent?.id) {
+      this.router.navigate(['/events', this.originalEvent.id]);
+    } else {
+      this.router.navigate(['/events']);
+    }
   }
     
   addAttendee() {
