@@ -15,7 +15,7 @@ export class EventDetailComponent implements OnInit {
   @Input() public event: Event;
   isAdmin: boolean = true;
   currentDate: Date = new Date();
-  isRegistrationOpen: boolean = false;
+  isRegistrationOpen: boolean = true;
   isUniqueUrl: boolean = false;
 
   constructor(private eventService: EventService,
@@ -34,7 +34,7 @@ export class EventDetailComponent implements OnInit {
         if (id) {
           this.eventService.getEventById(id).subscribe(event => {
             this.event = event;
-            this.checkRegistrationStatus();
+            //this.checkRegistrationStatus();
             this.checkUniqueUrlAccess();
           });
         }

@@ -17,7 +17,7 @@
         <div class="form-group">
           <mat-form-field appearance="fill">
             <mat-label>Date:</mat-label>
-            <input matInput [matDatepicker]="datePicker" formControlName="date" placeholder="MM/DD/YYYY" (dateChange)="updateShowModifyEvent()">
+            <input matInput [matDatepicker]="datePicker" formControlName="date" placeholder="MM/DD/YYYY">
             <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
             <mat-datepicker #datePicker></mat-datepicker>
             <mat-hint>Format: MM/DD/YYYY</mat-hint>
@@ -28,7 +28,13 @@
         
           <mat-form-field appearance="fill">
             <mat-label>Time:</mat-label>
-            <input matInput [ngxTimepicker]="timePicker" [format]="12" formControlName="time" placeholder="HH:MM AM/PM" readonly>
+            <input matInput 
+                   [ngxTimepicker]="timePicker" 
+                   [format]="12" 
+                   formControlName="time" 
+                   placeholder="HH:MM AM/PM" 
+                   readonly
+            >
             <ngx-material-timepicker-toggle matSuffix [for]="timePicker"></ngx-material-timepicker-toggle>
             <ngx-material-timepicker #timePicker [format]="12"></ngx-material-timepicker>
             <mat-hint>Click the clock icon to select time</mat-hint>

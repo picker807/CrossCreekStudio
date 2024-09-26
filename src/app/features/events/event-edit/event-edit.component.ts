@@ -109,7 +109,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       this.updateForm();
     });
 
-    this.updateShowModifyEvent();
+    //this.updateShowModifyEvent();
   }
 
   onGalleriesLoaded(galleries: Gallery[]): void {
@@ -377,15 +377,32 @@ export class EventEditComponent implements OnInit, OnDestroy {
   updateShowModifyEvent(): void {
     const dateValue = this.editForm.get('date').value;
     const timeValue = this.editForm.get('time').value;
-
+  
     if (dateValue && timeValue) {
-      const [hours, minutes] = timeValue.split(':');
-      const eventDateTime = new Date(dateValue);
-      eventDateTime.setHours(parseInt(hours, 10));
-      eventDateTime.setMinutes(parseInt(minutes, 10));
-
-      const now = new Date(); // Get the current date and time
-      this.showModifyEvent = eventDateTime >= now;
+      // Check if dateValue is a Date object (which it likely is when using matDatepicker)
+      let eventDateTime: Date;
+      if (dateValue instanceof Date) {
+        eventDateTime = new Date(dateValue);
+        eventDateTime.setHours(0, 0, 0, 0); // Reset time to start of day
+      } else {
+        // If it's a string, parse it (though this case is unlikely with matDatepicker)
+        const [year, month, day] = dateValue.split('-').map(Number);
+        eventDateTime = new Date(year, month - 1, day);
+      }
+  
+      // Parse and set the time
+      const [hours, minutes] = timeValue.split(':').map(Number);
+      eventDateTime.setHours(hours, minutes);
+  
+      // Get the current date and time
+      const now = new Date();
+  
+      // Compare the two dates
+      this.showModifyEvent = eventDateTime > now;
+  
+      console.log('Event DateTime:', eventDateTime);
+      console.log('Current DateTime:', now);
+      console.log('Show Modify Event:', this.showModifyEvent);
     } else {
       this.showModifyEvent = false;
     }
