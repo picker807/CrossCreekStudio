@@ -17,7 +17,11 @@
         <div class="form-group">
           <mat-form-field appearance="fill">
             <mat-label>Date:</mat-label>
-            <input matInput [matDatepicker]="datePicker" formControlName="date" placeholder="MM/DD/YYYY">
+            <input matInput 
+            [matDatepicker]="datePicker" 
+            formControlName="date" 
+            placeholder="MM/DD/YYYY"
+            (dateChange)="updateShowModifyEvent()">
             <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
             <mat-datepicker #datePicker></mat-datepicker>
             <mat-hint>Format: MM/DD/YYYY</mat-hint>
@@ -36,7 +40,7 @@
                    readonly
             >
             <ngx-material-timepicker-toggle matSuffix [for]="timePicker"></ngx-material-timepicker-toggle>
-            <ngx-material-timepicker #timePicker [format]="12"></ngx-material-timepicker>
+            <ngx-material-timepicker #timePicker [format]="12" (timeSet)="updateShowModifyEvent()"></ngx-material-timepicker>
             <mat-hint>Click the clock icon to select time</mat-hint>
             <mat-error *ngIf="editForm.get('time').invalid && editForm.get('time').touched">
               Time is required

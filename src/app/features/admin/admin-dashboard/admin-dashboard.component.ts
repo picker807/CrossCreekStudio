@@ -115,26 +115,23 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadCurrentAdmin(): void {
-    this.adminService.getCurrentAdmin().pipe(
-      switchMap(admin => {
+    this.adminService.getCurrentAdmin().subscribe({
+      next: (admin) => {
         console.log("Admin returned to dashboard: ", admin);
         this.currentAdmin = admin;
+        
         if (this.currentAdmin.role === "superadmin") {
-          return this.adminService.admins$.pipe(
-            tap(admins => {
-              this.admins = admins.filter(a => a.id !== this.currentAdmin.id);
-              this.loadAdmins();
-            })
-          );
+          this.adminService.admins$.subscribe(admins => {
+            this.admins = admins.filter(a => a.id !== this.currentAdmin.id);
+            console.log("admins after finding current admin: ", this.admins);
+            this.loadAdmins();
+          });
         }
-        return EMPTY;
-      }),
-      takeUntil(this.unsubscribe$)
-    ).subscribe({
-      error: err => {
+      },
+      error: (err) => {
         console.error(err);
         this.messageService.showMessage({
-          text: 'Failed to load admins',
+          text: 'Failed to load current admin',
           type: 'error',
           duration: 5000
         });
@@ -167,7 +164,7 @@ export class AdminDashboardComponent implements OnInit {
           name: [admin.name, Validators.required],
           email: [admin.email, [Validators.required, Validators.email]],
           role: [admin.role, Validators.required],
-          newPassword: ['', Validators.minLength(4)]
+          newPassword: ['', [Validators.minLength(8), this.passwordStrengthValidator]]
         });
       } else {
         this.resetForms[admin.id].patchValue({

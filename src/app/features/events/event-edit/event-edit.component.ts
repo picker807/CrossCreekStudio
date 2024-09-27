@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../../services/event.service';
 import { FormGroup, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { Event } from '../../../models/event.model';
-import { Subscription } from 'rxjs';
+import { debounceTime, merge, Subscription } from 'rxjs';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Gallery } from '../../../models/gallery.model';
 import { GalleryService } from '../../../services/gallery.service';
@@ -28,6 +28,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
   eventSubscription: Subscription;
   gallerySubscription: Subscription;
   showModifyEvent: boolean = true;
+  dateTimeSubscription: any;
 
   constructor(private fb: FormBuilder,
     private eventService: EventService,
@@ -51,6 +52,18 @@ export class EventEditComponent implements OnInit, OnDestroy {
     });
 
     this.galleryService.loadAllData().subscribe();
+
+   /*  const dateTimeChanges = merge(
+      this.editForm.get('date').valueChanges,
+      this.editForm.get('time').valueChanges
+    );
+  
+    // Subscribe to the merged observable
+    this.dateTimeSubscription = dateTimeChanges.pipe(
+      debounceTime(300) // Wait for 300ms pause in events
+    ).subscribe(() => {
+      this.updateShowModifyEvent();
+    }); */
 
     this.editForm = this.fb.group({
       name: ['', [
@@ -109,7 +122,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       this.updateForm();
     });
 
-    //this.updateShowModifyEvent();
+    this.updateShowModifyEvent();
   }
 
   onGalleriesLoaded(galleries: Gallery[]): void {
@@ -122,6 +135,9 @@ export class EventEditComponent implements OnInit, OnDestroy {
     }
     if (this.gallerySubscription) {
     this.gallerySubscription.unsubscribe();
+    }
+    if (this.dateTimeSubscription) {
+      this.dateTimeSubscription.unsubscribe();
     }
   }
 
@@ -179,26 +195,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
       console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
 
-      const combinedDateTime = new Date(value.date);
+      const combinedDateTime = this.processDateTime(value.date, value.time);
     
-    // Parse the time string from "11:30 PM" format
-    const [time, period] = value.time.split(' ');
-    let [hours, minutes] = time.split(':');
-    hours = parseInt(hours, 10);
-    minutes = parseInt(minutes, 10);
-
-    // Adjust hours for PM
-    if (period.toLowerCase() === 'pm' && hours !== 12) {
-      hours += 12;
-    }
-    // Adjust for midnight (12 AM)
-    if (period.toLowerCase() === 'am' && hours === 12) {
-      hours = 0;
-    }
-
-    combinedDateTime.setHours(hours);
-    combinedDateTime.setMinutes(minutes);
-
       const processedAttendees = value.attendees.map(attendee => ({
         ...attendee,
         phone: attendee.phone.replace(/\D/g, ''), // Remove non-digit characters
@@ -253,6 +251,38 @@ export class EventEditComponent implements OnInit, OnDestroy {
         });
       }
     //}
+  }
+
+  processDateTime(dateValue, timeValue): Date {
+
+    const combinedDateTime = new Date(dateValue);
+    // Parse the time string from "11:30 PM" format
+    let hours, minutes;
+
+    if (timeValue.includes(' ')) {
+      // 12-hour format with AM/PM
+      const [time, period] = timeValue.split(' ');
+      [hours, minutes] = time.split(':').map(num => parseInt(num, 10));
+
+      if (period.toLowerCase() === 'pm' && hours !== 12) {
+        hours += 12;
+      } else if (period.toLowerCase() === 'am' && hours === 12) {
+        hours = 0;
+      }
+    } else {
+      // 24-hour format
+      [hours, minutes] = timeValue.split(':').map(num => parseInt(num, 10));
+    }
+
+    // Validate the parsed time
+   /*  if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      console.error("Invalid time format:", timeValue);
+      // Handle the error appropriately, maybe set to a default time or throw an error
+    } else { */
+      combinedDateTime.setHours(hours);
+      combinedDateTime.setMinutes(minutes);
+   /*  } */
+    return combinedDateTime
   }
 
   get attendees(): FormArray {
@@ -375,37 +405,23 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
 
   updateShowModifyEvent(): void {
+    setTimeout(() => {
+    console.log("running updateShowModifyEvent");
     const dateValue = this.editForm.get('date').value;
     const timeValue = this.editForm.get('time').value;
   
-    if (dateValue && timeValue) {
-      // Check if dateValue is a Date object (which it likely is when using matDatepicker)
-      let eventDateTime: Date;
-      if (dateValue instanceof Date) {
-        eventDateTime = new Date(dateValue);
-        eventDateTime.setHours(0, 0, 0, 0); // Reset time to start of day
-      } else {
-        // If it's a string, parse it (though this case is unlikely with matDatepicker)
-        const [year, month, day] = dateValue.split('-').map(Number);
-        eventDateTime = new Date(year, month - 1, day);
-      }
+    const eventDateTime = this.processDateTime(dateValue, timeValue);
+    const now = new Date();
   
-      // Parse and set the time
-      const [hours, minutes] = timeValue.split(':').map(Number);
-      eventDateTime.setHours(hours, minutes);
-  
-      // Get the current date and time
-      const now = new Date();
-  
-      // Compare the two dates
-      this.showModifyEvent = eventDateTime > now;
+    this.showModifyEvent = eventDateTime >= now || 
+      (eventDateTime.toDateString() === now.toDateString() && 
+        eventDateTime.getTime() >= now.getTime());
   
       console.log('Event DateTime:', eventDateTime);
       console.log('Current DateTime:', now);
       console.log('Show Modify Event:', this.showModifyEvent);
-    } else {
-      this.showModifyEvent = false;
-    }
+    }, 0);
   }
+ 
 }
 
