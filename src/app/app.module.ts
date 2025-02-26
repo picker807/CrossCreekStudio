@@ -19,6 +19,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { MessageComponent } from './features/message/message.component';
 import { PageNotFoundComponent } from './features/page-not-found/page-not-found.component';
 import { ContactModule } from './features/contact/contact.module';
+import { ProductStoreModule } from './features/store/product-store.module';
 
 
 export function tokenGetter(platformId: Object) {
@@ -56,7 +57,8 @@ export function tokenGetter(platformId: Object) {
       config: {
         tokenGetter: tokenGetter(PLATFORM_ID),
       }
-    })
+    }),
+    ProductStoreModule
     //HttpClientModule
     
   ],

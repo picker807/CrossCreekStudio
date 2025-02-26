@@ -63,7 +63,8 @@ app.options('*', cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
-
+app.use('/api/cart', require('./server/routes/cart'));
+app.use('/api/products', require('./server/routes/products'));
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/users', userRoutes);
 app.get('/api/paypal-client-id', (req, res) => {

@@ -1,4 +1,5 @@
 const Admin = require('../models/admin');
+const Order = require('../models/order');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 //const mongoose = require('mongoose');
@@ -158,4 +159,34 @@ exports.checkAuthStatus = async (req, res) => {
 
 exports.logout = (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
+};
+
+exports.getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('items.eventId', 'name date location')
+      .populate('items.productId', 'name')
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    ).populate('items.eventId', 'name date location')
+     .populate('items.productId', 'name');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    console.error('Error updating order status:', err);
+    res.status(500).json({ message: err.message });
+  }
 };

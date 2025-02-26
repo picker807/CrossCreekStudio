@@ -7,14 +7,13 @@ export interface Enrollee {
 }
 
 export interface CartItem {
-  event: {
-    id: string;
-    name: string;
-    date: Date;
-    price: string;
-    location: string
-  };
-  enrollees: Enrollee[];
+  type: 'event' | 'product';
+  eventId?: string;
+  productId?: string;
+  enrollees?: { firstName: string; lastName: string; email: string; phone: string }[];
+  quantity: number;
+  event?: { id: string; name: string; date: string; price: number; location: string };
+  product?: { id: string; name: string; price: number };
 }
 
 export interface PayPalOrderDetails {
@@ -46,4 +45,8 @@ export interface PayPalOrderDetails {
 export interface OrderDetails {
   orderDetails: PayPalOrderDetails;
   cartContents: CartItem[];
+}
+
+export interface Product {
+
 }

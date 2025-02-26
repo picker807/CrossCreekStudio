@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema({
   email: { 
     type: String, 
     required: true, 
-    unique: true,
     maxlength: 100,
     validate: {
       validator: function(v) {
@@ -17,7 +16,7 @@ const UserSchema = new mongoose.Schema({
     }
   },
   phone: { type: String, required: true },
-  compositeKey: { type: String, required: true, unique: true }
+  compositeKey: { type: String, required: true, unique: true } // "firstname_lastname_email"
 });
 
 module.exports = mongoose.model('User', UserSchema, 'users');

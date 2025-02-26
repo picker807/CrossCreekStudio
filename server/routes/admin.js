@@ -20,5 +20,8 @@ router.put('/:id', authMiddleware, superAdminMiddleware, adminController.updateA
 router.patch('/:id', authMiddleware, superAdminMiddleware, adminController.updateAdmin);
 router.delete('/:id', authMiddleware, superAdminMiddleware, adminController.deleteAdmin);
 
+// Order management routes (protected by auth only—assume all admins can view/update)
+router.get('/orders', authMiddleware, adminController.getOrders);
+router.put('/orders/:id/status', authMiddleware, adminController.updateOrderStatus);
 
 module.exports = router;

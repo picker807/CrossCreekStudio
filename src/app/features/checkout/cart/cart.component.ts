@@ -1,27 +1,19 @@
 import { Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { CheckoutService } from '../../../services/checkout.service';
-import { EventService } from '../../../services/event.service';
 import { Router } from '@angular/router';
-import { catchError, concatMap, finalize, forkJoin, from, map, mergeMap, of, Subscription, tap, toArray } from 'rxjs';
+import { catchError, concatMap, finalize, from, of, Subscription, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { PaypalService } from '../../../services/paypal.service';
-import { User } from '../../../models/user.model';
 import { OrderDetails, PayPalOrderDetails, CartItem } from '../../../models/interfaces';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
 
 declare var paypal: any;
 
-interface EnrolleeResult {
-  enrollee: User;
-  added: boolean;
-}
-
-
 @Component({
   selector: 'cc-cart',
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.css'
+  styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
@@ -29,16 +21,14 @@ export class CartComponent implements OnInit {
   verificationError: string = '';
   subscription: Subscription;
   validItems: CartItem[] = [];
-  invalidItems: { item: any, reason: string }[] = [];
+  invalidItems: { item: CartItem, reason: string }[] = [];
 
   @ViewChild('paypalButton') paypalButton: ElementRef;
   showPaypalButton: boolean = false;
   paypalClientId: string;
 
-  
   constructor(
     private checkoutService: CheckoutService,
-    private eventService: EventService,
     private router: Router,
     private paypalService: PaypalService,
     private emailService: EmailService,
@@ -47,47 +37,48 @@ export class CartComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
+    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItem[]) => {
       this.cartItems = cartList;
+      this.calculateTotalPrice();
     });
     this.loadCart();
     this.paypalService.getPaypalClientId().subscribe({
-      next: (result) => {
-        this.paypalClientId = result.clientId;
-      },
+      next: (result) => this.paypalClientId = result.clientId,
       error: (error) => console.error('Error fetching PayPal client ID:', error)
     });
   }
 
   loadCart(): void {
-    this.cartItems = this.checkoutService.getCart();
-    this.calculateTotalPrice();
+    this.checkoutService.getCart().subscribe(cart => {
+      this.cartItems = cart.items;
+      this.calculateTotalPrice();
+    });
   }
 
   calculateTotalPrice(): void {
-    this.totalPrice = this.cartItems?.reduce((total, item) => 
-      total + Number(item.event.price) * item.enrollees.length, 0) ?? 0;
+    this.totalPrice = this.cartItems.reduce((total, item) => {
+      const price = item.type === 'event' ? Number(item.event?.price || 0) : Number(item.product?.price || 0);
+      const enrollees = item.type === 'event' ? (item.enrollees?.length || 1) : 1;
+      return total + price * (item.quantity || enrollees);
+    }, 0);
   }
 
-  removeFromCart(eventId: string): void {
-    this.checkoutService.removeFromCart(eventId);
-    this.loadCart();
+  removeFromCart(itemId: string, type: 'event' | 'product'): void {
+    this.checkoutService.removeFromCart(itemId, type).subscribe(() => this.loadCart());
   }
 
   verifyAndCheckout(): void {
-    console.log("starting verification and checkout...");
-  
+    console.log("Starting verification and checkout...");
     this.checkoutService.verifyCart().pipe(
-      tap(result => console.log("Received result in component:", result)),
       finalize(() => console.log('verifyCart observable completed'))
     ).subscribe({
       next: (result) => {
         console.log('Verification completed:', result);
         this.validItems = result.validItems;
         this.invalidItems = result.invalidItems;
-  
+
         if (this.invalidItems.length === 0) {
-          console.log('Cart is valid. Loading PayPal script...', this.invalidItems);
+          console.log('Cart is valid. Loading PayPal script...');
           this.loadPayPalScript();
           this.showPaypalButton = true;
         } else {
@@ -114,7 +105,7 @@ export class CartComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       if (!document.querySelector('script[src^="https://www.paypal.com/sdk/js"]')) {
         const script = document.createElement('script');
-        script.src = `https://www.paypal.com/sdk/js?client-id=${this.paypalClientId}&currency=USD&intent=capture`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${this.paypalClientId}¤cy=USD&intent=capture`;
         script.onload = () => {
           console.log('PayPal SDK loaded');
           this.initializePayPalButton();
@@ -129,9 +120,6 @@ export class CartComponent implements OnInit {
   initializePayPalButton(): void {
     if (typeof paypal !== 'undefined') {
       paypal.Buttons({
-        /* onClick: (data, actions) => {
-          return actions.resolve();
-        }, */
         createOrder: (data, actions) => {
           return actions.order.create({
             purchase_units: [{
@@ -143,62 +131,29 @@ export class CartComponent implements OnInit {
         },
         onApprove: (data, actions) => {
           return actions.order.capture().then((details) => {
-            console.log('Transaction details: ' + JSON.stringify(details, null, 2));
-            console.log("Valid items list: ", JSON.stringify(this.validItems, null, 2));
-
-            // Process each valid item (event) sequentially
-            from(this.validItems).pipe(
-              concatMap(item => {
-                return from(item.enrollees).pipe(
-                  concatMap((enrollee: User) => 
-                    this.eventService.addUserToEvent(enrollee, item.event.id).pipe(
-                      map(added => ({ enrollee, added } as EnrolleeResult))
-                    )
-                  ),
-                  toArray(),
-                  map((results: EnrolleeResult[]) => {
-                    const addedUsers = results.filter(r => r.added).map(r => r.enrollee);
-                    console.log(`Added ${addedUsers.length} new users to event ${item.event.id}`);
-
-                    addedUsers.forEach(user => {
-                      this.sendConfirmationEmail(user, item.event);
-                    });
-
-                    return addedUsers;
-                  }),
-                  catchError(error => {
-                    console.error(`Error processing enrollees for event ${item.event.id}:`, error);
-                    this.messageService.showMessage({
-                      text: `Error processing enrollees for event ${item.event.name}.`,
-                      type: 'error',
-                      duration: 5000
-                    });
-                    return of([]);
-                  })
-                );
-              }),
-              catchError(error => {
-                console.error('Error in event processing:', error);
-                return of(null);
-              })
-            ).subscribe({
-              next: (result) => {
-                if (result) console.log('Users processed for event successfully:', result);
-              },
-              error: (error) => {
-                console.error('Error in overall process:', error);
-              },
-              complete: () => {
-                // Combine order details with cart contents
+            console.log('Transaction details:', JSON.stringify(details, null, 2));
+            this.checkoutService.completeCheckout(data.paymentID, {
+              street: details.payer.address.line1,
+              city: details.payer.address.city,
+              postalCode: details.payer.address.postal_code,
+              country: details.payer.address.country_code
+            }).subscribe({
+              next: (order) => {
                 const combinedOrderData: OrderDetails = {
                   orderDetails: details as PayPalOrderDetails,
                   cartContents: this.validItems
                 };
                 this.sendReceiptEmail(combinedOrderData);
                 this.checkoutService.storeOrderDetails(combinedOrderData);
-                // Handle successful payment (e.g., clear cart, show confirmation)
-                this.checkoutService.clearCart();
                 this.router.navigate(['/confirmation']);
+              },
+              error: (error) => {
+                console.error('Checkout failed:', error);
+                this.messageService.showMessage({
+                  text: 'Checkout failed. Please try again.',
+                  type: 'error',
+                  duration: 5000
+                });
               }
             });
           });
@@ -207,50 +162,17 @@ export class CartComponent implements OnInit {
     }
   }
 
-  private sendConfirmationEmail(enrollee: User, event: any) {
-    const templateData = {
-      user: enrollee,
-      eventName: event.name,
-      eventDate: event.date,
-      eventLocation: event.location
-    };
-
-    this.emailService.sendEmail(
-      [enrollee.email],
-      `Confirmation for ${event.name}`,
-      'confirmation', // Template name
-      templateData
-    ).subscribe({
-      next: () => {
-        console.log(`Confirmation email sent to ${enrollee.email}`);
-      },
-      error: (error) => {
-        console.error(`Failed to send confirmation email to ${enrollee.email}`, error);
-        this.messageService.showMessage({
-          text: `Failed to send confirmation email to ${enrollee.email}.`,
-          type: 'error',
-          duration: 5000
-        });
-      }
-    });
-  }
-
   private sendReceiptEmail(orderDetails: OrderDetails) {
-    const userEmail = orderDetails.orderDetails.payer.email_address
-    
-    const templateData = {
-      orderDetails
-    };
+    const userEmail = orderDetails.orderDetails.payer.email_address;
+    const templateData = { orderDetails };
 
     this.emailService.sendEmail(
       [userEmail],
       'Your Purchase Receipt',
-      'receipt', // Template name
+      'receipt',
       templateData
     ).subscribe({
-      next: () => {
-        console.log(`Receipt email sent to ${userEmail}`);
-      },
+      next: () => console.log(`Receipt email sent to ${userEmail}`),
       error: (error) => {
         console.error(`Failed to send receipt email to ${userEmail}`, error);
         this.messageService.showMessage({
@@ -261,7 +183,7 @@ export class CartComponent implements OnInit {
       }
     });
   }
-  
+
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }

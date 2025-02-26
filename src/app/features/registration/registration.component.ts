@@ -240,7 +240,7 @@ export class RegistrationComponent {
 
   addToCart() {
     if (this.previewEnrollees.length > 0) {
-      this.checkoutService.addToCart(this.event, this.previewEnrollees);
+      this.checkoutService.addEventToCart(this.event, this.previewEnrollees);
       this.previewEnrollees = [];
       this.registrationForm.reset();
       this.messageService.showMessage({

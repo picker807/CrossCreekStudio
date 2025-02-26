@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, concatMap, defaultIfEmpty, finalize, forkJoin, from, map, mergeMap, of, reduce, take, takeWhile, tap, throwError, toArray } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, concatMap, from, map, of, switchMap, tap, toArray } from 'rxjs';
 import { EventService } from './event.service';
 import { Enrollee, OrderDetails, CartItem } from '../models/interfaces';
 import { Event } from '../models/event.model';
-
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckoutService {
-  private cartKey = 'cart';
-  private cartSubject = new BehaviorSubject<any[]>([]);
+  private cartIdKey = 'cartId'; // Store UUID locally
+  private cartSubject = new BehaviorSubject<CartItem[]>([]);
   cartItems$ = this.cartSubject.asObservable();
 
   private orderDetailsSubject = new BehaviorSubject<OrderDetails | null>(null);
@@ -22,48 +20,90 @@ export class CheckoutService {
     this.initializeCart();
   }
 
+  private getHeaders(): HttpHeaders {
+    const cartId = this.getCartId();
+    return new HttpHeaders({ 'X-Cart-ID': cartId });
+  }
+
+  private getCartId(): string {
+    return typeof window !== 'undefined' && window.localStorage
+      ? localStorage.getItem(this.cartIdKey) || ''
+      : '';
+  }
+
+  private setCartId(cartId: string): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.cartIdKey, cartId);
+    }
+  }
+
   initializeCart(): void {
-    this.cartSubject.next(this.getCart());
+    this.getCart().subscribe(cart => this.cartSubject.next(cart.items));
   }
 
-  getCart() {
-    if (typeof window !== 'undefined' && window.localStorage){
-    return JSON.parse(window.localStorage.getItem(this.cartKey) || '[]');
-    }
+  getCart(): Observable<any> {
+    return this.http.get<any>('/api/cart', { headers: this.getHeaders() }).pipe(
+      tap(response => this.setCartId(response.cartId)),
+      catchError(err => {
+        console.error('Error fetching cart:', err);
+        return of({ cartId: this.getCartId(), items: [] });
+      })
+    );
   }
 
-  addToCart(event: Event, enrollees: Enrollee[]) {
-
-    const simplifiedEvent = {
-      id: event.id,
-      name: event.name,
-      date: event.date,
-      price: event.price,
-      location: event.location
+  addEventToCart(event: Event, enrollees: Enrollee[]): Observable<any> {
+    const item: CartItem = {
+      type: 'event',
+      eventId: event.id,
+      enrollees: enrollees.map(e => ({
+        firstName: e.firstName,
+        lastName: e.lastName,
+        email: e.email,
+        phone: e.phone
+      })),
+      quantity: enrollees.length
     };
-
-    const cart = this.getCart();
-    cart.push({ event: simplifiedEvent, enrollees: enrollees });
-    if (typeof window !== 'undefined' && window.localStorage){
-      window.localStorage.setItem(this.cartKey, JSON.stringify(cart));
-    }
-    this.cartSubject.next(cart);
+    return this.http.post('/api/cart/add', item, { headers: this.getHeaders() }).pipe(
+      tap(response => {
+        this.setCartId(response.cartId);
+        this.cartSubject.next(response.items);
+      })
+    );
   }
 
-  removeFromCart(eventId: string) {
-    let cart = this.getCart();
-    cart = cart.filter((item: any) => item.event.id !== eventId);
-    if (typeof window !== 'undefined' && window.localStorage){
-      window.localStorage.setItem(this.cartKey, JSON.stringify(cart));
-    }
-    this.cartSubject.next(cart);
+  addProductToCart(productId: string, quantity: number): Observable<any> {
+    const item: CartItem = {
+      type: 'product',
+      productId,
+      quantity
+    };
+    return this.http.post('/api/cart/add', item, { headers: this.getHeaders() }).pipe(
+      tap(response => {
+        this.setCartId(response.cartId);
+        this.cartSubject.next(response.items);
+      })
+    );
   }
 
-  clearCart() {
-    if (typeof window !== 'undefined' && window.localStorage){
-      window.localStorage.removeItem(this.cartKey);
-      this.cartSubject.next([]);
-    }
+  removeFromCart(itemId: string, type: 'event' | 'product'): Observable<any> {
+    return this.getCart().pipe(
+      concatMap(cart => {
+        const updatedItems = cart.items.filter((item: CartItem) =>
+          type === 'event' ? item.eventId !== itemId : item.productId !== itemId
+        );
+        return this.http.post('/api/cart/update', { items: updatedItems }, { headers: this.getHeaders() });
+      }),
+      tap(response => this.cartSubject.next(response.items))
+    );
+  }
+
+  clearCart(): Observable<any> {
+    return this.http.delete('/api/cart', { headers: this.getHeaders() }).pipe(
+      tap(() => {
+        localStorage.removeItem(this.cartIdKey);
+        this.cartSubject.next([]);
+      })
+    );
   }
 
   verifyCart(): Observable<{
@@ -71,59 +111,48 @@ export class CheckoutService {
     invalidItems: { item: CartItem, reason: string }[]
   }> {
     console.log("Starting verifyCart");
-    const cartItems = this.getCart();
-    console.log("Cart items:", cartItems);
-  
-    return from(cartItems).pipe(
-      concatMap((item: CartItem, index) => {
-        console.log(`Starting verification for item ${index + 1}/${cartItems.length}: ${item.event.id}`);
-        return this.eventService.getEventById(item.event.id).pipe(
-          map(event => {
-            console.log(`Fetched event for item ${index + 1}: ${item.event.id}`);
-            const result = this.verifyCartItem(item, event);
-            console.log(`Verification result for item ${index + 1}: ${item.event.id}`, result);
-            return result;
-          }),
-          catchError(error => {
-            console.error(`Error processing item ${index + 1}: ${item.event.id}`, error);
-            return of({ isValid: false, item: item, reason: 'Error processing item' });
-          }),
-          tap(() => console.log(`Finished processing item ${index + 1}: ${item.event.id}`))
-        );
-      }),
-      toArray(),
-      map(results => {
-        const validItems = results.filter(r => r.isValid).map(r => r.item);
-        const invalidItems = results.filter(r => !r.isValid).map(r => ({item: r.item, reason: r.reason || 'Unknown reason'}));
-        return {validItems, invalidItems};
-      }),
-      tap(result => console.log("Final verification result:", result))
+    return this.getCart().pipe(
+      concatMap(cart => from(cart.items).pipe(
+        concatMap((item: CartItem) => {
+          console.log(`Verifying item: ${item.type === 'event' ? item.eventId : item.productId}`);
+          if (item.type === 'event') {
+            return this.eventService.getEventById(item.eventId!).pipe(
+              map(event => this.verifyEventItem(item, event)),
+              catchError(() => of({ isValid: false, item, reason: 'Error fetching event' }))
+            );
+          } else {
+            return this.http.get<any>(`/api/products/${item.productId}`).pipe(
+              map(product => this.verifyProductItem(item, product)),
+              catchError(() => of({ isValid: false, item, reason: 'Error fetching product' }))
+            );
+          }
+        }),
+        toArray(),
+        map(results => {
+          const validItems = results.filter(r => r.isValid).map(r => r.item);
+          const invalidItems = results.filter(r => !r.isValid).map(r => ({ item: r.item, reason: r.reason || 'Unknown' }));
+          console.log("Verification result:", { validItems, invalidItems });
+          return { validItems, invalidItems };
+        })
+      ))
     );
   }
-  
-  private verifyCartItem(cartItem: any, event: any): { isValid: boolean, item: any, reason?: string } {
-    console.log("Verifying cart item:", cartItem, "with event:", event);
-    if (!event) {
-      console.log("event invalid: not found");
-      return { isValid: false, item: cartItem, reason: 'Event no longer exists' };
-    }
-    const eventDate = new Date(event.date).valueOf();
-    const cartItemDate = new Date(cartItem.event.date).valueOf();
-    const currentDate = new Date().valueOf();
 
-    if (eventDate < currentDate || eventDate !== cartItemDate) {
-      console.log("Event invalid: in the past or time has changed");
-      return { isValid: false, item: cartItem, reason: 'Event date has passed or time has changed' };
+  private verifyEventItem(cartItem: CartItem, event: any): { isValid: boolean, item: CartItem, reason?: string } {
+    if (!event) return { isValid: false, item: cartItem, reason: 'Event no longer exists' };
+    const eventDate = new Date(event.date).valueOf();
+    const currentDate = new Date().valueOf();
+    if (eventDate < currentDate) {
+      return { isValid: false, item: cartItem, reason: 'Event date has passed' };
     }
-    if (event.location !== cartItem.event.location){
-      console.log("Event invalid: Event location changed");
-      return { isValid: false, item: cartItem, reason: "Event location has changed"}
+    return { isValid: true, item: cartItem };
+  }
+
+  private verifyProductItem(cartItem: CartItem, product: any): { isValid: boolean, item: CartItem, reason?: string } {
+    if (!product) return { isValid: false, item: cartItem, reason: 'Product no longer exists' };
+    if (product.stock < cartItem.quantity) {
+      return { isValid: false, item: cartItem, reason: 'Insufficient stock' };
     }
-    if (event.price !== cartItem.event.price) {
-      console.log("evnt invalid: price changed");
-      return { isValid: false, item: cartItem, reason: 'Event price has changed' };
-    }
-    console.log("event is valid");
     return { isValid: true, item: cartItem };
   }
 
@@ -139,4 +168,14 @@ export class CheckoutService {
     this.orderDetailsSubject.next(null);
   }
 
+  completeCheckout(paymentId: string, shippingAddress: any): Observable<any> {
+    return this.getCart().pipe(
+      switchMap(cart => this.http.post('/api/checkout/complete', {
+        cartId: cart.cartId,
+        paymentId,
+        shippingAddress
+      }, { headers: this.getHeaders() })),
+      tap(() => this.clearCart())
+    );
+  }
 }
