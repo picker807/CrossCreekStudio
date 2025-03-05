@@ -1,42 +1,71 @@
 <div class="container mx-auto p-4">
   <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
 
-  <!-- Cart items -->
-  <ng-container *ngIf="cartItems.length > 0; else emptyCart">
-    <div *ngFor="let item of cartItems" class="bg-white shadow-md rounded-lg p-4 mb-4">
-      <h3 class="text-xl font-semibold">{{ item.event.name }}</h3>
-      <p class="text-gray-600">Date: {{ item.event.date | date:'mediumDate' }}</p>
-      <p class="text-gray-600">Time: {{ item.event.date | date:'shortTime' }}</p>
-      <p class="text-gray-600">Location: {{ item.event.location }}</p>
-      <p class="text-gray-600">Price: ${{ item.event.price }}</p>
-      <p class="text-gray-600">Enrollees: {{ item.enrollees.length }}</p>
-      <p class="text-gray-600">Subtotal: ${{ item.event.price * item.enrollees.length }}</p>
-      
-      <div class="mt-4">
-        <h4 class="text-lg font-semibold">Enrollees:</h4>
-        <ul class="list-disc list-inside">
-          <li *ngFor="let enrollee of item.enrollees" class="text-gray-700">
-            {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
-          </li>
-        </ul>
-      </div>
+  <!-- Cart contents -->
+  <ng-container *ngIf="(cartItems.events?.length || 0) + (cartItems.products?.length || 0) > 0; else emptyCart">
+    <!-- Events Section -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4">Events</h3>
+      <ng-container *ngIf="cartItems.events?.length > 0; else noEvents">
+        <div *ngFor="let eventItem of cartItems.events" class="bg-white shadow-md rounded-lg p-4 mb-4">
+          <h4 class="text-lg font-semibold">{{ eventItem.name || 'Unknown Event' }}</h4>
+          <p class="text-gray-600">Date: {{ eventItem.date | date:'mediumDate' }}</p>
+          <p class="text-gray-600">Time: {{ eventItem.date | date:'shortTime' }}</p>
+          <p class="text-gray-600">Location: {{ eventItem.location || 'N/A' }}</p>
+          <p class="text-gray-600">Price: ${{ eventItem.price || 0 }}</p>
+          <p class="text-gray-600">Enrollees: {{ eventItem.enrollees.length }}</p>
+          <p class="text-gray-600">Subtotal: ${{ (eventItem.price || 0) * eventItem.quantity }}</p>
 
-      <button (click)="removeFromCart(item.event.id)" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+          <div class="mt-4">
+            <h5 class="text-md font-semibold">Enrollees:</h5>
+            <ul class="list-disc list-inside">
+              <li *ngFor="let enrollee of eventItem.enrollees" class="text-gray-700">
+                {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
+              </li>
+            </ul>
+          </div>
+
+          <button (click)="removeFromCart(eventItem._id)" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+        </div>
+      </ng-container>
+      <ng-template #noEvents>
+        <p class="text-gray-500">No events in your cart.</p>
+      </ng-template>
     </div>
 
+    <!-- Products Section -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4">Products</h3>
+      <ng-container *ngIf="cartItems.products?.length > 0; else noProducts">
+        <div *ngFor="let productItem of cartItems.products" class="bg-white shadow-md rounded-lg p-4 mb-4">
+          <h4 class="text-lg font-semibold">{{ productItem.name || 'Unknown Product' }}</h4>
+          <p class="text-gray-600">Price: ${{ productItem.price || 0 }}</p>
+          <p class="text-gray-600">Quantity: {{ productItem.quantity }}</p>
+          <p class="text-gray-600">Subtotal: ${{ (productItem.price || 0) * productItem.quantity }}</p>
+
+          <button (click)="removeProductFromCart(productItem._id)" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+        </div>
+      </ng-container>
+      <ng-template #noProducts>
+        <p class="text-gray-500">No products in your cart.</p>
+      </ng-template>
+    </div>
+
+    <!-- Invalid Items Warning -->
     <div *ngIf="invalidItems.length > 0" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
       <h4 class="text-lg font-semibold">Some items in your cart require attention:</h4>
       <ul class="list-disc list-inside">
         <li *ngFor="let invalidItem of invalidItems">
-          {{ invalidItem.item.event.name }}: {{ invalidItem.reason }}
+          {{ invalidItem.item.name || 'Unknown Item' }}: {{ invalidItem.reason }}
         </li>
       </ul>
     </div>
 
+    <!-- Total and Checkout -->
     <div class="bg-white shadow-md rounded-lg p-4">
       <h3 class="text-xl font-semibold">Total: ${{ totalPrice }}</h3>
       <button *ngIf="!showPaypalButton" (click)="verifyAndCheckout()" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Proceed to Checkout</button>
-      <div *ngIf="showPaypalButton" #paypalButton ></div>
+      <div *ngIf="showPaypalButton" #paypalButton></div>
     </div>
   </ng-container>
 
@@ -47,10 +76,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
       <h3 class="mt-2 text-xl font-medium text-gray-900">Your cart is empty</h3>
-      <p class="mt-1 text-gray-500">Start adding events to your cart to see them here.</p>
+      <p class="mt-1 text-gray-500">Start adding events or products to your cart to see them here.</p>
       <div class="mt-6">
         <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           Browse Events
+        </a>
+        <a href="/products" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Browse Products
         </a>
       </div>
     </div>

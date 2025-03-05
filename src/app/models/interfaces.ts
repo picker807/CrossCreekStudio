@@ -7,13 +7,17 @@ export interface Enrollee {
 }
 
 export interface CartItem {
-  type: 'event' | 'product';
-  eventId?: string;
-  productId?: string;
-  enrollees?: { firstName: string; lastName: string; email: string; phone: string }[];
-  quantity: number;
-  event?: { id: string; name: string; date: string; price: number; location: string };
-  product?: { id: string; name: string; price: number };
+  events?: {
+    eventId: string; // MongoDB _id
+    quantity: number;
+    enrollees: { firstName: string; lastName: string; email: string; phone: string }[];
+    event?: { id: string; name: string; date: string; price: number; location: string }; // Populated
+  }[];
+  products?: {
+    productId: string; // MongoDB _id
+    quantity: number;
+    product?: { id: string; name: string; price: number }; // Populated
+  }[];
 }
 
 export interface PayPalOrderDetails {

@@ -23,6 +23,8 @@
   "include": [
     "src/**/*.ts",
   ],
+  "exclude": ["node_modules", "dist", "server.ts", "server.ngtypecheck.ts", "server/**/*.ts"],
+
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false
   }

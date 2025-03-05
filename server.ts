@@ -92,6 +92,35 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal server error' });
 });
 
+
+app.get('*', async (req, res) => {
+  try {
+    const { renderModule } = await import('@angular/platform-server');
+    const { AppServerModule } = await import('./dist/cross-creek-creates/server/main');
+    const document = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Cross Creek Studio</title>
+          <base href="/">
+        </head>
+        <body>
+          <app-root></app-root>
+        </body>
+      </html>
+    `;
+    const html = await renderModule(AppServerModule, {
+      url: req.url,
+      document: document,
+    });
+    res.send(html);
+  } catch (error) {
+    console.error('SSR Error:', error);
+    res.sendFile(path.join(__dirname, 'dist/cross-creek-creates/browser/index.html'));
+  }
+});
+
 // Establish a connection to the MongoDB database
 //console.log(mongoUri);
 mongoose.connect(mongoUri)

@@ -2,15 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
-    "outDir": "./dist/server",
+    "outDir": "./dist/cross-creek-creates/server",
     "target": "ES2020",
    /*  "isolatedModules": true,
     "noEmit": false, */
     "types": ["node"]
   },
-  "files": ["server.ts"],
-  "include": [
-    "src/main.server.ts",
-    "server/**/*.ts"
-  ]
+  "files": ["src/main.server.ts"],
+  "exclude": ["server.ts", "server/**/*.ts", "**/*.spec.ts"]
 }

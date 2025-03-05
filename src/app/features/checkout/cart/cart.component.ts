@@ -16,12 +16,12 @@ declare var paypal: any;
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
-  cartItems: CartItem[] = [];
+  cartItems: CartItem = { events: [], products: [] };
   totalPrice: number = 0;
   verificationError: string = '';
   subscription: Subscription;
   validItems: CartItem[] = [];
-  invalidItems: { item: CartItem, reason: string }[] = [];
+  invalidItems: { item: any; reason: string }[] = [];
 
   @ViewChild('paypalButton') paypalButton: ElementRef;
   showPaypalButton: boolean = false;
@@ -38,7 +38,8 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItem[]) => {
-      this.cartItems = cartList;
+      // Assuming cartItems$ emits the full items array; take the first object
+      this.cartItems = cartList[0] || { events: [], products: [] };
       this.calculateTotalPrice();
     });
     this.loadCart();
@@ -50,21 +51,36 @@ export class CartComponent implements OnInit {
 
   loadCart(): void {
     this.checkoutService.getCart().subscribe(cart => {
-      this.cartItems = cart.items;
+      this.cartItems = cart.items[0] || { events: [], products: [] }; 
+      console.log('Cart items:', this.cartItems);
       this.calculateTotalPrice();
     });
   }
 
   calculateTotalPrice(): void {
-    this.totalPrice = this.cartItems.reduce((total, item) => {
-      const price = item.type === 'event' ? Number(item.event?.price || 0) : Number(item.product?.price || 0);
-      const enrollees = item.type === 'event' ? (item.enrollees?.length || 1) : 1;
-      return total + price * (item.quantity || enrollees);
-    }, 0);
+    const eventTotal = this.cartItems.events.reduce(
+      (sum, item) => sum + (item.event.price || 0) * item.quantity,
+      0
+    );
+    const productTotal = this.cartItems.products.reduce(
+      (sum, item) => sum + (item.product.price || 0) * item.quantity,
+      0
+    );
+    this.totalPrice = eventTotal + productTotal;
   }
 
-  removeFromCart(itemId: string, type: 'event' | 'product'): void {
-    this.checkoutService.removeFromCart(itemId, type).subscribe(() => this.loadCart());
+  removeFromCart(eventId: string): void {
+    this.checkoutService.removeFromCart(eventId).subscribe({
+      next: () => this.loadCart(),
+      error: (error) => console.error('Error removing event:', error)
+    });
+  }
+
+  removeProductFromCart(productId: string): void {
+    this.checkoutService.removeFromCart(productId).subscribe({
+      next: () => this.loadCart(),
+      error: (error) => console.error('Error removing product:', error)
+    });
   }
 
   verifyAndCheckout(): void {
@@ -74,8 +90,11 @@ export class CartComponent implements OnInit {
     ).subscribe({
       next: (result) => {
         console.log('Verification completed:', result);
-        this.validItems = result.validItems;
-        this.invalidItems = result.invalidItems;
+        this.validItems = result.validItems; // Expecting an array from backend
+        this.invalidItems = result.invalidItems.map(item => ({
+          item: item.item, // Could be event or product object
+          reason: item.reason
+        }));
 
         if (this.invalidItems.length === 0) {
           console.log('Cart is valid. Loading PayPal script...');
@@ -105,7 +124,7 @@ export class CartComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       if (!document.querySelector('script[src^="https://www.paypal.com/sdk/js"]')) {
         const script = document.createElement('script');
-        script.src = `https://www.paypal.com/sdk/js?client-id=${this.paypalClientId}¤cy=USD&intent=capture`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${this.paypalClientId}&currency=USD&intent=capture`;
         script.onload = () => {
           console.log('PayPal SDK loaded');
           this.initializePayPalButton();
@@ -133,10 +152,10 @@ export class CartComponent implements OnInit {
           return actions.order.capture().then((details) => {
             console.log('Transaction details:', JSON.stringify(details, null, 2));
             this.checkoutService.completeCheckout(data.paymentID, {
-              street: details.payer.address.line1,
-              city: details.payer.address.city,
-              postalCode: details.payer.address.postal_code,
-              country: details.payer.address.country_code
+              street: details.payer.address?.line1 || '',
+              city: details.payer.address?.city || '',
+              postalCode: details.payer.address?.postal_code || '',
+              country: details.payer.address?.country_code || ''
             }).subscribe({
               next: (order) => {
                 const combinedOrderData: OrderDetails = {

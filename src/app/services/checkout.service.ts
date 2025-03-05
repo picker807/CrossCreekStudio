@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, concatMap, from, map, of, switchMap, tap, toArray } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
 import { EventService } from './event.service';
 import { Enrollee, OrderDetails, CartItem } from '../models/interfaces';
 import { Event } from '../models/event.model';
@@ -51,19 +51,17 @@ export class CheckoutService {
     );
   }
 
-  addEventToCart(event: Event, enrollees: Enrollee[]): Observable<any> {
-    const item: CartItem = {
-      type: 'event',
-      eventId: event.id,
-      enrollees: enrollees.map(e => ({
-        firstName: e.firstName,
-        lastName: e.lastName,
-        email: e.email,
-        phone: e.phone
-      })),
-      quantity: enrollees.length
-    };
-    return this.http.post('/api/cart/add', item, { headers: this.getHeaders() }).pipe(
+  addEventToCart(event: { eventId: string; quantity: number; enrollees: { firstName: string; lastName: string; email: string; phone: string }[] }): Observable<any> {
+    return this.http.post('/api/cart/add', { events: [event] }, { headers: this.getHeaders() }).pipe(
+      tap(response => {
+        this.setCartId(response.cartId);
+        this.cartSubject.next(response.items);
+      })
+    );
+  }
+  
+  addProductToCart(products: { productId: string; quantity: number }[]): Observable<any> {
+    return this.http.post('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
       tap(response => {
         this.setCartId(response.cartId);
         this.cartSubject.next(response.items);
@@ -71,26 +69,13 @@ export class CheckoutService {
     );
   }
 
-  addProductToCart(productId: string, quantity: number): Observable<any> {
-    const item: CartItem = {
-      type: 'product',
-      productId,
-      quantity
-    };
-    return this.http.post('/api/cart/add', item, { headers: this.getHeaders() }).pipe(
-      tap(response => {
-        this.setCartId(response.cartId);
-        this.cartSubject.next(response.items);
-      })
-    );
-  }
-
-  removeFromCart(itemId: string, type: 'event' | 'product'): Observable<any> {
+  removeFromCart(itemId: string): Observable<any> {
     return this.getCart().pipe(
       concatMap(cart => {
-        const updatedItems = cart.items.filter((item: CartItem) =>
-          type === 'event' ? item.eventId !== itemId : item.productId !== itemId
-        );
+        const updatedItems = cart.items.map(item => ({
+          events: item.events?.filter(e => e.eventId !== itemId) || [],
+          products: item.products?.filter(p => p.productId !== itemId) || []
+        })).filter(item => item.events.length > 0 || item.products.length > 0); // Remove empty items
         return this.http.post('/api/cart/update', { items: updatedItems }, { headers: this.getHeaders() });
       }),
       tap(response => this.cartSubject.next(response.items))
@@ -114,18 +99,39 @@ export class CheckoutService {
     return this.getCart().pipe(
       concatMap(cart => from(cart.items).pipe(
         concatMap((item: CartItem) => {
-          console.log(`Verifying item: ${item.type === 'event' ? item.eventId : item.productId}`);
-          if (item.type === 'event') {
-            return this.eventService.getEventById(item.eventId!).pipe(
-              map(event => this.verifyEventItem(item, event)),
-              catchError(() => of({ isValid: false, item, reason: 'Error fetching event' }))
-            );
-          } else {
-            return this.http.get<any>(`/api/products/${item.productId}`).pipe(
-              map(product => this.verifyProductItem(item, product)),
-              catchError(() => of({ isValid: false, item, reason: 'Error fetching product' }))
-            );
-          }
+          // Verify all events and products in this item
+          const eventVerifications = item.events?.length
+            ? from(item.events).pipe(
+                concatMap(eventItem =>
+                  this.eventService.getEventById(eventItem.eventId).pipe(
+                    map(event => this.verifyEventItem(eventItem, event)),
+                    catchError(() => of({ isValid: false, item: { events: [eventItem], products: [] }, reason: 'Error fetching event' }))
+                  )
+                ),
+                toArray()
+              )
+            : of([]);
+  
+          const productVerifications = item.products?.length
+            ? from(item.products).pipe(
+                concatMap(productItem =>
+                  this.http.get<any>(`/api/products/${productItem.productId}`).pipe(
+                    map(product => this.verifyProductItem(productItem, product)),
+                    catchError(() => of({ isValid: false, item: { events: [], products: [productItem] }, reason: 'Error fetching product' }))
+                  )
+                ),
+                toArray()
+              )
+            : of([]);
+  
+          return forkJoin([eventVerifications, productVerifications]).pipe(
+            map(([eventResults, productResults]) => {
+              const allResults = [...eventResults, ...productResults];
+              return allResults.every(r => r.isValid)
+                ? { isValid: true, item }
+                : { isValid: false, item, reason: allResults.find(r => !r.isValid)?.reason || 'Unknown' };
+            })
+          );
         }),
         toArray(),
         map(results => {
@@ -138,22 +144,24 @@ export class CheckoutService {
     );
   }
 
-  private verifyEventItem(cartItem: CartItem, event: any): { isValid: boolean, item: CartItem, reason?: string } {
-    if (!event) return { isValid: false, item: cartItem, reason: 'Event no longer exists' };
+  private verifyEventItem(cartEventItem: { eventId: string; quantity: number; enrollees: any[]; event?: any }, event: any): { isValid: boolean, item: CartItem, reason?: string } {
+    const item: CartItem = { events: [cartEventItem], products: [] }; // Wrap single event in CartItem
+    if (!event) return { isValid: false, item, reason: 'Event no longer exists' };
     const eventDate = new Date(event.date).valueOf();
     const currentDate = new Date().valueOf();
     if (eventDate < currentDate) {
-      return { isValid: false, item: cartItem, reason: 'Event date has passed' };
+      return { isValid: false, item, reason: 'Event date has passed' };
     }
-    return { isValid: true, item: cartItem };
+    return { isValid: true, item };
   }
 
-  private verifyProductItem(cartItem: CartItem, product: any): { isValid: boolean, item: CartItem, reason?: string } {
-    if (!product) return { isValid: false, item: cartItem, reason: 'Product no longer exists' };
-    if (product.stock < cartItem.quantity) {
-      return { isValid: false, item: cartItem, reason: 'Insufficient stock' };
+  private verifyProductItem(cartProductItem: { productId: string; quantity: number; product?: any }, product: any): { isValid: boolean, item: CartItem, reason?: string } {
+    const item: CartItem = { events: [], products: [cartProductItem] }; // Wrap single product in CartItem
+    if (!product) return { isValid: false, item, reason: 'Product no longer exists' };
+    if (product.stock < cartProductItem.quantity) {
+      return { isValid: false, item, reason: 'Insufficient stock' };
     }
-    return { isValid: true, item: cartItem };
+    return { isValid: true, item };
   }
 
   storeOrderDetails(details: OrderDetails): void {

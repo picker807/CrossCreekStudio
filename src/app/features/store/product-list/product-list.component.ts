@@ -50,7 +50,11 @@ export class ProductListComponent implements OnInit {
   }
 
   addToCart(productId: string): void {
-    this.checkoutService.addProductToCart(productId, 1).subscribe({
+    const productForCart = [{
+      productId: productId,
+      quantity: 1
+    }];
+    this.checkoutService.addProductToCart(productForCart).subscribe({
       next: () => console.log(`Added product ${productId} to cart`),
       error: (error) => console.error('Error adding to cart:', error)
     });
