@@ -1,3 +1,5 @@
+import { Gallery } from "./gallery.model";
+
 export interface Enrollee {
   firstName: string;
   lastName: string;
@@ -8,16 +10,43 @@ export interface Enrollee {
 
 export interface CartItem {
   events?: {
-    eventId: string; // MongoDB _id
+    eventId: string;
     quantity: number;
     enrollees: { firstName: string; lastName: string; email: string; phone: string }[];
-    event?: { id: string; name: string; date: string; price: number; location: string }; // Populated
+    event?: { id: string; name: string; date: string; price: number; location: string; images?: Gallery[] };
   }[];
   products?: {
-    productId: string; // MongoDB _id
+    productId: string;
     quantity: number;
-    product?: { id: string; name: string; price: number }; // Populated
+    product?: { id: string; name: string; price: number; images?: string[] };
   }[];
+}
+
+export interface FlattenedCartItem {
+  events: {
+    _id: string;
+    eventId: string;
+    name: string;
+    date: string;
+    price: number;
+    location: string;
+    images: Gallery[];
+    quantity: number;
+    enrollees: { firstName: string; lastName: string; email: string; phone: string }[];
+  }[];
+  products: {
+    _id: string;
+    productId: string;
+    name: string;
+    price: number;
+    images: string[];
+    quantity: number;
+  }[];
+}
+
+export interface CartVerificationResult {
+  validItems: FlattenedCartItem[];
+  invalidItems: { item: FlattenedCartItem; reason: string }[];
 }
 
 export interface PayPalOrderDetails {
@@ -51,6 +80,8 @@ export interface OrderDetails {
   cartContents: CartItem[];
 }
 
-export interface Product {
-
+export interface CartResponse {
+  cartId: string;
+  items: FlattenedCartItem[];
+  removedItems?: any[];
 }

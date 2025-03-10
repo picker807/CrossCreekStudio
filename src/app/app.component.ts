@@ -3,6 +3,7 @@ import { AuthService } from './core/authentication/auth.service';
 import { Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
 import { AdminService } from './services/admin.service';
+import { FlattenedCartItem } from './models/interfaces';
 
 @Component({
   selector: 'cc-root',
@@ -19,7 +20,8 @@ export class AppComponent {
     private router: Router,
     private authService: AuthService,
     private checkoutService: CheckoutService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    
   ) {}
 
   isActive(route: string): boolean {
@@ -31,8 +33,12 @@ export class AppComponent {
       this.isAdmin = isAdmin;
     });
 
-    this.checkoutService.cartItems$.subscribe((cartList: any[]) => {
-      this.cartItemCount = cartList?.length;
+    this.checkoutService.cartItems$.subscribe((cartList: FlattenedCartItem[]) => {
+      console.log("AppComponent recevied cartItems$ update: ", cartList[0]);
+      const cart = cartList[0] || { events: [], products: [] };
+      this.cartItemCount = cart.events.reduce((sum, e) => sum + (e.quantity || 0), 0) +
+                          cart.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+      console.log('Cart count:', this.cartItemCount);
     });
   }
 

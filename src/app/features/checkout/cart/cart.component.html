@@ -8,24 +8,31 @@
       <h3 class="text-xl font-semibold mb-4">Events</h3>
       <ng-container *ngIf="cartItems.events?.length > 0; else noEvents">
         <div *ngFor="let eventItem of cartItems.events" class="bg-white shadow-md rounded-lg p-4 mb-4">
-          <h4 class="text-lg font-semibold">{{ eventItem.name || 'Unknown Event' }}</h4>
-          <p class="text-gray-600">Date: {{ eventItem.date | date:'mediumDate' }}</p>
-          <p class="text-gray-600">Time: {{ eventItem.date | date:'shortTime' }}</p>
-          <p class="text-gray-600">Location: {{ eventItem.location || 'N/A' }}</p>
-          <p class="text-gray-600">Price: ${{ eventItem.price || 0 }}</p>
-          <p class="text-gray-600">Enrollees: {{ eventItem.enrollees.length }}</p>
-          <p class="text-gray-600">Subtotal: ${{ (eventItem.price || 0) * eventItem.quantity }}</p>
-
+          <div class="flex items-center">
+            <img [src]="eventItem.images?.length > 0 ? eventItem.images[0].imageUrl : '/assets/no-image-available.jpg'" 
+                 alt="{{ eventItem.name }}" 
+                 class="w-24 h-24 object-cover mr-4 rounded"
+                 (error)="this.src='/assets/no-image-available.jpg'">
+            <div>
+              <h4 class="text-lg font-semibold">{{ eventItem.name || 'Unknown Event' }}</h4>
+              <p class="text-gray-600">Date: {{ eventItem.date | date:'mediumDate' }}</p>
+              <p class="text-gray-600">Time: {{ eventItem.date | date:'shortTime' }}</p>
+              <p class="text-gray-600">Location: {{ eventItem.location || 'N/A' }}</p>
+              <p class="text-gray-600">Price: ${{ eventItem.price || 0 }}</p>
+              <p class="text-gray-600">Enrollees: {{ eventItem.enrollees.length }}</p>
+              <p class="text-gray-600">Subtotal: ${{ (eventItem.price || 0) * eventItem.enrollees.length }}</p>
+            </div>
+          </div>
           <div class="mt-4">
             <h5 class="text-md font-semibold">Enrollees:</h5>
             <ul class="list-disc list-inside">
-              <li *ngFor="let enrollee of eventItem.enrollees" class="text-gray-700">
+              <li *ngFor="let enrollee of eventItem.enrollees" class="text-gray-700 flex items-center">
                 {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
+                <button (click)="removeEnrollee(eventItem._id, enrollee)" class="ml-2 text-red-500 hover:text-red-700 text-sm">Remove</button>
               </li>
             </ul>
           </div>
-
-          <button (click)="removeFromCart(eventItem._id)" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+          <button (click)="removeFromCart(eventItem._id, 'event')" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
         </div>
       </ng-container>
       <ng-template #noEvents>
@@ -38,12 +45,24 @@
       <h3 class="text-xl font-semibold mb-4">Products</h3>
       <ng-container *ngIf="cartItems.products?.length > 0; else noProducts">
         <div *ngFor="let productItem of cartItems.products" class="bg-white shadow-md rounded-lg p-4 mb-4">
-          <h4 class="text-lg font-semibold">{{ productItem.name || 'Unknown Product' }}</h4>
-          <p class="text-gray-600">Price: ${{ productItem.price || 0 }}</p>
-          <p class="text-gray-600">Quantity: {{ productItem.quantity }}</p>
-          <p class="text-gray-600">Subtotal: ${{ (productItem.price || 0) * productItem.quantity }}</p>
-
-          <button (click)="removeProductFromCart(productItem._id)" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+          <div class="flex items-center">
+            <img [src]="productItem.images?.length > 0 ? productItem.images[0] : '/assets/no-image-available.jpg'" 
+                 alt="{{ productItem.name }}" 
+                 class="w-24 h-24 object-cover mr-4 rounded"
+                 (error)="this.src='/assets/no-image-available.jpg'">
+            <div>
+              <h4 class="text-lg font-semibold">{{ productItem.name || 'Unknown Product' }}</h4>
+              <p class="text-gray-600">Price: ${{ productItem.price || 0 }}</p>
+              <p class="text-gray-600">Quantity: {{ productItem.quantity }}</p>
+              <p class="text-gray-600">Subtotal: ${{ (productItem.price || 0) * productItem.quantity }}</p>
+            </div>
+            
+          </div>
+          <button (click)="adjustProductQuantity(productItem._id, -1)" class="bg-gray-300 text-black py-1 px-2 rounded">-</button>
+          <span class="mx-2">{{ productItem.quantity }}</span>
+          <button (click)="adjustProductQuantity(productItem._id, 1)" class="bg-gray-300 text-black py-1 px-2 rounded">+</button>
+          <button (click)="removeItem(productItem._id, 'product')" class="ml-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+  
         </div>
       </ng-container>
       <ng-template #noProducts>

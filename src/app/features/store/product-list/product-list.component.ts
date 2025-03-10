@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CheckoutService } from '../../../services/checkout.service';
 import { Router } from '@angular/router';
+import { MessageService } from '../../../services/message.service';
 
 interface Product {
   id: string;
@@ -25,7 +26,8 @@ export class ProductListComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private checkoutService: CheckoutService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +40,10 @@ export class ProductListComponent implements OnInit {
         this.products = products;
         this.filteredProducts = products;
       },
-      error: (error) => console.error('Error loading products:', error)
+      error: (error) => {
+        console.error('Error loading products:', error);
+        this.messageService.showMessage({ text: 'Failed to load products', type: 'error', duration: 3000 });
+      }
     });
   }
 
@@ -55,8 +60,15 @@ export class ProductListComponent implements OnInit {
       quantity: 1
     }];
     this.checkoutService.addProductToCart(productForCart).subscribe({
-      next: () => console.log(`Added product ${productId} to cart`),
-      error: (error) => console.error('Error adding to cart:', error)
+      next: () => {
+        const product = this.products.find(p => p.id === productId);
+        const messageText = product ? `Added ${product.name} to cart` : `Added product to cart`;
+        this.messageService.showMessage({ text: messageText, type: 'success', duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error adding to cart:', error)
+        this.messageService.showMessage({ text: 'Failed to add product to cart', type: 'error', duration: 3000 });
+      }
     });
   }
 

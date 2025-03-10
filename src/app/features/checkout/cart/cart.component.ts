@@ -1,10 +1,10 @@
-import { Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { CheckoutService } from '../../../services/checkout.service';
 import { Router } from '@angular/router';
 import { catchError, concatMap, finalize, from, of, Subscription, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { PaypalService } from '../../../services/paypal.service';
-import { OrderDetails, PayPalOrderDetails, CartItem } from '../../../models/interfaces';
+import { OrderDetails, PayPalOrderDetails, FlattenedCartItem } from '../../../models/interfaces';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
 
@@ -16,11 +16,11 @@ declare var paypal: any;
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
-  cartItems: CartItem = { events: [], products: [] };
+  cartItems: FlattenedCartItem = { events: [], products: [] };
   totalPrice: number = 0;
   verificationError: string = '';
   subscription: Subscription;
-  validItems: CartItem[] = [];
+  validItems: FlattenedCartItem[] = [];
   invalidItems: { item: any; reason: string }[] = [];
 
   @ViewChild('paypalButton') paypalButton: ElementRef;
@@ -33,53 +33,60 @@ export class CartComponent implements OnInit {
     private paypalService: PaypalService,
     private emailService: EmailService,
     private messageService: MessageService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit(): void {
-    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItem[]) => {
-      // Assuming cartItems$ emits the full items array; take the first object
-      this.cartItems = cartList[0] || { events: [], products: [] };
+    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: FlattenedCartItem[]) => {
+      console.log('Received cartList in CartComponent:', cartList);
+      this.cartItems = cartList && cartList[0] ? cartList[0] : { events: [], products: [] };
+      console.log('Cart items updated:', this.cartItems);
       this.calculateTotalPrice();
     });
-    this.loadCart();
+    //this.loadCart();
     this.paypalService.getPaypalClientId().subscribe({
       next: (result) => this.paypalClientId = result.clientId,
       error: (error) => console.error('Error fetching PayPal client ID:', error)
     });
   }
 
-  loadCart(): void {
-    this.checkoutService.getCart().subscribe(cart => {
-      this.cartItems = cart.items[0] || { events: [], products: [] }; 
-      console.log('Cart items:', this.cartItems);
-      this.calculateTotalPrice();
+  /* loadCart(): void {
+    this.checkoutService.getCart().subscribe(cartResponse => {
+      this.checkoutService.updateCart(cartResponse.items);
     });
-  }
+  } */
 
   calculateTotalPrice(): void {
     const eventTotal = this.cartItems.events.reduce(
-      (sum, item) => sum + (item.event.price || 0) * item.quantity,
+      (sum, item) => sum + (item.price || 0) * (item.quantity || item.enrollees.length),
       0
     );
     const productTotal = this.cartItems.products.reduce(
-      (sum, item) => sum + (item.product.price || 0) * item.quantity,
+      (sum, item) => sum + (item.price || 0) * item.quantity,
       0
     );
     this.totalPrice = eventTotal + productTotal;
+    console.log('Event total:', eventTotal, 'Product total:', productTotal, 'Grand total:', this.totalPrice);
   }
 
-  removeFromCart(eventId: string): void {
-    this.checkoutService.removeFromCart(eventId).subscribe({
-      next: () => this.loadCart(),
-      error: (error) => console.error('Error removing event:', error)
-    });
+  adjustProductQuantity(itemId: string, change: number) {
+    this.checkoutService.updateProductQuantity(itemId, change).subscribe();
   }
 
-  removeProductFromCart(productId: string): void {
-    this.checkoutService.removeFromCart(productId).subscribe({
-      next: () => this.loadCart(),
-      error: (error) => console.error('Error removing product:', error)
+  removeEnrollee(eventId: string, enrollee: { firstName: string, lastName: string, email: string }) {
+    console.log('Removing enrollee:', eventId, enrollee);
+    this.checkoutService.removeEnrollee(eventId, enrollee).subscribe();
+  }
+
+  removeItem (itemId: string, type: 'event' | 'product'): void {
+    this.checkoutService.removeFromCart(itemId, type).subscribe({
+      next: () => {
+        this.messageService.showMessage({ text: `Removed item from cart`, type: 'success', duration: 3000 });
+      },
+      error: (error) => {
+        console.error(`Error removing item:`, error);
+        this.messageService.showMessage({ text: `Failed to remove item`, type: 'error', duration: 3000 });
+    }
     });
   }
 

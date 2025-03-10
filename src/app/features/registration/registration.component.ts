@@ -242,7 +242,6 @@ export class RegistrationComponent {
     if (this.previewEnrollees.length > 0) {
       const eventForCart = {
         eventId: this.event.id,
-        quantity: this.numAttendeesControl.value,
         enrollees: this.previewEnrollees.map(attendee => ({
           firstName: attendee.firstName,
           lastName: attendee.lastName,

@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const cartController = require('../controllers/cartController');
+const { addToCart, updateCart, removeFromCart, getCart, clearCart } = require('../controllers/cartController');
 
-router.post('/add', cartController.addToCart);
-router.get('/', cartController.getCart);
-router.delete('/', cartController.clearCart);
+router.post   ('/add'   , addToCart );
+router.post   ('/update', updateCart);
+router.post   ('/remove', removeFromCart);
+router.get    ('/'      , getCart   );
+router.delete ('/'      , clearCart );
 
 module.exports = router;

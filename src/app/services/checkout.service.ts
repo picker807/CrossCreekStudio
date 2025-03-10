@@ -1,22 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, concatMap, debounceTime, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
 import { EventService } from './event.service';
-import { Enrollee, OrderDetails, CartItem } from '../models/interfaces';
+import { Enrollee, OrderDetails, FlattenedCartItem, CartVerificationResult, CartResponse } from '../models/interfaces';
 import { Event } from '../models/event.model';
+import { Gallery } from '../models/gallery.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckoutService {
   private cartIdKey = 'cartId'; // Store UUID locally
-  private cartSubject = new BehaviorSubject<CartItem[]>([]);
-  cartItems$ = this.cartSubject.asObservable();
+  private cartSubject = new BehaviorSubject<FlattenedCartItem[]>([{ events: [], products: [] }]);
+  cartItems$: Observable<FlattenedCartItem[]> = this.cartSubject.asObservable().pipe(
+    tap(cartList => console.log('cartItems$ emitted at checkoutService: ', cartList))
+  );
 
   private orderDetailsSubject = new BehaviorSubject<OrderDetails | null>(null);
   orderDetails$ = this.orderDetailsSubject.asObservable();
 
   constructor(private http: HttpClient, private eventService: EventService) {
+    console.log('CheckoutService instance:', this);
     this.initializeCart();
   }
 
@@ -38,12 +42,20 @@ export class CheckoutService {
   }
 
   initializeCart(): void {
-    this.getCart().subscribe(cart => this.cartSubject.next(cart.items));
+    this.getCart().subscribe(cart => {
+      console.log('Initial cart data:', cart.items);
+      this.cartSubject.next(cart.items)
+    });
   }
 
   getCart(): Observable<any> {
+    console.log("getCart called by Checkout Service")
     return this.http.get<any>('/api/cart', { headers: this.getHeaders() }).pipe(
-      tap(response => this.setCartId(response.cartId)),
+      debounceTime(100),
+      tap(response => {
+        console.log('getCart response:', response);
+        this.setCartId(response.cartId)
+      }),
       catchError(err => {
         console.error('Error fetching cart:', err);
         return of({ cartId: this.getCartId(), items: [] });
@@ -51,25 +63,120 @@ export class CheckoutService {
     );
   }
 
-  addEventToCart(event: { eventId: string; quantity: number; enrollees: { firstName: string; lastName: string; email: string; phone: string }[] }): Observable<any> {
-    return this.http.post('/api/cart/add', { events: [event] }, { headers: this.getHeaders() }).pipe(
+  addEventToCart(event: { eventId: string; enrollees: { firstName: string; lastName: string; email: string; phone: string }[] }): Observable<CartResponse> {
+    return this.http.post<CartResponse>('/api/cart/add', { events: [event] }, { headers: this.getHeaders() }).pipe(
       tap(response => {
+        console.log('addEventToCart response:', response);
         this.setCartId(response.cartId);
-        this.cartSubject.next(response.items);
+        this.cartSubject.next(response.items || [{ events: [], products: [] }]);
+      }),
+      catchError(err => {
+        console.error('Error adding event to cart:', err);
+        this.refreshCart();
+        return of({ cartId: this.getCartId(), items: this.cartSubject.getValue() });
       })
     );
   }
   
-  addProductToCart(products: { productId: string; quantity: number }[]): Observable<any> {
-    return this.http.post('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
+  addProductToCart(products: { productId: string; quantity: number }[]): Observable<CartResponse> {
+    return this.http.post<CartResponse>('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
       tap(response => {
+        console.log('addProductToCart response:', response);
         this.setCartId(response.cartId);
-        this.cartSubject.next(response.items);
+        this.cartSubject.next(response.items || [{ events: [], products: [] }]);
+      }),
+      catchError(err => {
+        console.error('Error adding product to cart:', err);
+        this.refreshCart();
+        return of({ cartId: this.getCartId(), items: this.cartSubject.getValue() || [{ events: [], products: [] }] });
       })
     );
   }
 
-  removeFromCart(itemId: string): Observable<any> {
+  private refreshCart(): void {
+    this.getCart().subscribe(cart => {
+      console.log('Refreshed cart:', cart);
+      console.log('Emitting to cartSubject:', cart.items || [{ events: [], products: [] }]);
+      this.cartSubject.next(cart.items || [{ events: [], products: [] }]);
+    });
+  }
+
+  updateProductQuantity(productId: string, change: number): Observable<any> {
+    return this.getCart().pipe(
+      concatMap(cart => {
+        const updatedItems = cart.items.map(item => ({
+          events: item.events.map(event => ({
+            eventId: event._id,
+            enrollees: event.enrollees
+          })),
+          products: item.products.map(product => {
+            if (product._id === productId) {
+              const newQuantity = (product.quantity || 1) + change;
+              return {
+                productId: product._id,
+                quantity: newQuantity > 0 ? newQuantity : 1
+              };
+            }
+            return {
+              productId: product._id,
+              quantity: product.quantity
+            };
+          })
+        }));
+        console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
+        return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
+      }),
+      concatMap(() => this.getCart()),
+      tap(response => this.cartSubject.next(response.items || [{ events: [], products: [] }]))
+    );
+  }
+
+  removeEnrollee(eventId: string, enrollee: { firstName: string, lastName: string, email: string }): Observable<any> {
+    return this.getCart().pipe(
+      concatMap(cart => {
+        const updatedItems = cart.items.map(item => ({
+          events: item.events.map(event => {
+            console.log("Event ID comparison: event.eventId - ", event._id, "::: eventId - ", eventId);
+            if (event._id === eventId) {
+              const updatedEnrollees = event.enrollees.filter(e =>
+                !(e.firstName === enrollee.firstName &&
+                  e.lastName === enrollee.lastName &&
+                  e.email === enrollee.email)
+              );
+              return {
+                eventId: event._id,
+                enrollees: updatedEnrollees
+              };
+            }
+            return {
+              eventId: event._id,
+              enrollees: event.enrollees
+            };
+          }),
+          products: item.products.map(product => ({
+            productId: product._id,
+            quantity: product.quantity
+          }))
+        })).filter(item => item.events.length > 0 || item.products.length > 0);
+        console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
+        return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
+      }),
+      concatMap(() => this.getCart()),
+      tap(response => this.cartSubject.next(response.items || [{ events: [], products: [] }]))
+    );
+  }
+
+  removeFromCart(itemId: string, type: 'event' | 'product'): Observable<any> {
+    return this.http.post('/api/cart/remove', { cartId: this.getCartId(), itemId, type }, { headers: this.getHeaders() }).pipe(
+      concatMap(() => this.getCart()),
+      tap(response => {
+        console.log('Updated cart from getCart:', JSON.stringify(response, null, 2));
+        this.cartSubject.next(response.items || [{ events: [], products: [] }]);
+      })
+    );
+  }
+
+  /* removeFromCart(itemId: string): Observable<any> {
     return this.getCart().pipe(
       concatMap(cart => {
         const updatedItems = cart.items.map(item => ({
@@ -80,7 +187,7 @@ export class CheckoutService {
       }),
       tap(response => this.cartSubject.next(response.items))
     );
-  }
+  } */
 
   clearCart(): Observable<any> {
     return this.http.delete('/api/cart', { headers: this.getHeaders() }).pipe(
@@ -91,61 +198,25 @@ export class CheckoutService {
     );
   }
 
-  verifyCart(): Observable<{
-    validItems: CartItem[],
-    invalidItems: { item: CartItem, reason: string }[]
-  }> {
-    console.log("Starting verifyCart");
-    return this.getCart().pipe(
-      concatMap(cart => from(cart.items).pipe(
-        concatMap((item: CartItem) => {
-          // Verify all events and products in this item
-          const eventVerifications = item.events?.length
-            ? from(item.events).pipe(
-                concatMap(eventItem =>
-                  this.eventService.getEventById(eventItem.eventId).pipe(
-                    map(event => this.verifyEventItem(eventItem, event)),
-                    catchError(() => of({ isValid: false, item: { events: [eventItem], products: [] }, reason: 'Error fetching event' }))
-                  )
-                ),
-                toArray()
-              )
-            : of([]);
-  
-          const productVerifications = item.products?.length
-            ? from(item.products).pipe(
-                concatMap(productItem =>
-                  this.http.get<any>(`/api/products/${productItem.productId}`).pipe(
-                    map(product => this.verifyProductItem(productItem, product)),
-                    catchError(() => of({ isValid: false, item: { events: [], products: [productItem] }, reason: 'Error fetching product' }))
-                  )
-                ),
-                toArray()
-              )
-            : of([]);
-  
-          return forkJoin([eventVerifications, productVerifications]).pipe(
-            map(([eventResults, productResults]) => {
-              const allResults = [...eventResults, ...productResults];
-              return allResults.every(r => r.isValid)
-                ? { isValid: true, item }
-                : { isValid: false, item, reason: allResults.find(r => !r.isValid)?.reason || 'Unknown' };
-            })
-          );
-        }),
-        toArray(),
-        map(results => {
-          const validItems = results.filter(r => r.isValid).map(r => r.item);
-          const invalidItems = results.filter(r => !r.isValid).map(r => ({ item: r.item, reason: r.reason || 'Unknown' }));
-          console.log("Verification result:", { validItems, invalidItems });
-          return { validItems, invalidItems };
-        })
-      ))
-    );
+  verifyCart(): Observable<CartVerificationResult> {
+    return this.http.post<CartVerificationResult>('/api/cart/checkout', {}, { headers: this.getHeaders() });
   }
 
-  private verifyEventItem(cartEventItem: { eventId: string; quantity: number; enrollees: any[]; event?: any }, event: any): { isValid: boolean, item: CartItem, reason?: string } {
-    const item: CartItem = { events: [cartEventItem], products: [] }; // Wrap single event in CartItem
+  /* private verifyEventItem(
+    cartEventItem: { 
+      _id: string; 
+      eventId: string; 
+      name: string; 
+      date: string; 
+      price: number; 
+      location: string;
+      images: Gallery[]; 
+      quantity: number; 
+      enrollees: any[] 
+    },
+    event: Event | null
+  ): { isValid: boolean, item: FlattenedCartItem, reason?: string } {
+    const item: FlattenedCartItem = { events: [cartEventItem], products: [] };
     if (!event) return { isValid: false, item, reason: 'Event no longer exists' };
     const eventDate = new Date(event.date).valueOf();
     const currentDate = new Date().valueOf();
@@ -155,14 +226,21 @@ export class CheckoutService {
     return { isValid: true, item };
   }
 
-  private verifyProductItem(cartProductItem: { productId: string; quantity: number; product?: any }, product: any): { isValid: boolean, item: CartItem, reason?: string } {
-    const item: CartItem = { events: [], products: [cartProductItem] }; // Wrap single product in CartItem
+  private verifyProductItem(
+    cartProductItem: { 
+      _id: string; 
+      productId: string; 
+      name: string; 
+      price: number; 
+      images: string[]; 
+      quantity: number 
+    },
+    product: Product | null
+  ): { isValid: boolean, item: FlattenedCartItem, reason?: string } {
+    const item: FlattenedCartItem = { events: [], products: [cartProductItem] };
     if (!product) return { isValid: false, item, reason: 'Product no longer exists' };
-    if (product.stock < cartProductItem.quantity) {
-      return { isValid: false, item, reason: 'Insufficient stock' };
-    }
     return { isValid: true, item };
-  }
+  } */
 
   storeOrderDetails(details: OrderDetails): void {
     this.orderDetailsSubject.next(details);
@@ -186,4 +264,6 @@ export class CheckoutService {
       tap(() => this.clearCart())
     );
   }
+
+  
 }
