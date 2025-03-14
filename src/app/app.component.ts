@@ -36,7 +36,7 @@ export class AppComponent {
     this.checkoutService.cartItems$.subscribe((cartList: FlattenedCartItem[]) => {
       console.log("AppComponent recevied cartItems$ update: ", cartList[0]);
       const cart = cartList[0] || { events: [], products: [] };
-      this.cartItemCount = cart.events.reduce((sum, e) => sum + (e.quantity || 0), 0) +
+      this.cartItemCount = cart.events.reduce((sum, e) => sum + (e.enrollees ? e.enrollees.length : 0), 0) +
                           cart.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
       console.log('Cart count:', this.cartItemCount);
     });

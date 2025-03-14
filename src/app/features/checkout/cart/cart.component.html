@@ -28,11 +28,14 @@
             <ul class="list-disc list-inside">
               <li *ngFor="let enrollee of eventItem.enrollees" class="text-gray-700 flex items-center">
                 {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
-                <button (click)="removeEnrollee(eventItem._id, enrollee)" class="ml-2 text-red-500 hover:text-red-700 text-sm">Remove</button>
+              
+                <button 
+                  *ngIf="eventItem.enrollees.length > 1" 
+                  (click)="removeEnrollee(eventItem._id, enrollee)" class="ml-2 text-red-500 hover:text-red-700 text-sm">Remove</button>
               </li>
             </ul>
           </div>
-          <button (click)="removeFromCart(eventItem._id, 'event')" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+          <button (click)="removeItem(eventItem._id, 'event')" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
         </div>
       </ng-container>
       <ng-template #noEvents>
@@ -80,9 +83,79 @@
       </ul>
     </div>
 
+    <!-- Mailing Address Form -->
+<div *ngIf="showMailingForm" class="bg-white shadow-md rounded-lg p-4 mb-4">
+  <h3 class="text-xl font-semibold mb-4">Shipping Address</h3>
+  <form [formGroup]="mailingForm" (ngSubmit)="submitMailingAddress()" class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+        <input type="text" id="fullName" formControlName="fullName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('fullName')?.touched && mailingForm.get('fullName')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('fullName')?.errors?.['required']">Full Name is required</span>
+          <span *ngIf="mailingForm.get('fullName')?.errors?.['minlength']">Must be at least 2 characters</span>
+        </p>
+      </div>
+      <div>
+        <label for="contactEmail" class="block text-sm font-medium text-gray-700">Contact Email</label>
+        <input type="email" id="contactEmail" formControlName="contactEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('contactEmail')?.touched && mailingForm.get('contactEmail')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('contactEmail')?.errors?.['required']">Email is required</span>
+          <span *ngIf="mailingForm.get('contactEmail')?.errors?.['email']">Invalid email format</span>
+        </p>
+      </div>
+      <div>
+        <label for="street1" class="block text-sm font-medium text-gray-700">Street Address</label>
+        <input type="text" id="street1" formControlName="street1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('street1')?.touched && mailingForm.get('street1')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('street1')?.errors?.['required']">Street Address is required</span>
+          <span *ngIf="mailingForm.get('street1')?.errors?.['minlength']">Must be at least 5 characters</span>
+        </p>
+      </div>
+      <div>
+        <label for="street2" class="block text-sm font-medium text-gray-700">Street Address 2 (Optional)</label>
+        <input type="text" id="street2" formControlName="street2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      <div>
+        <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+        <input type="text" id="city" formControlName="city" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('city')?.touched && mailingForm.get('city')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('city')?.errors?.['required']">City is required</span>
+          <span *ngIf="mailingForm.get('city')?.errors?.['minlength']">Must be at least 2 characters</span>
+        </p>
+      </div>
+      <div>
+        <label for="state" class="block text-sm font-medium text-gray-700">State/Province</label>
+        <input type="text" id="state" formControlName="state" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('state')?.touched && mailingForm.get('state')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('state')?.errors?.['required']">State/Province is required</span>
+          <span *ngIf="mailingForm.get('state')?.errors?.['pattern']">Must be 2 letters (e.g., CA)</span>
+        </p>
+      </div>
+      <div>
+        <label for="zip" class="block text-sm font-medium text-gray-700">Zip/Postal Code</label>
+        <input type="text" id="zip" formControlName="zip" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('zip')?.touched && mailingForm.get('zip')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('zip')?.errors?.['required']">Zip/Postal Code is required</span>
+          <span *ngIf="mailingForm.get('zip')?.errors?.['pattern']">Must be a valid postal code (e.g., 12345 or 12345-6789)</span>
+        </p>
+      </div>
+      <div>
+        <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+        <input type="text" id="country" formControlName="country" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+        <p *ngIf="mailingForm.get('country')?.touched && mailingForm.get('country')?.invalid" class="text-red-500 text-sm">
+          <span *ngIf="mailingForm.get('country')?.errors?.['required']">Country is required</span>
+          <span *ngIf="mailingForm.get('country')?.errors?.['minlength']">Must be at least 2 characters</span>
+        </p>
+      </div>
+    </div>
+    <button type="submit" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400" [disabled]="mailingForm.invalid">Continue to Payment</button>
+  </form>
+</div>
+
     <!-- Total and Checkout -->
     <div class="bg-white shadow-md rounded-lg p-4">
-      <h3 class="text-xl font-semibold">Total: ${{ totalPrice }}</h3>
+      <h3 class="text-xl font-semibold">Total: ${{ totalPrice | number:'1.2-2' }}</h3>
       <button *ngIf="!showPaypalButton" (click)="verifyAndCheckout()" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Proceed to Checkout</button>
       <div *ngIf="showPaypalButton" #paypalButton></div>
     </div>
@@ -95,12 +168,12 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
       <h3 class="mt-2 text-xl font-medium text-gray-900">Your cart is empty</h3>
-      <p class="mt-1 text-gray-500">Start adding events or products to your cart to see them here.</p>
+      <p class="mt-1 text-gray-500">Add events or products to your cart to see them here.</p>
       <div class="mt-6">
         <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           Browse Events
         </a>
-        <a href="/products" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <a href="/store" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           Browse Products
         </a>
       </div>

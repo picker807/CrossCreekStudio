@@ -16,8 +16,7 @@ export class CheckoutService {
     tap(cartList => console.log('cartItems$ emitted at checkoutService: ', cartList))
   );
 
-  private orderDetailsSubject = new BehaviorSubject<OrderDetails | null>(null);
-  orderDetails$ = this.orderDetailsSubject.asObservable();
+  private orderIdSubject = new BehaviorSubject<string | null>(null);
 
   constructor(private http: HttpClient, private eventService: EventService) {
     console.log('CheckoutService instance:', this);
@@ -202,67 +201,53 @@ export class CheckoutService {
     return this.http.post<CartVerificationResult>('/api/cart/checkout', {}, { headers: this.getHeaders() });
   }
 
-  /* private verifyEventItem(
-    cartEventItem: { 
-      _id: string; 
-      eventId: string; 
-      name: string; 
-      date: string; 
-      price: number; 
-      location: string;
-      images: Gallery[]; 
-      quantity: number; 
-      enrollees: any[] 
-    },
-    event: Event | null
-  ): { isValid: boolean, item: FlattenedCartItem, reason?: string } {
-    const item: FlattenedCartItem = { events: [cartEventItem], products: [] };
-    if (!event) return { isValid: false, item, reason: 'Event no longer exists' };
-    const eventDate = new Date(event.date).valueOf();
-    const currentDate = new Date().valueOf();
-    if (eventDate < currentDate) {
-      return { isValid: false, item, reason: 'Event date has passed' };
-    }
-    return { isValid: true, item };
+  getEventDetails(eventId: string): Observable<any> {
+    return this.http.get(`/api/events/${eventId}`);
   }
 
-  private verifyProductItem(
-    cartProductItem: { 
-      _id: string; 
-      productId: string; 
-      name: string; 
-      price: number; 
-      images: string[]; 
-      quantity: number 
-    },
-    product: Product | null
-  ): { isValid: boolean, item: FlattenedCartItem, reason?: string } {
-    const item: FlattenedCartItem = { events: [], products: [cartProductItem] };
-    if (!product) return { isValid: false, item, reason: 'Product no longer exists' };
-    return { isValid: true, item };
+  getProductDetails(productId: string): Observable<any> {
+    return this.http.get(`/api/products/${productId}`);
+  }
+
+  storeOrderId(orderNumber: string) {
+    this.orderIdSubject.next(orderNumber);
+  }
+
+  getOrderId(): Observable<string | null> {
+    return this.orderIdSubject.asObservable();
+  }
+
+  /* storeOrderDetails(order: any) {
+    this.orderDetailsSubject.next({
+      orderDetails: order.orderDetails, // PayPal details
+      items: order.items, // Backend order.items
+      email: order.email,
+      shippingAddress: order.shippingAddress
+    });
   } */
 
-  storeOrderDetails(details: OrderDetails): void {
-    this.orderDetailsSubject.next(details);
+  getOrderDetails(orderNumber: string): Observable<any> {
+    return this.http.get(`/api/orders/${orderNumber}`);
   }
 
-  getOrderDetails(): Observable<OrderDetails | null> {
-    return this.orderDetails$;
+  clearOrderId(): void {
+    this.orderIdSubject.next(null);
   }
 
-  clearOrderDetails(): void {
-    this.orderDetailsSubject.next(null);
-  }
-
-  completeCheckout(paymentId: string, shippingAddress: any): Observable<any> {
-    return this.getCart().pipe(
-      switchMap(cart => this.http.post('/api/checkout/complete', {
-        cartId: cart.cartId,
-        paymentId,
-        shippingAddress
-      }, { headers: this.getHeaders() })),
-      tap(() => this.clearCart())
-    );
+  completeCheckout(paymentId: string, shippingAddress: any, paypalDetails: any): Observable<any> {
+    const body = {
+      cartId: this.getCartId(),
+      paymentId,
+      shippingAddress: shippingAddress ? {
+        street: shippingAddress.street1,
+        city: shippingAddress.city,
+        postalCode: shippingAddress.zip,
+        country: shippingAddress.country,
+        contactEmail: shippingAddress.contactEmail // Include email
+      } : null,
+      paypalDetails
+    };
+    return this.http.post<{ orderNumber: string }>('/api/checkout/complete', body);
   }
 
   

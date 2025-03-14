@@ -1,12 +1,13 @@
 import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CheckoutService } from '../../../services/checkout.service';
 import { Router } from '@angular/router';
 import { catchError, concatMap, finalize, from, of, Subscription, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
-import { PaypalService } from '../../../services/paypal.service';
 import { OrderDetails, PayPalOrderDetails, FlattenedCartItem } from '../../../models/interfaces';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
+import { environment } from '../../../../environments/environment';
 
 declare var paypal: any;
 
@@ -22,19 +23,32 @@ export class CartComponent implements OnInit {
   subscription: Subscription;
   validItems: FlattenedCartItem[] = [];
   invalidItems: { item: any; reason: string }[] = [];
+  showMailingForm: boolean = false;
+  mailingForm: FormGroup;
+  mailingAddress: any;
 
   @ViewChild('paypalButton') paypalButton: ElementRef;
   showPaypalButton: boolean = false;
-  paypalClientId: string;
 
   constructor(
     private checkoutService: CheckoutService,
+    private fb: FormBuilder,
     private router: Router,
-    private paypalService: PaypalService,
     private emailService: EmailService,
     private messageService: MessageService,
     @Inject(PLATFORM_ID) private platformId: Object,
-  ) {}
+  ) {
+    this.mailingForm = this.fb.group({
+      fullName: ['', [Validators.required, Validators.minLength(2)]],
+      contactEmail: ['', [Validators.required, Validators.email]],
+      street1: ['', [Validators.required, Validators.minLength(5)]],
+      street2: [''],
+      city: ['', [Validators.required, Validators.minLength(2)]],
+      state: ['', [Validators.required, Validators.pattern(/^[A-Za-z]{2}$/)]], // 2-letter state code
+      zip: ['', [Validators.required, Validators.pattern(/^\d{5}(-\d{4})?$/)]], // US ZIP (e.g., 12345 or 12345-6789)
+      country: ['', [Validators.required, Validators.minLength(2)]]
+    });
+  }
 
   ngOnInit(): void {
     this.subscription = this.checkoutService.cartItems$.subscribe((cartList: FlattenedCartItem[]) => {
@@ -42,11 +56,6 @@ export class CartComponent implements OnInit {
       this.cartItems = cartList && cartList[0] ? cartList[0] : { events: [], products: [] };
       console.log('Cart items updated:', this.cartItems);
       this.calculateTotalPrice();
-    });
-    //this.loadCart();
-    this.paypalService.getPaypalClientId().subscribe({
-      next: (result) => this.paypalClientId = result.clientId,
-      error: (error) => console.error('Error fetching PayPal client ID:', error)
     });
   }
 
@@ -97,41 +106,54 @@ export class CartComponent implements OnInit {
     ).subscribe({
       next: (result) => {
         console.log('Verification completed:', result);
-        this.validItems = result.validItems; // Expecting an array from backend
+        this.validItems = result.validItems;
         this.invalidItems = result.invalidItems.map(item => ({
-          item: item.item, // Could be event or product object
+          item: item.item,
           reason: item.reason
         }));
+        this.totalPrice = result.totalPrice;
 
         if (this.invalidItems.length === 0) {
-          console.log('Cart is valid. Loading PayPal script...');
-          this.loadPayPalScript();
-          this.showPaypalButton = true;
-        } else {
-          console.log("Some cart items are invalid");
-          this.messageService.showMessage({
-            text: 'Some cart items are invalid. Please review your cart.',
-            type: 'warning',
-            duration: 5000
-          });
+          if (this.cartItems.products.length > 0) {
+            this.showMailingForm = true; // Show form if products are present
+          } else {
+            this.loadPayPalScript();
+            this.showPaypalButton = true; // Directly to PayPal if only events
+          }
         }
       },
       error: (error) => {
-        console.error('Verification failed', error);
-        this.messageService.showMessage({
-          text: 'Cart verification failed. Please try again.',
-          type: 'error',
-          duration: 5000
-        });
+        console.error('Cart verification failed', error);
       }
     });
   }
 
+  submitMailingAddress(): void {
+    if (this.mailingForm.valid) {
+      this.mailingAddress = this.mailingForm.value;
+      this.showMailingForm = false;
+      this.loadPayPalScript();
+      this.showPaypalButton = true;
+    } else {
+      this.mailingForm.markAllAsTouched(); // Show validation errors
+    }
+  }
+
   loadPayPalScript(): void {
     if (isPlatformBrowser(this.platformId)) {
-      if (!document.querySelector('script[src^="https://www.paypal.com/sdk/js"]')) {
+      const paypalApiUrl = environment.paypalApiUrl;
+      const paypalClientId = environment.paypalClientId;
+
+      if (!paypalClientId) {
+        console.error('PayPal client ID is not set');
+        return;
+      }
+
+      const scriptSrc = `${paypalApiUrl}/sdk/js?client-id=${paypalClientId}&currency=USD&intent=capture`;
+
+      if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
         const script = document.createElement('script');
-        script.src = `https://www.paypal.com/sdk/js?client-id=${this.paypalClientId}&currency=USD&intent=capture`;
+        script.src = scriptSrc;
         script.onload = () => {
           console.log('PayPal SDK loaded');
           this.initializePayPalButton();
@@ -150,7 +172,7 @@ export class CartComponent implements OnInit {
           return actions.order.create({
             purchase_units: [{
               amount: {
-                value: this.totalPrice.toString()
+                value: this.totalPrice.toFixed(2)
               }
             }]
           });
@@ -158,20 +180,25 @@ export class CartComponent implements OnInit {
         onApprove: (data, actions) => {
           return actions.order.capture().then((details) => {
             console.log('Transaction details:', JSON.stringify(details, null, 2));
-            this.checkoutService.completeCheckout(data.paymentID, {
+            const addressFromPaypal = {
               street: details.payer.address?.line1 || '',
               city: details.payer.address?.city || '',
               postalCode: details.payer.address?.postal_code || '',
               country: details.payer.address?.country_code || ''
-            }).subscribe({
-              next: (order) => {
-                const combinedOrderData: OrderDetails = {
-                  orderDetails: details as PayPalOrderDetails,
-                  cartContents: this.validItems
-                };
-                this.sendReceiptEmail(combinedOrderData);
-                this.checkoutService.storeOrderDetails(combinedOrderData);
-                this.router.navigate(['/confirmation']);
+            };
+            this.checkoutService.completeCheckout(data.paymentID, this.mailingAddress || addressFromPaypal, details).subscribe({
+              next: (response: { orderNumber: string }) => {
+               
+                // Send receipt to PayPal payer
+                this.sendReceiptEmail(details, response.orderNumber);
+                
+                this.checkoutService.storeOrderId(response.orderNumber);
+                this.checkoutService.clearCart().subscribe(() => {
+                  this.cartItems = { events: [], products: [] }; // Local reset
+                  localStorage.removeItem('cartId'); // Clear cart identifier
+                  this.checkoutService.storeOrderId(response.orderNumber);
+                  this.router.navigate(['/confirmation']);
+                });
               },
               error: (error) => {
                 console.error('Checkout failed:', error);
@@ -183,32 +210,59 @@ export class CartComponent implements OnInit {
               }
             });
           });
+        },
+        onError: (err) => {
+          console.error('PayPal error:', err);
+          this.messageService.showMessage({
+            text: 'Payment failed. Please try again.',
+            type: 'error',
+            duration: 5000
+          });
         }
       }).render(this.paypalButton.nativeElement);
-    }
-  }
+    }}
 
-  private sendReceiptEmail(orderDetails: OrderDetails) {
-    const userEmail = orderDetails.orderDetails.payer.email_address;
-    const templateData = { orderDetails };
+  private sendReceiptEmail(paypalDetails: any, orderNumber) {
+    const payerEmail = paypalDetails.payer.email_address;
+    const templateData = {
+      payerName: paypalDetails.payer.name.given_name,
+      orderNumber: orderNumber,
+      total: paypalDetails.purchase_units[0].amount.value,
+      date: paypalDetails.create_time,
+    };
 
     this.emailService.sendEmail(
-      [userEmail],
-      'Your Purchase Receipt',
+      [payerEmail],
+      `Your Purchase Receipt - ${orderNumber}`,
       'receipt',
       templateData
     ).subscribe({
-      next: () => console.log(`Receipt email sent to ${userEmail}`),
+      next: () => console.log(`Receipt email sent to ${payerEmail}`),
       error: (error) => {
-        console.error(`Failed to send receipt email to ${userEmail}`, error);
+        console.error(`Failed to send receipt email to ${payerEmail}`, error);
         this.messageService.showMessage({
-          text: `Failed to send receipt email to ${userEmail}.`,
+          text: `Failed to send receipt email to ${payerEmail}.`,
           type: 'error',
           duration: 5000
         });
       }
     });
   }
+
+  /* private sendOrderConfirmationEmail(orderDetails: OrderDetails) {
+    const orderEmail = orderDetails.email; // From the mailing address form
+    const templateData = { orderDetails };
+  
+    this.emailService.sendEmail(
+      [orderEmail],
+      `Your Order Confirmation - ${orderDetails.orderDetails.id}`,
+      'order-confirmation',
+      templateData
+    ).subscribe({
+      next: () => console.log('Order confirmation email sent'),
+      error: (error) => console.error('Failed to send order confirmation email:', error)
+    });
+  } */
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();

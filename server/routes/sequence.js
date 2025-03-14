@@ -4,6 +4,7 @@ var maxEventId;
 var maxGalleryId;
 var maxUserId;
 var maxAdminId;
+var maxOrderId;
 var sequenceId = null;
 
 const sequenceGenerator = {
@@ -18,6 +19,7 @@ const sequenceGenerator = {
       this.maxGalleryId = sequence.maxGalleryId;
       this.maxUserId = sequence.maxUserId;
       this.maxAdminId = sequence.maxAdminId;
+      this.maxOrderId = sequence.maxOrderId;
 
     } catch (err) {
       console.error('Error initializing SequenceGenerator:', err);
@@ -50,6 +52,10 @@ const sequenceGenerator = {
       case 'admin':
         nextId = ++this.maxAdminId;
         updateObject = { maxAdminId: this.maxAdminId };
+        break;
+      case 'orders':
+        nextId = ++this.maxOrderId;
+        updateObject = { maxOrderId: this.maxOrderId };
         break;
       default:
         throw new Error('Invalid collection type');

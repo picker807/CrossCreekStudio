@@ -67,16 +67,9 @@ app.use('/api/cart', require('./server/routes/cart'));
 app.use('/api/products', require('./server/routes/products'));
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/users', userRoutes);
-app.get('/api/paypal-client-id', (req, res) => {
-  try {
-    console.log("PayPal ID requested");
-    res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 app.use('/api/email', emailRoutes);
+app.use('/api/checkout', require('./server/routes/checkout'));
+app.use('/api/orders', require('./server/routes/orders'));
 
 // Tell express to use the specified directory as the
 // root directory for your web site
@@ -88,7 +81,7 @@ app.get('*', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Global error handler:', err);
+  console.error('Global error handler:', err.stack);
   res.status(500).json({ message: 'Internal server error' });
 });
 

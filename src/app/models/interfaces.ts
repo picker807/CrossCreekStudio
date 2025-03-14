@@ -47,6 +47,7 @@ export interface FlattenedCartItem {
 export interface CartVerificationResult {
   validItems: FlattenedCartItem[];
   invalidItems: { item: FlattenedCartItem; reason: string }[];
+  totalPrice: number;
 }
 
 export interface PayPalOrderDetails {
@@ -76,8 +77,10 @@ export interface PayPalOrderDetails {
 }
 
 export interface OrderDetails {
-  orderDetails: PayPalOrderDetails;
-  cartContents: CartItem[];
+  orderDetails: any; // PayPal response
+  items: { events: any[], products: any[] }[];
+  email: string;
+  shippingAddress: { street: string, city: string, postalCode: string, country: string };
 }
 
 export interface CartResponse {

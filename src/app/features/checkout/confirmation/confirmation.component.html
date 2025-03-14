@@ -8,89 +8,119 @@
 
       <div class="px-4 py-5 sm:p-6">
         <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Order Details</h2>
-        
         <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
           <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Order ID</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderDetails.id }}</dd>
+            <dt class="text-sm font-medium text-gray-500">Order Number</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderNumber }}</dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Total</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.total }}</dd>
           </div>
           <div class="sm:col-span-1">
             <dt class="text-sm font-medium text-gray-500">Date</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderDetails.create_time | date:'medium' }}</dd>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.date | date:'medium' }}</dd>
           </div>
           <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Total Amount</dt>
-            <dd class="mt-1 text-sm text-gray-900">
-              ${{ orderDetails.orderDetails.purchase_units[0].amount.value }}
-            </dd>
-          </div>
-          <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Payment Status</dt>
+            <dt class="text-sm font-medium text-gray-500">Order Status</dt>
             <dd class="mt-1 text-sm text-gray-900">
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                {{ orderDetails.orderDetails.status }}
+                {{ orderDetails.status }}
               </span>
             </dd>
           </div>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">Shipping Address</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ orderDetails.shippingAddress.street }}, {{ orderDetails.shippingAddress.city }}, 
+              {{ orderDetails.shippingAddress.postalCode }}, {{ orderDetails.shippingAddress.country }}
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Contact Email</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.email }}</dd>
+          </div>
         </dl>
       </div>
-      
+
       <div class="px-4 py-5 sm:px-6 border-t border-gray-200">
         <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Purchased Items</h2>
-        
         <div class="flow-root">
           <ul role="list" class="-my-6 divide-y divide-gray-200">
-            <li *ngFor="let item of orderDetails.cartContents" class="py-6 flex">
-              <div class="flex-1 ml-4">
-                <h3 class="text-sm font-medium text-gray-900">{{ item.event.name }}</h3>
-                <dl class="mt-1 text-sm text-gray-500">
-                  <div>
-                    <dt class="inline">Date: </dt>
-                    <dd class="inline">{{ item.event.date | date:'mediumDate' }}</dd>
+            <!-- Events -->
+            <ng-container *ngFor="let item of orderDetails.items">
+              <li *ngFor="let event of item.events" class="py-6 flex">
+                <div class="flex-1 ml-4">
+                  <h3 class="text-sm font-medium text-gray-900">{{ event.eventId.name || 'Event' }}</h3>
+                  <dl class="mt-1 text-sm text-gray-500">
+                    <div>
+                      <dt class="inline">Date: </dt>
+                      <dd class="inline">{{ event.eventId.date | date:'mediumDate' || 'N/A' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="inline">Location: </dt>
+                      <dd class="inline">{{ event.eventId.location || 'N/A' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="inline">Price: </dt>
+                      <dd class="inline">${{ event.eventId.price || 0 }}</dd>
+                    </div>
+                    <div>
+                      <dt class="inline">Enrollees: </dt>
+                      <dd class="inline">{{ event.enrollees.length }}</dd>
+                    </div>
+                  </dl>
+                  <div class="mt-2">
+                    <h4 class="text-sm font-medium text-gray-900">Enrollees:</h4>
+                    <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
+                      <li *ngFor="let enrollee of event.enrollees">
+                        {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
+                      </li>
+                    </ul>
                   </div>
-                  <div>
-                    <dt class="inline">Location: </dt>
-                    <dd class="inline">{{ item.event.location }}</dd>
-                  </div>
-                  <div>
-                    <dt class="inline">Price: </dt>
-                    <dd class="inline">${{ item.event.price }}</dd>
-                  </div>
-                  <div>
-                    <dt class="inline">Enrollees: </dt>
-                    <dd class="inline">{{ item.enrollees.length }}</dd>
-                  </div>
-                </dl>
-                <div class="mt-2">
-                  <h4 class="text-sm font-medium text-gray-900">Enrollees:</h4>
-                  <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
-                    <li *ngFor="let enrollee of item.enrollees">
-                      {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
-                    </li>
-                  </ul>
                 </div>
-              </div>
-              <div class="flex-shrink-0 ml-4">
-                <p class="text-sm font-medium text-gray-900">${{ item.event.price * item.enrollees.length }}</p>
-              </div>
-            </li>
+                <div class="flex-shrink-0 ml-4">
+                  <p class="text-sm font-medium text-gray-900">${{ (event.eventId.price || 0) * event.enrollees.length }}</p>
+                </div>
+              </li>
+              <!-- Products -->
+              <li *ngFor="let product of item.products" class="py-6 flex">
+                <div class="flex-1 ml-4">
+                  <h3 class="text-sm font-medium text-gray-900">{{ product.productId.name || 'Product' }}</h3>
+                  <dl class="mt-1 text-sm text-gray-500">
+                    <div>
+                      <dt class="inline">Price: </dt>
+                      <dd class="inline">${{ product.productId.price || 0 }}</dd>
+                    </div>
+                    <div>
+                      <dt class="inline">Quantity: </dt>
+                      <dd class="inline">{{ product.quantity }}</dd>
+                    </div>
+                  </dl>
+                </div>
+                <div class="flex-shrink-0 ml-4">
+                  <p class="text-sm font-medium text-gray-900">${{ (product.productId.price || 0) * product.quantity }}</p>
+                </div>
+              </li>
+            </ng-container>
           </ul>
         </div>
       </div>
-      
+
       <div class="px-4 py-5 sm:px-6 border-t border-gray-200">
         <div class="flex justify-between items-center">
           <h2 class="text-lg leading-6 font-medium text-gray-900">Total</h2>
-          <p class="text-2xl font-bold text-gray-900">
-            ${{ orderDetails.orderDetails.purchase_units[0].amount.value }}
-          </p>
+          <p class="text-2xl font-bold text-gray-900">${{ orderDetails.total }}</p>
         </div>
       </div>
     </div>
-    
+
     <div class="mt-8 text-center">
       <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         Browse More Events
+      </a>
+      <a href="/store" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Browse More Products
       </a>
     </div>
   </div>

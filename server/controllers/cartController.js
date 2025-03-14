@@ -240,89 +240,83 @@ const cartController = {
   }
 },
 
-  checkoutCart: async (req, res) => {
+checkoutCart: async (req, res) => {
+  try {
     const cartId = req.headers['x-cart-id'];
-    const cart = await Cart.findOne({ cartId: cartId },)
+    if (!cartId) return res.status(400).json({ message: 'No cart ID provided' });
+
+    const cart = await Cart.findOne({ cartId })
       .populate({
         path: 'items.events.eventId',
         populate: { path: 'images', model: 'Gallery' }
       })
       .populate('items.products.productId');
-  
+
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
-  
-    // No cleaning or saving here—just validation
+
     const invalidItems = [];
-    const validItems = cart.items.map(item => {
-      const events = [];
-      item.events.forEach(event => {
-        if (!event.eventId) {
-          invalidItems.push({ item: { events: [{ ...event, eventId: null }], products: [] }, reason: 'Event no longer exists' });
-        } else if (new Date(event.eventId.date) < new Date()) {
-          invalidItems.push({ item: { events: [event.eventId.toObject()], products: [] }, reason: 'Event date has passed' });
-        } else {
-          events.push({
-            ...event.eventId.toObject(),
-            quantity: event.quantity,
-            enrollees: event.enrollees
-          });
-        }
-      });
-  
-      const products = [];
-      item.products.forEach(product => {
-        if (!product.productId) {
-          invalidItems.push({ item: { events: [], products: [{ ...product, productId: null }] }, reason: 'Product no longer exists' });
-        } else {
-          products.push({
-            ...product.productId.toObject(),
-            quantity: product.quantity
-          });
-        }
-      });
-  
-      // Merge valid items (optional, could skip if getCart already merged)
-      // const eventMap = new Map();
-      // events.forEach(event => {
-      //   const eventId = event._id.toString();
-      //   if (eventMap.has(eventId)) {
-      //     const existing = eventMap.get(eventId);
-      //     existing.quantity += event.quantity;
-      //     existing.enrollees = [...existing.enrollees, ...event.enrollees];
-      //   } else {
-      //     eventMap.set(eventId, event);
-      //   }
-      // });
-  
-      // const productMap = new Map();
-      // products.forEach(product => {
-      //   const productId = product._id.toString();
-      //   if (productMap.has(productId)) {
-      //     const existing = productMap.get(productId);
-      //     existing.quantity += product.quantity;
-      //   } else {
-      //     productMap.set(productId, product);
-      //   }
-      // });
-  
-      return {
-        events: Array.from(eventMap.values()),
-        products: Array.from(productMap.values())
-      };
+    const validEvents = [];
+    const validProducts = [];
+
+    // Validate events
+    cart.items[0].events.forEach(event => {
+      if (!event.eventId) {
+        invalidItems.push({ item: { id: event.eventId?.toString() || 'unknown' }, reason: 'Event no longer exists' });
+      } else if (new Date(event.eventId.date) < new Date()) {
+        invalidItems.push({ item: { id: event.eventId.id, name: event.eventId.name }, reason: 'Event date has passed' });
+      } else {
+        validEvents.push({
+          _id: event.eventId._id.toString(),
+          id: event.eventId.id,
+          name: event.eventId.name,
+          date: event.eventId.date,
+          price: event.eventId.price,
+          location: event.eventId.location,
+          images: event.eventId.images,
+          enrollees: event.enrollees
+        });
+      }
     });
-  
-    if (invalidItems.length > 0) {
-      return res.status(400).json({ validItems: [], invalidItems });
-    }
-  
+
+    // Validate products
+    cart.items[0].products.forEach(product => {
+      if (!product.productId) {
+        invalidItems.push({ item: { id: product.productId?.toString() || 'unknown' }, reason: 'Product no longer exists' });
+      } else if (product.productId.stock < product.quantity) {
+        invalidItems.push({ item: { id: product.productId.id, name: product.productId.name }, reason: 'Insufficient stock' });
+      } else {
+        validProducts.push({
+          _id: product.productId._id.toString(),
+          id: product.productId.id,
+          name: product.productId.name,
+          price: product.productId.price,
+          images: product.productId.images,
+          quantity: product.quantity
+        });
+      }
+    });
+
+    // Calculate total price
+    const totalPrice = validEvents.reduce((sum, e) => sum + e.price * e.enrollees.length, 0) +
+                      validProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
+
     const checkoutResponse = {
-      validItems,
-      invalidItems: [],
-      cartId: cart.cartId
-      
+      validItems: {
+        events: validEvents,
+        products: validProducts
+      },
+      invalidItems,
+      cartId: cart.cartId,
+      totalPrice
     };
+
+    // Always return valid items, even if there are invalid ones
     res.json(checkoutResponse);
-  },
+  } catch (error) {
+    console.error('Checkout error:', error);
+    res.status(500).json({ message: 'Server error during checkout', error: error.message });
+  }
+},
 
   updateCart: async (req, res) => {
     try {
