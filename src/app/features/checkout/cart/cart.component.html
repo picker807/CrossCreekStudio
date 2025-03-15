@@ -155,7 +155,25 @@
 
     <!-- Total and Checkout -->
     <div class="bg-white shadow-md rounded-lg p-4">
-      <h3 class="text-xl font-semibold">Total: ${{ totalPrice | number:'1.2-2' }}</h3>
+      <h3 class="text-xl font-semibold mb-4">Order Summary</h3>
+      <dl class="space-y-2">
+        <div class="flex justify-between">
+          <dt class="text-gray-600">Subtotal</dt>
+          <dd class="text-gray-900">${{ (totalPrice - (salesTax || 0) - (shipping || 0)) | number:'1.2-2' }}</dd>
+        </div>
+        <div class="flex justify-between" *ngIf="salesTax > 0">
+          <dt class="text-gray-600">Sales Tax ({{ (taxRate * 100) | number:'1.0-2' }}%)</dt>
+          <dd class="text-gray-900">${{ salesTax | number:'1.2-2' }}</dd>
+        </div>
+        <div class="flex justify-between" *ngIf="shipping > 0">
+          <dt class="text-gray-600">Shipping ({{ shippingRate | number:'1.2-2' }}/item)</dt>
+          <dd class="text-gray-900">${{ shipping | number:'1.2-2' }}</dd>
+        </div>
+        <div class="flex justify-between border-t pt-2">
+          <dt class="text-lg font-semibold text-gray-900">Total</dt>
+          <dd class="text-lg font-semibold text-gray-900">${{ totalPrice | number:'1.2-2' }}</dd>
+        </div>
+      </dl>
       <button *ngIf="!showPaypalButton" (click)="verifyAndCheckout()" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Proceed to Checkout</button>
       <div *ngIf="showPaypalButton" #paypalButton></div>
     </div>

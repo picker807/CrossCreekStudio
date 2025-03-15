@@ -9,7 +9,6 @@
 <ul>
     <li><strong>Order Number:</strong> {{orderNumber}}</li>
     <li><strong>Date:</strong> {{dateFormat date "MMMM D, YYYY, h:mm A"}}</li>
-    <li><strong>Total Amount:</strong> ${{total}}</li>
     {{#if shippingAddress}}
     <li><strong>Shipping Address:</strong> {{shippingAddress.street}}, {{shippingAddress.city}}, {{shippingAddress.postalCode}}, {{shippingAddress.country}}</li>
     {{/if}}
@@ -20,12 +19,24 @@
 <ul>
     {{#each items}}
         {{#each events}}
-        <li>{{this.eventId.name}} - {{this.enrollees.length}} enrollee(s) at ${{this.eventId.price}} each</li>
+        <li>{{this.eventId.name}} - {{this.enrollees.length}} enrollee(s) at ${{this.pricePaid}} each (Subtotal: ${{multiply this.pricePaid this.enrollees.length}})</li>
         {{/each}}
         {{#each products}}
-        <li>{{this.productId.name}} - {{this.quantity}} x ${{this.productId.price}}</li>
+        <li>{{this.productId.name}} - {{this.quantity}} x ${{this.pricePaid}} (Subtotal: ${{multiply this.pricePaid this.quantity}})</li>
         {{/each}}
     {{/each}}
+</ul>
+
+<h3>Order Summary:</h3>
+<ul>
+    <li><strong>Subtotal:</strong> ${{subtotal}}</li>
+    {{#if salesTax}}
+    <li><strong>Sales Tax ({{taxRatePercent}}%):</strong> ${{salesTax}}</li>
+    {{/if}}
+    {{#if shipping}}
+    <li><strong>Shipping ({{shippingRate}}/item):</strong> ${{shipping}}</li>
+    {{/if}}
+    <li><strong>Total Amount:</strong> ${{total}}</li>
 </ul>
 
 <p>We’ll notify you when your order is processed. Questions? Contact us!</p>

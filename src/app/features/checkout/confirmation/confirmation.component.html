@@ -14,8 +14,8 @@
             <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderNumber }}</dd>
           </div>
           <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Total</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.total }}</dd>
+            <dt class="text-sm font-medium text-gray-500">Subtotal</dt>
+            <dd class="mt-1 text-sm text-gray-900">${{ (orderDetails.total - (orderDetails.salesTax || 0) - (orderDetails.shipping || 0)) | number:'1.2-2' }}</dd>
           </div>
           <div class="sm:col-span-1">
             <dt class="text-sm font-medium text-gray-500">Date</dt>
@@ -29,7 +29,7 @@
               </span>
             </dd>
           </div>
-          <div class="sm:col-span-2">
+          <div class="sm:col-span-2" *ngIf="showShippingAddress">
             <dt class="text-sm font-medium text-gray-500">Shipping Address</dt>
             <dd class="mt-1 text-sm text-gray-900">
               {{ orderDetails.shippingAddress.street }}, {{ orderDetails.shippingAddress.city }}, 
@@ -80,7 +80,7 @@
                   </div>
                 </div>
                 <div class="flex-shrink-0 ml-4">
-                  <p class="text-sm font-medium text-gray-900">${{ (event.eventId.price || 0) * event.enrollees.length }}</p>
+                  <p class="text-sm font-medium text-gray-900">${{ (event.pricePaid || 0) * event.enrollees.length }}</p>
                 </div>
               </li>
               <!-- Products -->
@@ -90,7 +90,7 @@
                   <dl class="mt-1 text-sm text-gray-500">
                     <div>
                       <dt class="inline">Price: </dt>
-                      <dd class="inline">${{ product.productId.price || 0 }}</dd>
+                      <dd class="inline">${{ product.pricePaid || 0 }}</dd>
                     </div>
                     <div>
                       <dt class="inline">Quantity: </dt>
@@ -99,7 +99,7 @@
                   </dl>
                 </div>
                 <div class="flex-shrink-0 ml-4">
-                  <p class="text-sm font-medium text-gray-900">${{ (product.productId.price || 0) * product.quantity }}</p>
+                  <p class="text-sm font-medium text-gray-900">${{ (product.pricePaid || 0) * product.quantity }}</p>
                 </div>
               </li>
             </ng-container>
@@ -107,14 +107,31 @@
         </div>
       </div>
 
+      <!-- Total Price Breakdown -->
       <div class="px-4 py-5 sm:px-6 border-t border-gray-200">
-        <div class="flex justify-between items-center">
-          <h2 class="text-lg leading-6 font-medium text-gray-900">Total</h2>
-          <p class="text-2xl font-bold text-gray-900">${{ orderDetails.total }}</p>
-        </div>
+        <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Order Total</h2>
+        <dl class="space-y-2">
+          <div class="flex justify-between">
+            <dt class="text-gray-600">Subtotal</dt>
+            <dd class="text-gray-900">${{ (orderDetails.total - (orderDetails.salesTax || 0) - (orderDetails.shipping || 0)) | number:'1.2-2' }}</dd>
+          </div>
+          <div class="flex justify-between" *ngIf="orderDetails.salesTax > 0">
+            <dt class="text-gray-600">Sales Tax ({{ (orderDetails.taxRate * 100) | number:'1.0-2' }}%)</dt>
+            <dd class="text-gray-900">${{ orderDetails.salesTax | number:'1.2-2' }}</dd>
+          </div>
+          <div class="flex justify-between" *ngIf="orderDetails.shipping > 0">
+            <dt class="text-gray-600">Shipping ({{ orderDetails.shippingRate | number:'1.2-2' }}/item)</dt>
+            <dd class="text-gray-900">${{ orderDetails.shipping | number:'1.2-2' }}</dd>
+          </div>
+          <div class="flex justify-between border-t pt-2">
+            <dt class="text-lg font-semibold text-gray-900">Total</dt>
+            <dd class="text-lg font-semibold text-gray-900">${{ orderDetails.total | number:'1.2-2' }}</dd>
+          </div>
+        </dl>
       </div>
     </div>
 
+    <!-- Nav Buttons -->
     <div class="mt-8 text-center">
       <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         Browse More Events

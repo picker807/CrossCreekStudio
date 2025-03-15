@@ -4,7 +4,7 @@ import { CheckoutService } from '../../../services/checkout.service';
 import { Router } from '@angular/router';
 import { catchError, concatMap, finalize, from, of, Subscription, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
-import { OrderDetails, PayPalOrderDetails, FlattenedCartItem } from '../../../models/interfaces';
+import { OrderDetails, PayPalOrderDetails, CartItems, CartVerificationResult } from '../../../models/interfaces';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
 import { environment } from '../../../../environments/environment';
@@ -17,12 +17,16 @@ declare var paypal: any;
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
-  cartItems: FlattenedCartItem = { events: [], products: [] };
+  cartItems: CartItems = { events: [], products: [] };
   totalPrice: number = 0;
+  salesTax: number = 0;
+  shipping: number = 0;
+  taxRate: number = 0;
+  shippingRate: number = 0;
   verificationError: string = '';
   subscription: Subscription;
-  validItems: FlattenedCartItem[] = [];
-  invalidItems: { item: any; reason: string }[] = [];
+  validItems: CartVerificationResult['validItems'] = { events: [], products: [] };
+  invalidItems: CartVerificationResult['invalidItems'] = [];
   showMailingForm: boolean = false;
   mailingForm: FormGroup;
   mailingAddress: any;
@@ -51,31 +55,59 @@ export class CartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: FlattenedCartItem[]) => {
+    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
       console.log('Received cartList in CartComponent:', cartList);
       this.cartItems = cartList && cartList[0] ? cartList[0] : { events: [], products: [] };
       console.log('Cart items updated:', this.cartItems);
+      this.loadRates();
       this.calculateTotalPrice();
     });
   }
 
-  /* loadCart(): void {
-    this.checkoutService.getCart().subscribe(cartResponse => {
-      this.checkoutService.updateCart(cartResponse.items);
+  loadRates() {
+    this.checkoutService.getTaxRate().subscribe({
+      next: (result) => this.taxRate = result.taxRate,
+      error: (err) => console.error('Failed to load tax rate', err)
     });
-  } */
+    this.checkoutService.getShippingRate().subscribe({
+      next: (result) => this.shippingRate = result.shippingRate,
+      error: (err) => console.error('Failed to load shipping rate', err)
+    });
+  }
 
   calculateTotalPrice(): void {
+    this.salesTax = 0; // Reset
+    this.shipping = 0; // Reset
+
     const eventTotal = this.cartItems.events.reduce(
-      (sum, item) => sum + (item.price || 0) * (item.quantity || item.enrollees.length),
+      (sum, item) => {
+        const price = item.price || 0;
+        const quantity = item.enrollees?.length || 1;
+        return sum + price * quantity;
+      },
       0
     );
+
     const productTotal = this.cartItems.products.reduce(
-      (sum, item) => sum + (item.price || 0) * item.quantity,
+      (sum, item) => {
+        const price = item.price || 0;
+        const subtotal = price * (item.quantity || 1);
+        this.shipping += (item.quantity || 1) * this.shippingRate;
+        return sum + subtotal;
+      },
       0
     );
-    this.totalPrice = eventTotal + productTotal;
-    console.log('Event total:', eventTotal, 'Product total:', productTotal, 'Grand total:', this.totalPrice);
+
+    this.salesTax = productTotal * this.taxRate;
+    this.totalPrice = eventTotal + productTotal + this.salesTax + this.shipping;
+
+    console.log(
+      'Event total:', eventTotal,
+      'Product total:', productTotal,
+      'Sales tax:', this.salesTax,
+      'Shipping:', this.shipping,
+      'Grand total:', this.totalPrice
+    );
   }
 
   adjustProductQuantity(itemId: string, change: number) {
@@ -104,7 +136,7 @@ export class CartComponent implements OnInit {
     this.checkoutService.verifyCart().pipe(
       finalize(() => console.log('verifyCart observable completed'))
     ).subscribe({
-      next: (result) => {
+      next: (result: CartVerificationResult) => {
         console.log('Verification completed:', result);
         this.validItems = result.validItems;
         this.invalidItems = result.invalidItems.map(item => ({
@@ -112,6 +144,10 @@ export class CartComponent implements OnInit {
           reason: item.reason
         }));
         this.totalPrice = result.totalPrice;
+        this.salesTax = result.salesTax;
+        this.shipping = result.shipping;
+        this.taxRate = result.taxRate;
+        this.shippingRate = result.shippingRate;
 
         if (this.invalidItems.length === 0) {
           if (this.cartItems.products.length > 0) {
@@ -186,7 +222,16 @@ export class CartComponent implements OnInit {
               postalCode: details.payer.address?.postal_code || '',
               country: details.payer.address?.country_code || ''
             };
-            this.checkoutService.completeCheckout(data.paymentID, this.mailingAddress || addressFromPaypal, details).subscribe({
+            this.checkoutService.completeCheckout(
+              data.paymentID, 
+              this.mailingAddress || addressFromPaypal, 
+              details,
+              this.validItems,
+              this.salesTax, 
+              this.shipping, 
+              this.taxRate, 
+              this.shippingRate
+            ).subscribe({
               next: (response: { orderNumber: string }) => {
                
                 // Send receipt to PayPal payer

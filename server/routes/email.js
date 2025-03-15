@@ -8,10 +8,14 @@ const path = require('path');
 require('dotenv').config();
 const moment = require('moment-timezone');
 
+// Register Handlebars helpers
 handlebars.registerHelper('formatDateWithTimeZone', function(date, format, timeZone) {
   return moment(date).tz(timeZone).format(format);
 });
 handlebars.registerHelper('dateFormat', dateFormat);
+handlebars.registerHelper('multiply', function(a, b) { // Add multiply helper
+  return Number(a) * Number(b);
+});
 
 const { EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVE1, EMAIL_RECEIVE2 } = process.env;
 

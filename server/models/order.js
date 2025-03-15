@@ -11,6 +11,7 @@ const orderSchema = new mongoose.Schema({
     events: [{
       _id: false,
       eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
+      pricePaid: { type: Number, required: true },
       enrollees: [{
         _id: false,
         firstName: { type: String, required: true },
@@ -22,7 +23,8 @@ const orderSchema = new mongoose.Schema({
     products: [{
       _id: false,
       productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-      quantity: { type: Number, required: true, min: 1 }
+      quantity: { type: Number, required: true, min: 1 },
+      pricePaid: { type: Number, required: true }
     }]
   }],
   shippingAddress: {
@@ -32,7 +34,11 @@ const orderSchema = new mongoose.Schema({
     country: String
   },
   paymentId: { type: String, required: true },
-  total: { type: String, required: true },
+  total: { type: Number, default: 0 },
+  salesTax: { type: Number, default: 0 },
+  shipping: { type: Number, default: 0 },
+  taxRate: { type: Number, default: 0 },
+  shippingRate: { type: Number, default: 0 },
   date:  { type: String, required: true },
   status: {
     type: String,
@@ -42,4 +48,10 @@ const orderSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
+
+orderSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
 module.exports = mongoose.model('Order', orderSchema, 'orders');

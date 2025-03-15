@@ -3,7 +3,7 @@ import { AuthService } from './core/authentication/auth.service';
 import { Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
 import { AdminService } from './services/admin.service';
-import { FlattenedCartItem } from './models/interfaces';
+import { CartItems } from './models/interfaces';
 
 @Component({
   selector: 'cc-root',
@@ -33,7 +33,7 @@ export class AppComponent {
       this.isAdmin = isAdmin;
     });
 
-    this.checkoutService.cartItems$.subscribe((cartList: FlattenedCartItem[]) => {
+    this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
       console.log("AppComponent recevied cartItems$ update: ", cartList[0]);
       const cart = cartList[0] || { events: [], products: [] };
       this.cartItemCount = cart.events.reduce((sum, e) => sum + (e.enrollees ? e.enrollees.length : 0), 0) +

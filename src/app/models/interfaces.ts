@@ -8,21 +8,28 @@ export interface Enrollee {
   compositeKey: string;
 }
 
-export interface CartItem {
-  events?: {
-    eventId: string;
-    quantity: number;
+export interface CartItems {
+  events: {
+   //_id: string,
+    eventId: string; 
+    name: string;
+    date: string;
+    price: number;
+    location: string;
+    images: Gallery[];
     enrollees: { firstName: string; lastName: string; email: string; phone: string }[];
-    event?: { id: string; name: string; date: string; price: number; location: string; images?: Gallery[] };
   }[];
-  products?: {
-    productId: string;
+  products: {
+    //_id: string,
+    productId: string; 
+    name: string;
+    price: number;
+    images: string[];
     quantity: number;
-    product?: { id: string; name: string; price: number; images?: string[] };
   }[];
 }
 
-export interface FlattenedCartItem {
+/* export interface FlattenedCartItem {
   events: {
     _id: string;
     eventId: string;
@@ -42,12 +49,44 @@ export interface FlattenedCartItem {
     images: string[];
     quantity: number;
   }[];
-}
+} */
 
 export interface CartVerificationResult {
-  validItems: FlattenedCartItem[];
-  invalidItems: { item: FlattenedCartItem; reason: string }[];
+  validItems: {
+    events: {
+      _id: string;
+      eventId: string; 
+      name: string;
+      date: string;
+      price: number; 
+      pricePaid: number;
+      location: string;
+      images: Gallery[];
+      enrollees: { firstName: string; lastName: string; email: string; phone: string }[];
+    }[];
+    products: {
+      _id: string;
+      productId: string;
+      name: string;
+      price: number;
+      pricePaid: number;
+      images: string[];
+      quantity: number;
+    }[];
+  };
+  invalidItems: { 
+    item: { 
+      _id?: string;
+      id?: string;
+      name?: string;
+    }; 
+    reason: string 
+  }[];
   totalPrice: number;
+  salesTax: number;
+  shipping: number;
+  shippingRate: number;
+  taxRate: number;
 }
 
 export interface PayPalOrderDetails {
@@ -85,6 +124,6 @@ export interface OrderDetails {
 
 export interface CartResponse {
   cartId: string;
-  items: FlattenedCartItem[];
+  items: CartItems;
   removedItems?: any[];
 }

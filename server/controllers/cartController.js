@@ -1,6 +1,7 @@
 const Cart = require('../models/cart');
 const Event = require('../models/event');
 const Product = require('../models/product');
+const Setting = require('../models/setting');
 const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 const mongoose = require('mongoose');
@@ -92,25 +93,24 @@ const cartController = {
 
           const response = {
             cartId: cart.cartId,
-            items: [{
+            items: {
               events: populatedCart.items[0].events.map(event => {
                 const eventData = event.eventId.toObject ? event.eventId.toObject() : event.eventId;
                 return {
-                  _id: eventData._id.toString(),
+                  //_id: eventData._id.toString(),
                   eventId: eventData.id,
                   name: eventData.name,
                   date: eventData.date,
                   price: eventData.price,
                   location: eventData.location,
                   images: eventData.images || [],
-                  quantity: event.quantity,
                   enrollees: event.enrollees || []
                 };
               }),
               products: populatedCart.items[0].products.map(product => {
                 const productData = product.productId.toObject ? product.productId.toObject() : product.productId;
                 return {
-                  _id: productData._id.toString(),
+                  //_id: productData._id.toString(),
                   productId: productData.id,
                   name: productData.name,
                   price: productData.price,
@@ -118,7 +118,7 @@ const cartController = {
                   quantity: product.quantity
                 };
               })
-            }],
+            },
             removedItems: []
           };
   
@@ -254,9 +254,17 @@ checkoutCart: async (req, res) => {
 
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
+    const taxRateDoc = await Setting.findOne({ key: 'salesTaxRate' });
+    const shippingRateDoc = await Setting.findOne({ key: 'shippingRatePerItem' });
+    const taxRate = taxRateDoc.value;
+    const shippingRate = shippingRateDoc.value;
+
     const invalidItems = [];
     const validEvents = [];
     const validProducts = [];
+    let totalPrice = 0;
+    let salesTax = 0;
+    let shipping = 0;
 
     // Validate events
     cart.items[0].events.forEach(event => {
@@ -265,12 +273,16 @@ checkoutCart: async (req, res) => {
       } else if (new Date(event.eventId.date) < new Date()) {
         invalidItems.push({ item: { id: event.eventId.id, name: event.eventId.name }, reason: 'Event date has passed' });
       } else {
+        const pricePaid = event.eventId.price;
+        const enrolleeCount = event.enrollees.length;
+        totalPrice += pricePaid * enrolleeCount;
         validEvents.push({
           _id: event.eventId._id.toString(),
           id: event.eventId.id,
           name: event.eventId.name,
           date: event.eventId.date,
           price: event.eventId.price,
+          pricePaid,
           location: event.eventId.location,
           images: event.eventId.images,
           enrollees: event.enrollees
@@ -285,33 +297,45 @@ checkoutCart: async (req, res) => {
       } else if (product.productId.stock < product.quantity) {
         invalidItems.push({ item: { id: product.productId.id, name: product.productId.name }, reason: 'Insufficient stock' });
       } else {
+        const pricePaid = product.productId.price; 
+        const subtotal = pricePaid * product.quantity;
+        totalPrice += subtotal;
+        salesTax += subtotal * taxRate;
+        shipping += product.quantity * shippingRate; 
         validProducts.push({
           _id: product.productId._id.toString(),
           id: product.productId.id,
           name: product.productId.name,
           price: product.productId.price,
+          pricePaid,
           images: product.productId.images,
           quantity: product.quantity
         });
       }
     });
 
-    // Calculate total price
-    const totalPrice = validEvents.reduce((sum, e) => sum + e.price * e.enrollees.length, 0) +
-                      validProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
+    totalPrice += salesTax + shipping;
 
-    const checkoutResponse = {
+    // Calculate total price
+    /* const totalPrice = validEvents.reduce((sum, e) => sum + e.price * e.enrollees.length, 0) +
+                      validProducts.reduce((sum, p) => sum + p.price * p.quantity, 0); */
+
+    const cartVerificationResults = {
       validItems: {
         events: validEvents,
         products: validProducts
       },
       invalidItems,
       cartId: cart.cartId,
-      totalPrice
+      totalPrice,
+      salesTax,
+      shipping,
+      shippingRate,
+      taxRate
     };
 
     // Always return valid items, even if there are invalid ones
-    res.json(checkoutResponse);
+    res.json(cartVerificationResults);
   } catch (error) {
     console.error('Checkout error:', error);
     res.status(500).json({ message: 'Server error during checkout', error: error.message });

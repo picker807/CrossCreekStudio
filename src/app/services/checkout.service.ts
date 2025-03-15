@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, concatMap, debounceTime, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
 import { EventService } from './event.service';
-import { Enrollee, OrderDetails, FlattenedCartItem, CartVerificationResult, CartResponse } from '../models/interfaces';
+import { Enrollee, OrderDetails, CartItems, CartVerificationResult, CartResponse } from '../models/interfaces';
 import { Event } from '../models/event.model';
 import { Gallery } from '../models/gallery.model';
 
@@ -11,8 +11,8 @@ import { Gallery } from '../models/gallery.model';
 })
 export class CheckoutService {
   private cartIdKey = 'cartId'; // Store UUID locally
-  private cartSubject = new BehaviorSubject<FlattenedCartItem[]>([{ events: [], products: [] }]);
-  cartItems$: Observable<FlattenedCartItem[]> = this.cartSubject.asObservable().pipe(
+  private cartSubject = new BehaviorSubject<CartItems>({ events: [], products: [] });
+  cartItems$: Observable<CartItems> = this.cartSubject.asObservable().pipe(
     tap(cartList => console.log('cartItems$ emitted at checkoutService: ', cartList))
   );
 
@@ -38,6 +38,14 @@ export class CheckoutService {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(this.cartIdKey, cartId);
     }
+  }
+
+  getTaxRate(): Observable<{ taxRate: number }> {
+    return this.http.get<{ taxRate: number }>('/api/checkout/tax-rate');
+  }
+
+  getShippingRate(): Observable<{ shippingRate: number }> {
+    return this.http.get<{ shippingRate: number }>('/api/checkout/shipping-rate');
   }
 
   initializeCart(): void {
@@ -67,7 +75,7 @@ export class CheckoutService {
       tap(response => {
         console.log('addEventToCart response:', response);
         this.setCartId(response.cartId);
-        this.cartSubject.next(response.items || [{ events: [], products: [] }]);
+        this.cartSubject.next(response.items || { events: [], products: [] });
       }),
       catchError(err => {
         console.error('Error adding event to cart:', err);
@@ -78,11 +86,11 @@ export class CheckoutService {
   }
   
   addProductToCart(products: { productId: string; quantity: number }[]): Observable<CartResponse> {
-    return this.http.post<CartResponse>('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
+    return this.http.post<any>('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
       tap(response => {
         console.log('addProductToCart response:', response);
         this.setCartId(response.cartId);
-        this.cartSubject.next(response.items || [{ events: [], products: [] }]);
+        this.cartSubject.next(response.items || { events: [], products: [] });
       }),
       catchError(err => {
         console.error('Error adding product to cart:', err);
@@ -192,7 +200,7 @@ export class CheckoutService {
     return this.http.delete('/api/cart', { headers: this.getHeaders() }).pipe(
       tap(() => {
         localStorage.removeItem(this.cartIdKey);
-        this.cartSubject.next([]);
+        this.cartSubject.next({ events: [], products: [] });
       })
     );
   }
@@ -234,7 +242,15 @@ export class CheckoutService {
     this.orderIdSubject.next(null);
   }
 
-  completeCheckout(paymentId: string, shippingAddress: any, paypalDetails: any): Observable<any> {
+  completeCheckout(
+    paymentId: string, 
+    shippingAddress: any, 
+    paypalDetails: any, 
+    cartItems: CartItems, 
+    salesTax: number, 
+    shipping: number, 
+    taxRate: number, 
+    shippingRate: number): Observable<any> {
     const body = {
       cartId: this.getCartId(),
       paymentId,
@@ -245,7 +261,12 @@ export class CheckoutService {
         country: shippingAddress.country,
         contactEmail: shippingAddress.contactEmail // Include email
       } : null,
-      paypalDetails
+      paypalDetails,
+      cartItems,
+      salesTax,
+      shipping,
+      taxRate,
+      shippingRate
     };
     return this.http.post<{ orderNumber: string }>('/api/checkout/complete', body);
   }

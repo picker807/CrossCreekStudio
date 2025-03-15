@@ -11,6 +11,7 @@ import { OrderDetails } from '../../../models/interfaces';
 })
 export class ConfirmationComponent implements OnInit, OnDestroy {
   orderDetails: any;
+  showShippingAddress: boolean = false;
   private orderSubscription: Subscription;
 
   constructor(private checkoutService: CheckoutService,
@@ -23,6 +24,8 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
           this.checkoutService.getOrderDetails(orderNumber).subscribe({
             next: (order) => {
               this.orderDetails = order;
+              this.showShippingAddress = this.orderDetails.shippingAddress && 
+                this.orderDetails.items.some(item => item.products && item.products.length > 0);
               this.sendOrderConfirmationEmail(order);
             },
             error: (error) => {
@@ -43,7 +46,12 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
       shippingAddress: order.shippingAddress, 
       total: order.total,
       date: order.date,
-      email: order.email
+      email: order.email,
+      subtotal: (parseFloat(order.total) - (order.salesTax || 0) - (order.shipping || 0)).toFixed(2),
+      salesTax: order.salesTax?.toFixed(2),
+      shipping: order.shipping?.toFixed(2),
+      taxRatePercent: (order.taxRate * 100).toFixed(2),
+      shippingRate: order.shippingRate?.toFixed(2)
     };
 
     this.emailService.sendEmail(
