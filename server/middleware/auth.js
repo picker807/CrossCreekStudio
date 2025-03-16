@@ -40,9 +40,9 @@ exports.authMiddleware = async (req, res, next) => {
     console.error('Invalid token', error);
 
     // Handle specific token expiration error
-    if (error.name === 'TokenExpiredError') {
+    /* if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expired' });
-    }
+    } */
 
     // Handle other token verification errors
     return res.status(400).json({ message: 'Invalid token' });

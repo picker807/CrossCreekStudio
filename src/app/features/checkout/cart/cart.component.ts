@@ -57,7 +57,7 @@ export class CartComponent implements OnInit {
   ngOnInit(): void {
     this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
       console.log('Received cartList in CartComponent:', cartList);
-      this.cartItems = cartList && cartList[0] ? cartList[0] : { events: [], products: [] };
+      this.cartItems = cartList || { events: [], products: [] };
       console.log('Cart items updated:', this.cartItems);
       this.loadRates();
       this.calculateTotalPrice();
@@ -111,12 +111,29 @@ export class CartComponent implements OnInit {
   }
 
   adjustProductQuantity(itemId: string, change: number) {
-    this.checkoutService.updateProductQuantity(itemId, change).subscribe();
+    this.checkoutService.updateProductQuantity(itemId, change).subscribe({
+      next: () => {
+        console.log('Quantity updated successfully');
+      },
+      error: (error) => {
+        console.error('Error adjusting quantity:', error);
+        this.messageService.showMessage({ text: 'Failed to update quantity', type: 'error', duration: 3000 });
+      }
+    });
   }
 
   removeEnrollee(eventId: string, enrollee: { firstName: string, lastName: string, email: string }) {
     console.log('Removing enrollee:', eventId, enrollee);
-    this.checkoutService.removeEnrollee(eventId, enrollee).subscribe();
+    this.checkoutService.removeEnrollee(eventId, enrollee).subscribe({
+      next: () => {
+        console.log('Enrollee removed successfully');
+        // cartSubject updates cartItems$, so UI should refresh
+      },
+      error: (error) => {
+        console.error('Error removing enrollee:', error);
+        this.messageService.showMessage({ text: 'Failed to remove enrollee', type: 'error', duration: 3000 });
+      }
+    });
   }
 
   removeItem (itemId: string, type: 'event' | 'product'): void {

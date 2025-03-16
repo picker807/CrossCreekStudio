@@ -13,7 +13,7 @@ const s3Client = new S3Client({
   signatureVersion: 'v4',
 });
 
-async function uploadImage(bucketName, key, file) {
+/* async function uploadImage(bucketName, key, file) {
   const params = {
     Bucket: bucketName,
     Key: key,
@@ -23,7 +23,7 @@ async function uploadImage(bucketName, key, file) {
   const command = new PutObjectCommand(params);
   const uploadResponse = await s3Client.send(command);
   return uploadResponse;
-}
+} */
 
 exports.getAllGalleryItems = async (req, res, next) => {
   try {
@@ -97,15 +97,19 @@ exports.deleteGalleryItem = async (req, res) => {
 
 // Upload Image File
 exports.uploadImage = async (req, res) => {
-  const file = req.file;
-  const key = req.body.key;
-
+  const file = req.file; // From multer
+  const key = req.body.key; // Unique key for the file
   try {
-    const uploadResponse = await uploadImage(process.env.BUCKET_NAME, key, file.buffer);
-    //console.log("uploadResponse in Router: ", uploadResponse);
-    const imageUrl = `https://${process.env.R2_DEV_IDENTIFIER}.r2.dev/${key}`;
-    res.status(200).send({ imageUrl });
+    const params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+    };
+    const command = new PutObjectCommand(params);
+    const imageUrl = await s3Client.send(command);
+    res.status(200).json({ imageUrl });
   } catch (error) {
-    res.status(500).send('Error uploading image');
+    console.error(error);
+    res.status(500).json({ message: 'Error uploading image' });
   }
 };

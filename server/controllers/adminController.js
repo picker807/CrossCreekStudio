@@ -39,7 +39,7 @@ exports.getCurrentAdmin = async (req, res) => {
 
     res.json(admin);
   } catch (error) {
-    console.error('Error in getCurrentAdmin:', error);
+    //console.error('Error in getCurrentAdmin:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

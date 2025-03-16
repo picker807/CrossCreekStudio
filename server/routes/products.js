@@ -2,15 +2,18 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
-const { authMiddleware, superAdminMiddleware } = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 
-// Public routes (for storefront)
-router.get('/', productController.getAllProducts); // Fetch all products for display
-router.get('/:id', productController.getProductById); // Fetch single product details
 
-// Admin routes (protected by auth and super admin middleware)
-router.post('/', authMiddleware, superAdminMiddleware, productController.createProduct); // Add new product
-router.put('/:id', authMiddleware, superAdminMiddleware, productController.updateProduct); // Edit product
-router.delete('/:id', authMiddleware, superAdminMiddleware, productController.deleteProduct); // Delete product
+router.get('/', productController.getAllProducts);
+
+router.get('/admin', authMiddleware, productController.getAllProductsAdmin);
+
+router.get('/:productId', productController.getProductById);
+
+router.post('/', authMiddleware, productController.createProduct);
+router.put('/:productId', authMiddleware, productController.updateProduct);
+router.delete('/:productId', authMiddleware, productController.deleteProduct);
+
 
 module.exports = router;

@@ -13,8 +13,11 @@ handlebars.registerHelper('formatDateWithTimeZone', function(date, format, timeZ
   return moment(date).tz(timeZone).format(format);
 });
 handlebars.registerHelper('dateFormat', dateFormat);
-handlebars.registerHelper('multiply', function(a, b) { // Add multiply helper
+handlebars.registerHelper('multiply', function(a, b) { 
   return Number(a) * Number(b);
+});
+handlebars.registerHelper('formatNumber', function(number) {
+  return Number(number).toFixed(2); // Always 2 decimal places
 });
 
 const { EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVE1, EMAIL_RECEIVE2 } = process.env;

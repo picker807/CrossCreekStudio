@@ -5,7 +5,8 @@ const sequenceSchema = mongoose.Schema({
   "maxUserId": { type: Number },
   "maxGalleryId": { type: Number },
   "maxAdminId": { type: Number },
-  "maxOrderId": { type: Number }
+  "maxOrderId": { type: Number },
+  "maxProductId": { type: Number }
 });
 
 module.exports = mongoose.model('Sequence', sequenceSchema, 'sequence');

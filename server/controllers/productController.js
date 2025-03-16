@@ -1,5 +1,6 @@
 // controllers/productController.js
 const Product = require('../models/product');
+const sequenceGenerator = require('../routes/sequence');
 
 const productController = {
   // Public: Get all products for storefront
@@ -16,7 +17,7 @@ const productController = {
   // Public: Get single product by ID for storefront or cart verification
   getProductById: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.id);
+      const product = await Product.findOne({ id: req.params.productId});
       if (!product) return res.status(404).json({ message: 'Product not found' });
       res.json(product);
     } catch (err) {
@@ -25,11 +26,23 @@ const productController = {
     }
   },
 
+  // Admin: Get all products (full data)
+  getAllProductsAdmin: async (req, res) => {
+    try {
+      const products = await Product.find(); // Full data for admin
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
   // Admin: Create a new product
   createProduct: async (req, res) => {
     try {
       const { name, price, stock, description, images } = req.body;
+      const maxProductId = await sequenceGenerator.nextId("products");
       const product = new Product({
+        id: maxProductId,
         name,
         price,
         stock,
@@ -48,8 +61,8 @@ const productController = {
   updateProduct: async (req, res) => {
     try {
       const { name, price, stock, description, images } = req.body;
-      const updatedProduct = await Product.findByIdAndUpdate(
-        req.params.id,
+      const updatedProduct = await Product.findOneAndUpdate(
+        { id: req.params.productId },
         { name, price, stock, description, images, updatedAt: new Date() },
         { new: true, runValidators: true }
       );
@@ -64,7 +77,7 @@ const productController = {
   // Admin: Delete a product
   deleteProduct: async (req, res) => {
     try {
-      const product = await Product.findByIdAndDelete(req.params.id);
+      const product = await Product.findOneAndDelete({ id: req.params.productId });
       if (!product) return res.status(404).json({ message: 'Product not found' });
       res.json({ message: 'Product deleted' });
     } catch (err) {

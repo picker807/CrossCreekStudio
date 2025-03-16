@@ -50,15 +50,15 @@ export class CheckoutService {
 
   initializeCart(): void {
     this.getCart().subscribe(cart => {
-      console.log('Initial cart data:', cart.items);
-      this.cartSubject.next(cart.items)
+      const cartItems = Array.isArray(cart.items) ? cart.items[0] : cart.items || { events: [], products: [] };
+      console.log('Initial cart data transformed:', cartItems);
+      this.cartSubject.next(cartItems);
     });
   }
 
   getCart(): Observable<any> {
     console.log("getCart called by Checkout Service")
     return this.http.get<any>('/api/cart', { headers: this.getHeaders() }).pipe(
-      debounceTime(100),
       tap(response => {
         console.log('getCart response:', response);
         this.setCartId(response.cartId)
@@ -90,7 +90,8 @@ export class CheckoutService {
       tap(response => {
         console.log('addProductToCart response:', response);
         this.setCartId(response.cartId);
-        this.cartSubject.next(response.items || { events: [], products: [] });
+        const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+          this.cartSubject.next(cartItems);
       }),
       catchError(err => {
         console.error('Error adding product to cart:', err);
@@ -104,7 +105,7 @@ export class CheckoutService {
     this.getCart().subscribe(cart => {
       console.log('Refreshed cart:', cart);
       console.log('Emitting to cartSubject:', cart.items || [{ events: [], products: [] }]);
-      this.cartSubject.next(cart.items || [{ events: [], products: [] }]);
+      this.cartSubject.next(cart.items || { events: [], products: [] });
     });
   }
 
@@ -134,7 +135,11 @@ export class CheckoutService {
         return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
       }),
       concatMap(() => this.getCart()),
-      tap(response => this.cartSubject.next(response.items || [{ events: [], products: [] }]))
+      tap(response => {
+        const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+        console.log('updateProductQuantity updating cartSubject with:', cartItems);
+        this.cartSubject.next(cartItems);
+      })
     );
   }
 
@@ -169,16 +174,21 @@ export class CheckoutService {
         return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
       }),
       concatMap(() => this.getCart()),
-      tap(response => this.cartSubject.next(response.items || [{ events: [], products: [] }]))
-    );
-  }
+    tap(response => {
+      const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+      console.log('removeEnrollee updating cartSubject with:', cartItems);
+      this.cartSubject.next(cartItems);
+    })
+  );
+}
 
   removeFromCart(itemId: string, type: 'event' | 'product'): Observable<any> {
     return this.http.post('/api/cart/remove', { cartId: this.getCartId(), itemId, type }, { headers: this.getHeaders() }).pipe(
       concatMap(() => this.getCart()),
       tap(response => {
-        console.log('Updated cart from getCart:', JSON.stringify(response, null, 2));
-        this.cartSubject.next(response.items || [{ events: [], products: [] }]);
+        const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+        console.log('removeFromCart updating cartSubject with:', cartItems);
+        this.cartSubject.next(cartItems);
       })
     );
   }

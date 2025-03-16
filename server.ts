@@ -65,6 +65,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/cart', require('./server/routes/cart'));
 app.use('/api/products', require('./server/routes/products'));
+app.use('/api/config', require('./server/routes/config'));
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/email', emailRoutes);

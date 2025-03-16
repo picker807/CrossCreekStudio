@@ -6,8 +6,8 @@ const productSchema = new mongoose.Schema({
   name:  { type: String, required: true },
   price: { type: Number, required: true },
   stock: { type: Number, required: true, min: 0 },
-  description: String,
-  images: [{ type: String }], // Cloudflare URLs
+  description: { type: String, required: true },
+  images: [ String ], // Cloudflare URLs
   createdAt: { type: Date, default: Date.now }
 });
 

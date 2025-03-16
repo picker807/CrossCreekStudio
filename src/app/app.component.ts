@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
 import { AdminService } from './services/admin.service';
 import { CartItems } from './models/interfaces';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'cc-root',
@@ -15,6 +16,8 @@ export class AppComponent {
   isAdmin: boolean = false;
   cartItemCount: number = 0;
   isMenuOpen = false;
+
+  private subscription: Subscription;
 
   constructor(
     private router: Router,
@@ -28,17 +31,13 @@ export class AppComponent {
     return this.router.url.startsWith(route);
   }
 
-  ngOnInit(): void {
-    this.authService.isAdmin$.subscribe(isAdmin => {
-      this.isAdmin = isAdmin;
-    });
-
-    this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
-      console.log("AppComponent recevied cartItems$ update: ", cartList[0]);
-      const cart = cartList[0] || { events: [], products: [] };
-      this.cartItemCount = cart.events.reduce((sum, e) => sum + (e.enrollees ? e.enrollees.length : 0), 0) +
-                          cart.products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-      console.log('Cart count:', this.cartItemCount);
+  ngOnInit() {
+    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
+      console.log("AppComponent recevied cartItems$ update: ", cartList);
+      const cart = cartList || { events: [], products: [] };
+      const eventsCount = Array.isArray(cart.events) ? cart.events.reduce((sum, e) => sum + (e.enrollees?.length || 0), 0) : 0;
+      const productsCount = Array.isArray(cart.products) ? cart.products.reduce((sum, p) => sum + (p.quantity || 0), 0) : 0;
+      this.cartItemCount = eventsCount + productsCount;
     });
   }
 
@@ -51,6 +50,12 @@ export class AppComponent {
     this.router.navigate(['/admin']).then(() => {
       window.location.reload();
     });
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   @HostListener('document:click', ['$event'])

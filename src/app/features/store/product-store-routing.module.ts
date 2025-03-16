@@ -6,8 +6,8 @@ import { ProductEditComponent } from './product-edit/product-edit.component';
 
 const routes: Routes = [
   { path: '', component: ProductListComponent },
-  { path: ':id', component: ProductDetailComponent },
-  { path: ':id/edit', component: ProductEditComponent },
+  { path: ':productId', component: ProductDetailComponent },
+  { path: ':productId/edit', component: ProductEditComponent },
   { path: 'store', loadChildren: () => import('../store/product-store.module').then(m => m.ProductStoreModule) }
 ];
 

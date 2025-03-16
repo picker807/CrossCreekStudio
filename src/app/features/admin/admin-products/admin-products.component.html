@@ -1,0 +1,134 @@
+<div class="container mx-auto p-4 flex justify-center">
+  <div class="max-w-4xl w-full">
+    <h1 class="text-3xl font-bold mb-6 text-center">Admin: Manage Products</h1>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center">
+      <p>Loading...</p>
+    </div>
+
+    <!-- Create Product Form -->
+    <div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8" *ngIf="!loading">
+      <h2 class="text-2xl font-semibold mb-4">Add New Product</h2>
+      <form [formGroup]="createForm" (ngSubmit)="createProduct()" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="block text-sm font-medium text-gray-700">Product ID</label><input formControlName="id" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Name</label><input formControlName="name" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Price ($)</label><input type="number" formControlName="price" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Stock</label><input type="number" formControlName="stock" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></div>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700">Description</label><textarea formControlName="description" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></textarea></div>
+        <div (drop)="onFileDrop($event, createForm)" (dragover)="onDragOver($event)" class="border-dashed border-2 border-gray-400 p-4 text-center bg-gray-50 rounded-md">
+          <p>Drag & Drop Images Here or</p>
+          <input type="file" multiple (change)="onFileBrowse($event, createForm)" class="hidden" id="createImages">
+          <label for="createImages" class="text-blue-500 cursor-pointer">Browse Files</label>
+          <div *ngIf="previews.length" class="mt-2 flex flex-wrap gap-2">
+            <div *ngFor="let preview of previews; let i = index" class="relative">
+              <img [src]="preview" class="w-20 h-20 object-cover rounded">
+              <button (click)="removeFile(i)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+            </div>
+          </div>
+        </div>
+        <button type="submit" [disabled]="createForm.invalid || loading" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 disabled:bg-gray-400">Create Product</button>
+      </form>
+    </div>
+
+    <!-- Product List Table with Expandable Forms -->
+    <div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8" *ngIf="!loading && products.length">
+      <h2 class="text-2xl font-semibold mb-4">Existing Products</h2>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-200 border-b-2 border-gray-300">
+            <th class="text-left p-3 font-medium">Name</th>
+            <th class="text-center p-3 font-medium">Price</th>
+            <th class="text-center p-3 font-medium">Stock</th>
+            <th class="w-10 p-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let product of products">
+            <!-- Compact Row -->
+            <tr 
+            (click)="toggleExpand(product.id)" 
+            class="cursor-pointer hover:bg-gray-100 border-b border-gray-200"
+            [ngClass]="{'bg-blue-100': expandedProductIds.has(product.id)}"
+          >
+            <td class="p-3 truncate">{{ product.name }}</td>
+            <td class="p-3 text-center">${{ product.price | number:'1.2-2' }}</td>
+            <td class="p-3 text-center">{{ product.stock }}</td>
+            <td class="p-3 text-right">
+              <span class="text-gray-500">{{ expandedProductIds.has(product.id) ? '▼' : '▶' }}</span>
+            </td>
+            </tr>
+            <!-- Expanded Edit Form Row -->
+            <tr *ngIf="expandedProductIds.has(product.id)" class="bg-gray-100">
+              <td colspan="4" class="p-4 border-t-2 border-gray-400">
+                <form [formGroup]="editForms[product.id]" (ngSubmit)="updateProduct(product.id)" class="space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Product ID</label>
+                      <input formControlName="id" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Name</label>
+                      <input formControlName="name" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Price ($)</label>
+                      <input type="number" formControlName="price" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Stock</label>
+                      <input type="number" formControlName="stock" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea formControlName="description" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></textarea>
+                  </div>
+                  <div (drop)="onFileDrop($event, editForms[product.id], product.id)" (dragover)="onDragOver($event)" class="border-dashed border-2 border-gray-400 p-4 text-center bg-gray-50 rounded-md">
+                    <p>Drag & Drop Images Here or</p>
+                    <input type="file" multiple (change)="onFileBrowse($event, editForms[product.id], product.id)" class="hidden" [id]="'editImages_' + product.id">
+                    <label [for]="'editImages_' + product.id" class="text-blue-500 cursor-pointer">Browse Files</label>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      <div *ngFor="let img of editForms[product.id].get('images')?.value" class="relative">
+                        <img [src]="img" class="w-20 h-20 object-cover rounded">
+                      </div>
+                      <div *ngFor="let preview of editPreviews[product.id]; let i = index" class="relative">
+                        <img [src]="preview" class="w-20 h-20 object-cover rounded">
+                        <button (click)="removeFile(i, product.id)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-2 justify-end">
+                    <button type="submit" [disabled]="editForms[product.id].invalid || loading" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">Save</button>
+                    <button type="button" (click)="deleteProduct(product.id)" [disabled]="loading" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 disabled:bg-gray-400">Delete</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+      <p *ngIf="!products.length && !loading" class="text-gray-500 text-center mt-4">No products found.</p>
+    </div>
+
+    <!-- Tax & Shipping Settings -->
+    <div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6" *ngIf="!loading">
+      <h2 class="text-2xl font-semibold mb-4">Store Settings</h2>
+      <div *ngIf="!editingConfig" class="space-y-2">
+        <p>Tax Rate: {{ taxRate * 100 | number:'1.0-2' }}%</p>
+        <p>Shipping Rate: ${{ shippingRate | number:'1.2-2' }}/item</p>
+        <button (click)="editingConfig = true" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Edit</button>
+      </div>
+      <div *ngIf="editingConfig" class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-700">Tax Rate (%)</label><input type="number" [(ngModel)]="taxRate" step="0.01" min="0" class="border-2 border-gray-200 rounded-md p-2 w-full focus:border-blue-500"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Shipping Rate ($/item)</label><input type="number" [(ngModel)]="shippingRate" step="0.01" min="0" class="border-2 border-gray-200 rounded-md p-2 w-full focus:border-blue-500"></div>
+        <div class="flex gap-2 justify-end">
+          <button (click)="updateConfig()" [disabled]="loading" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 disabled:bg-gray-400">Save</button>
+          <button (click)="editingConfig = false" [disabled]="loading" class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 disabled:bg-gray-400">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

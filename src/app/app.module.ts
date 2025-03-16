@@ -20,6 +20,7 @@ import { MessageComponent } from './features/message/message.component';
 import { PageNotFoundComponent } from './features/page-not-found/page-not-found.component';
 import { ContactModule } from './features/contact/contact.module';
 import { ProductStoreModule } from './features/store/product-store.module';
+import { AdminProductsComponent } from './features/admin/admin-products/admin-products.component';
 
 
 export function tokenGetter(platformId: Object) {
@@ -40,6 +41,7 @@ export function tokenGetter(platformId: Object) {
     ConfirmationComponent,
     MessageComponent,
     PageNotFoundComponent,
+    AdminProductsComponent,
  
   ],
   imports: [

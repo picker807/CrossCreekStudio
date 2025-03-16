@@ -159,13 +159,13 @@
       <dl class="space-y-2">
         <div class="flex justify-between">
           <dt class="text-gray-600">Subtotal</dt>
-          <dd class="text-gray-900">${{ (totalPrice - (salesTax || 0) - (shipping || 0)) | number:'1.2-2' }}</dd>
+          <dd class="text-gray-900">${{ (totalPrice - salesTax - shipping) | number:'1.2-2' }}</dd>
         </div>
-        <div class="flex justify-between" *ngIf="salesTax > 0">
+        <div class="flex justify-between">
           <dt class="text-gray-600">Sales Tax ({{ (taxRate * 100) | number:'1.0-2' }}%)</dt>
           <dd class="text-gray-900">${{ salesTax | number:'1.2-2' }}</dd>
         </div>
-        <div class="flex justify-between" *ngIf="shipping > 0">
+        <div class="flex justify-between">
           <dt class="text-gray-600">Shipping ({{ shippingRate | number:'1.2-2' }}/item)</dt>
           <dd class="text-gray-900">${{ shipping | number:'1.2-2' }}</dd>
         </div>
