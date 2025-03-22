@@ -28,10 +28,13 @@ const orderSchema = new mongoose.Schema({
     }]
   }],
   shippingAddress: {
-    street: String,
-    city: String,
-    postalCode: String,
-    country: String
+    fullName: { type: String },
+    street1: { type: String },
+    street2: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zip: { type: String },
+    country: { type: String },
   },
   paymentId: { type: String, required: true },
   total: { type: Number, default: 0 },
@@ -42,9 +45,11 @@ const orderSchema = new mongoose.Schema({
   date:  { type: String, required: true },
   status: {
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'completed', 'canceled'],
+    enum: ['pending', 'completed', 'canceled'],
     default: 'pending'
   },
+  trackingNumber: { type: String, required: false },
+  carrier: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

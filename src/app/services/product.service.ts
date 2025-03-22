@@ -13,7 +13,7 @@ export class ProductService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); // Adjust key if different
+    const token = localStorage.getItem('token');
     if (!token) {
       console.warn('No token found in localStorage');
     }
@@ -58,9 +58,12 @@ export class ProductService {
   }
 
   uploadFile(file: File, key: string): Observable<{ imageUrl: string }> {
+    const headers = this.getAuthHeaders();
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, file.name);
     formData.append('key', key);
-    return this.http.post<{ imageUrl: string }>('/api/gallery/upload', formData);
+    const url = '/api/galleries/upload';
+    console.log('Uploading to:', url);
+    return this.http.post<{ imageUrl: string }>(url, formData, { headers });
   }
 }

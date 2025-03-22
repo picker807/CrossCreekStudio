@@ -11,8 +11,9 @@ router.get('/auth-status', adminController.checkAuthStatus);
 // Specific routes for the currently authenticated admin
 router.get('/current', authMiddleware, adminController.getCurrentAdmin);
 router.patch('/change-password', authMiddleware, adminController.changePassword);
+
 // get all orders
-router.get('/orders', authMiddleware, adminController.getOrders);
+/* router.get('/orders', authMiddleware, adminController.getOrders); */
 
 // Admin management routes (protected by auth and super admin middleware)
 router.get('/:id', authMiddleware, superAdminMiddleware, adminController.getAdminById);
@@ -24,6 +25,6 @@ router.delete('/:id', authMiddleware, superAdminMiddleware, adminController.dele
 
 // Order management routes (protected by auth only—assume all admins can view/update)
 
-router.put('/orders/:id/status', authMiddleware, adminController.updateOrderStatus);
+//router.put('/orders/:id/status', authMiddleware, adminController.updateOrderStatus);
 
 module.exports = router;

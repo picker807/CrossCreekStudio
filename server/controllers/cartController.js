@@ -294,8 +294,8 @@ checkoutCart: async (req, res) => {
     cart.items[0].products.forEach(product => {
       if (!product.productId) {
         invalidItems.push({ item: { id: product.productId?.toString() || 'unknown' }, reason: 'Product no longer exists' });
-      } else if (product.productId.stock < product.quantity) {
-        invalidItems.push({ item: { id: product.productId.id, name: product.productId.name }, reason: 'Insufficient stock' });
+      /* } else if (product.productId.stock < product.quantity) {
+        invalidItems.push({ item: { id: product.productId.id, name: product.productId.name }, reason: 'Insufficient stock' }); */
       } else {
         const pricePaid = product.productId.price; 
         const subtotal = pricePaid * product.quantity;

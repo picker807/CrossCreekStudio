@@ -32,8 +32,13 @@
           <div class="sm:col-span-2" *ngIf="showShippingAddress">
             <dt class="text-sm font-medium text-gray-500">Shipping Address</dt>
             <dd class="mt-1 text-sm text-gray-900">
-              {{ orderDetails.shippingAddress.street }}, {{ orderDetails.shippingAddress.city }}, 
-              {{ orderDetails.shippingAddress.postalCode }}, {{ orderDetails.shippingAddress.country }}
+              {{ orderDetails.shippingAddress.fullName }},
+              {{ orderDetails.shippingAddress.street1 }}, 
+              {{ orderDetails.shippingAddress.street2 }},
+              {{ orderDetails.shippingAddress.city }}, 
+              {{ orderDetails.shippingAddress.state }},
+              {{ orderDetails.shippingAddress.zip }}, 
+              {{ orderDetails.shippingAddress.country }}
             </dd>
           </div>
           <div class="sm:col-span-1">

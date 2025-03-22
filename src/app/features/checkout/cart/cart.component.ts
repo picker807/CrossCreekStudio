@@ -4,7 +4,7 @@ import { CheckoutService } from '../../../services/checkout.service';
 import { Router } from '@angular/router';
 import { catchError, concatMap, finalize, from, of, Subscription, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
-import { OrderDetails, PayPalOrderDetails, CartItems, CartVerificationResult } from '../../../models/interfaces';
+import { OrderDetails, PayPalOrderDetails, CartItems, CartVerificationResult, Address } from '../../../models/interfaces';
 import { EmailService } from '../../../services/email.service';
 import { MessageService } from '../../../services/message.service';
 import { environment } from '../../../../environments/environment';
@@ -29,7 +29,7 @@ export class CartComponent implements OnInit {
   invalidItems: CartVerificationResult['invalidItems'] = [];
   showMailingForm: boolean = false;
   mailingForm: FormGroup;
-  mailingAddress: any;
+  mailingAddress: Address | null;
 
   @ViewChild('paypalButton') paypalButton: ElementRef;
   showPaypalButton: boolean = false;
@@ -170,6 +170,7 @@ export class CartComponent implements OnInit {
           if (this.cartItems.products.length > 0) {
             this.showMailingForm = true; // Show form if products are present
           } else {
+            this.mailingAddress = null;
             this.loadPayPalScript();
             this.showPaypalButton = true; // Directly to PayPal if only events
           }
@@ -183,6 +184,7 @@ export class CartComponent implements OnInit {
 
   submitMailingAddress(): void {
     if (this.mailingForm.valid) {
+      console.log("Mailing Form Data: ", this.mailingForm.value);
       this.mailingAddress = this.mailingForm.value;
       this.showMailingForm = false;
       this.loadPayPalScript();
@@ -233,15 +235,15 @@ export class CartComponent implements OnInit {
         onApprove: (data, actions) => {
           return actions.order.capture().then((details) => {
             console.log('Transaction details:', JSON.stringify(details, null, 2));
-            const addressFromPaypal = {
+            /* const addressFromPaypal = {
               street: details.payer.address?.line1 || '',
               city: details.payer.address?.city || '',
               postalCode: details.payer.address?.postal_code || '',
               country: details.payer.address?.country_code || ''
-            };
+            }; */
             this.checkoutService.completeCheckout(
               data.paymentID, 
-              this.mailingAddress || addressFromPaypal, 
+              this.mailingAddress, //|| addressFromPaypal, 
               details,
               this.validItems,
               this.salesTax, 
@@ -258,7 +260,7 @@ export class CartComponent implements OnInit {
                 this.checkoutService.clearCart().subscribe(() => {
                   this.cartItems = { events: [], products: [] }; // Local reset
                   localStorage.removeItem('cartId'); // Clear cart identifier
-                  this.checkoutService.storeOrderId(response.orderNumber);
+                  //this.checkoutService.storeOrderId(response.orderNumber);
                   this.router.navigate(['/confirmation']);
                 });
               },

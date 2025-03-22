@@ -41,7 +41,7 @@
       </div>
       <div *ngFor="let user of selectedEventUsers" class="mb-2">
         <label class="flex items-center">
-          <input type="checkbox" [checked]="selectedUsers.includes(user.id)" (change)="toggleUserSelection(user.id)" class="form-checkbox h-5 w-5 text-blue-600">
+          <input type="checkbox" [checked]="selectedUsers.includes(user._id)" (change)="toggleUserSelection(user._id)" class="form-checkbox h-5 w-5 text-blue-600">
           <span class="ml-2 text-blue-700">{{ user.firstName }} {{user.lastName }} ({{ user.email }})</span>
         </label>
       </div>

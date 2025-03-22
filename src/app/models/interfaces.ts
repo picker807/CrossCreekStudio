@@ -127,3 +127,59 @@ export interface CartResponse {
   items: CartItems;
   removedItems?: any[];
 }
+
+export interface Order {
+  _id: string;
+  orderNumber: string;
+  cartId: string;
+  userId?: string;
+  email: string;
+  items: {
+    events: { eventId: string | EventRef; pricePaid: number; enrollees: { firstName: string; lastName: string; email: string; phone: string }[] }[];
+    products: { productId: string | ProductRef; quantity: number; pricePaid: number }[];
+  }[];
+  shippingAddress?: { 
+    fullName: string;
+    street1: string;
+    street2: string; 
+    city: string;
+    state: string; 
+    zip: string; 
+    country: string };
+  paymentId: string;
+  total: number;
+  salesTax: number;
+  shipping: number;
+  taxRate: number;
+  shippingRate: number;
+  date: string;
+  status: 'pending' | 'completed' | 'canceled';
+  trackingNumber?: string;
+  carrier?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventRef {
+  _id: string;
+  name: string;
+  location?: string;
+  date?: string;
+  [key: string]: any; // Allow extra fields from population
+}
+
+export interface ProductRef {
+  _id: string; // Backend uses _id, not id, for MongoDB docs
+  name: string;
+  [key: string]: any; // Allow extra fields
+}
+
+export interface Address {
+  fullName?: string;
+  street1: string;
+  street2?: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+}

@@ -7,6 +7,141 @@
       <p>Loading...</p>
     </div>
 
+    <!-- Orders Table -->
+<div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8">
+  <h2 class="text-2xl font-semibold mb-4">Orders</h2>
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-200 border-b-2 border-gray-300">
+        <th (click)="sortOrders('orderNumber')" class="text-left p-3 cursor-pointer">Order Number {{ sortColumn === 'orderNumber' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+        <th (click)="sortOrders('email')" class="text-left p-3 cursor-pointer">Email {{ sortColumn === 'email' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+        <th (click)="sortOrders('status')" class="text-left p-3 cursor-pointer">Status {{ sortColumn === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+        <th class="w-10 p-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let order of orders">
+        <tr (click)="toggleOrderExpand(order._id)" class="cursor-pointer hover:bg-gray-100 border-b" [ngClass]="{'bg-blue-100': expandedOrderIds.has(order._id)}">
+          <td class="p-3">{{ order.orderNumber }}</td>
+          <td class="p-3">{{ order.email }}</td>
+          <td class="p-3">{{ order.status }}</td>
+          <td class="p-3 text-right"><span class="text-gray-500">{{ expandedOrderIds.has(order._id) ? '▼' : '▶' }}</span></td>
+        </tr>
+        <tr *ngIf="expandedOrderIds.has(order._id) && orderEditForms[order._id]" class="bg-gray-100">
+          <td colspan="4" class="p-4 border-t-2 border-gray-400">
+            <form [formGroup]="orderEditForms[order._id]" (ngSubmit)="updateOrder(order._id)" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Non-editable fields with direct binding -->
+                <div><label class="block text-sm font-medium">Order Number</label><input value="{{ order.orderNumber }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Email</label><input formControlName="email" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
+                <div><label class="block text-sm font-medium">Total</label><input type="number" value="{{ order.total }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Sales Tax</label><input type="number" value="{{ order.salesTax }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Shipping</label><input type="number" value="{{ order.shipping }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Tax Rate</label><input type="number" value="{{ order.taxRate }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Shipping Rate</label><input type="number" value="{{ order.shippingRate }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Date</label><input value="{{ order.date }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Status</label>
+                  <select formControlName="status" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2">
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                    <option value="canceled">Canceled</option>
+                  </select>
+                </div>
+                <div><label class="block text-sm font-medium">Tracking Number</label><input formControlName="trackingNumber" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
+                <div><label class="block text-sm font-medium">Carrier</label><input formControlName="carrier" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
+                <div><label class="block text-sm font-medium">Created At</label><input value="{{ order.createdAt }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                <div><label class="block text-sm font-medium">Updated At</label><input value="{{ order.updatedAt }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+              </div>
+              <div><label class="block text-sm font-medium">Payment ID</label><input value="{{ order.paymentId }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+              
+              <!-- Shipping Address -->
+              <div *ngIf="order.shippingAddress && hasShippingAddress(order.shippingAddress); else noAddress">
+                <label class="block text-sm font-medium">Shipping Address</label>
+                <div formGroupName="shippingAddress" class="space-y-2">
+                  <input formControlName="fullName" placeholder="Full Name" class="w-full border-2 border-gray-200 rounded-md p-2">
+                  <input formControlName="street1" placeholder="Street" class="w-full border-2 border-gray-200 rounded-md p-2">
+                  <input formControlName="street2" placeholder="Apt/Suite" class="w-full border-2 border-gray-200 rounded-md p-2">
+                  <input formControlName="city" placeholder="City" class="w-full border-2 border-gray-200 rounded-md p-2">
+                  <input formControlName="state" placeholder="State" class="w-full border-2 border-gray-200 rounded-md p-2">
+                  <input formControlName="zip" placeholder="ZIP Code" class="w-full border-2 border-gray-200 rounded-md p-2">
+                  <input formControlName="country" placeholder="Country" class="w-full border-2 border-gray-200 rounded-md p-2">
+                </div>
+              </div>
+              <ng-template #noAddress>
+                <div class="text-sm text-gray-500">No shipping address provided (no products to ship)</div>
+              </ng-template>
+              
+              <!-- Items -->
+              <div>
+                <label class="block text-sm font-medium">Items</label>
+                <div class="space-y-4">
+                  <div *ngIf="order.items?.[0]?.events?.length > 0">
+                    <h3 class="text-lg font-medium">Events</h3>
+                    <table class="w-full border-collapse">
+                      <thead>
+                        <tr class="bg-gray-200 border-b-2 border-gray-300">
+                          <th class="text-left p-2">Event ID</th>
+                          <th class="text-left p-2">Event Name</th>
+                          <th class="text-left p-2">Location</th>
+                          <th class="text-left p-2">Date</th>
+                          <th class="text-left p-2">Price Paid</th>
+                          <th class="text-left p-2">Enrollees</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let event of order.items[0].events" class="border-b">
+                          <td class="p-2">{{ event.eventId.id }}</td>
+                          <td class="p-2">{{ event.eventId.name }}</td>
+                          <td class="p-2">{{ event.eventId.location }}</td>
+                          <td class="p-2">{{ event.eventId.date }}</td>
+                          <td class="p-2">{{ event.pricePaid }}</td>
+                          <td class="p-2">
+                            <ul class="list-disc pl-4">
+                              <li *ngFor="let enrollee of event.enrollees">
+                                {{ enrollee.firstName }} {{ enrollee.lastName }} ({{ enrollee.email }}, {{ enrollee.phone || 'N/A' }})
+                              </li>
+                            </ul>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div *ngIf="order.items?.[0]?.products?.length > 0">
+                    <h3 class="text-lg font-medium">Products</h3>
+                    <table class="w-full border-collapse">
+                      <thead>
+                        <tr class="bg-gray-200 border-b-2 border-gray-300">
+                          <th class="text-left p-2">Product ID</th>
+                          <th class="text-left p-2">Product Name</th>
+                          <th class="text-left p-2">Quantity</th>
+                          <th class="text-left p-2">Price Paid</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let product of order.items[0].products" class="border-b">
+                          <td class="p-2">{{ product.productId.id }}</td>
+                          <td class="p-2">{{ product.productId.name }}</td>
+                          <td class="p-2">{{ product.quantity }}</td>
+                          <td class="p-2">{{ product.pricePaid }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex gap-2 justify-end">
+                <button type="submit" [disabled]="orderEditForms[order._id].invalid || orderEditForms[order._id].pristine" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Save</button>
+                <button type="button" (click)="sendTrackingEmail(order._id)" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Send Tracking Email</button>
+              </div>
+            </form>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+
     <!-- Create Product Form -->
     <div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8" *ngIf="!loading">
       <h2 class="text-2xl font-semibold mb-4">Add New Product</h2>

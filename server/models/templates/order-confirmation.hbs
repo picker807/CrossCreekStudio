@@ -1,7 +1,7 @@
 {{> header}}
 
 <h2>Order Confirmation</h2>
-<p>Dear Customer,</p>
+<p>Dear {{shippingAddress.fullName}},</p>
 
 <p>Your order is confirmed! Here are the details:</p>
 
@@ -10,7 +10,12 @@
     <li><strong>Order Number:</strong> {{orderNumber}}</li>
     <li><strong>Date:</strong> {{dateFormat date "MMMM D, YYYY, h:mm A"}}</li>
     {{#if shippingAddress}}
-    <li><strong>Shipping Address:</strong> {{shippingAddress.street}}, {{shippingAddress.city}}, {{shippingAddress.postalCode}}, {{shippingAddress.country}}</li>
+    <li><strong>Shipping Address:</strong> {{shippingAddress.street1}}, 
+    {{shippingAddress.street2}},
+    {{shippingAddress.city}},
+    {{shippingAddress.state}},
+    {{shippingAddress.zip}}, 
+    {{shippingAddress.country}}</li>
     {{/if}}
     <li><strong>Contact Email:</strong> {{email}}</li>
 </ul>

@@ -57,8 +57,6 @@ app.use(cors({
 // Handle preflight requests
 app.options('*', cors());
 
-
-
 // Register the routes with the Express application
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);

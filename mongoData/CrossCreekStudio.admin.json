@@ -1,0 +1,44 @@
+[{
+  "_id": {
+    "$oid": "66a0000d000382151605eb17"
+  },
+  "email": "picker807@gmail.com",
+  "password": "$2b$10$XB/fxluDstD9eTe/0mP65OsyQ/6X5KUEdThA4aj6dSxOuhHVyVDJa",
+  "__v": 0,
+  "role": "superadmin",
+  "name": "Glenda",
+  "id": "2"
+},
+{
+  "_id": {
+    "$oid": "66c943be43fbc5a5927bf8cd"
+  },
+  "id": "6",
+  "name": "Christina",
+  "email": "christy.paints13838@gmail.com",
+  "password": "$2b$10$NhdIsMJPVLQcv6FX8G8DcOf7V7Sc7u9MzxAjS3hcDbOA1tbzsVWP6",
+  "role": "superadmin",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66ecd2b81e809109ff254dd3"
+  },
+  "id": "10",
+  "name": "Test Admin",
+  "email": "newemail@new.com",
+  "password": "$2b$10$7MNkUf7KTcbHURD2tWyKBOTQ8TgPXR4v/GivyfwG4gIYhWcx8ZE4G",
+  "role": "admin",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66f49ffa332c92b134cc84fe"
+  },
+  "id": "11",
+  "name": "Rick Neff",
+  "email": "rick.neff@gmail.com",
+  "password": "$2b$10$IdRHHQxXoGdBoOun7.9rjuqttGNFCHIrx7VEtaiirnR98b.AXm97e",
+  "role": "superadmin",
+  "__v": 0
+}]

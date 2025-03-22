@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema({
   id:    { type: String, required: true },
   name:  { type: String, required: true },
   price: { type: Number, required: true },
-  stock: { type: Number, required: true, min: 0 },
+  stock: { type: Number, required: true, min: 0, default: 0 },
   description: { type: String, required: true },
   images: [ String ], // Cloudflare URLs
   createdAt: { type: Date, default: Date.now }

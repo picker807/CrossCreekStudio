@@ -165,7 +165,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
     this.originalEvent.attendees.forEach(attendee => {
       const formattedPhone = this.phoneFormatPipe.transform(attendee.phone);
       const attendeeGroup = this.fb.group({
-        id: [attendee.id || ''],
+        id: [attendee._id || ''],
         firstName: [attendee.firstName || '', Validators.required],
         lastName: [attendee.lastName || '', Validators.required],
         email: [attendee.email || '', [Validators.required, Validators.email]],

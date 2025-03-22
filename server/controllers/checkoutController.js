@@ -28,6 +28,7 @@ const checkoutController = {
 
   completeCheckout: async (req, res) => {
     console.time('completeCheckout');
+    console.log("Checkout Request Body: ", JSON.stringify(req.body, null, 2));
     const { cartId, paymentId, shippingAddress, paypalDetails, cartItems, email } = req.body;
     const { events, products } = cartItems;
     console.timeLog('completeCheckout', 'Starting...');
@@ -64,26 +65,25 @@ const checkoutController = {
         console.timeLog('completeCheckout', `Event ${event._id} found`);
 
         const attendeeIds = [];
-        for (const enrollee of event.enrollees) {
-          const compositeKey = `${enrollee.firstName.toLowerCase()}_${enrollee.lastName.toLowerCase()}_${enrollee.email.toLowerCase()}`;
-          let user = await User.findOne({ compositeKey });
-          if (!user) {
-            const nextId = await sequenceGenerator.nextId('users');
-            user = new User({
-              id: nextId.toString(),
-              firstName: enrollee.firstName,
-              lastName: enrollee.lastName,
-              email: enrollee.email,
-              phone: enrollee.phone,
-              compositeKey
-            });
-            await user.save();
-            console.timeLog('completeCheckout', `User ${compositeKey} created`);
-          }
-          attendeeIds.push(user._id);
-        }
-        dbEvent.attendees = [...new Set([...dbEvent.attendees, ...attendeeIds])];
-        await dbEvent.save();
+for (const enrollee of event.enrollees || []) {
+  const compositeKey = `${enrollee.firstName?.toLowerCase()}_${enrollee.lastName?.toLowerCase()}_${enrollee.email?.toLowerCase()}`;
+  let user = await User.findOne({ compositeKey });
+  if (!user) {
+    user = new User({
+      firstName: enrollee.firstName || '',
+      lastName: enrollee.lastName || '',
+      email: enrollee.email || '',
+      phone: enrollee.phone || '',
+      compositeKey,
+    });
+    await user.save();
+    console.timeLog('completeCheckout', `User ${compositeKey} created with _id ${user._id}`);
+  }
+  attendeeIds.push(user._id);
+}
+dbEvent.attendees = [...new Set([...(dbEvent.attendees || []), ...attendeeIds])];
+await dbEvent.save();
+console.timeLog('completeCheckout', `Event ${event._id} updated`);
         console.timeLog('completeCheckout', `Event ${event.eventId} updated`);
       }
         

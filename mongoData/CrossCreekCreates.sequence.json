@@ -1,0 +1,11 @@
+[{
+  "_id": {
+    "$oid": "66625debac770f892d94a2a3"
+  },
+  "maxEventId": 37,
+  "maxGalleryId": 192,
+  "maxUserId": 194,
+  "maxAdminId": 12,
+  "maxOrderId": 1025,
+  "maxProductId": 6
+}]

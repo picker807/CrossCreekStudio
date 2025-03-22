@@ -41,6 +41,7 @@ const productController = {
     try {
       const { name, price, stock, description, images } = req.body;
       const maxProductId = await sequenceGenerator.nextId("products");
+      console.log('maxProductId:', maxProductId, 'type:', typeof maxProductId);
       const product = new Product({
         id: maxProductId,
         name,
@@ -49,6 +50,7 @@ const productController = {
         description,
         images // Array of Cloudflare URLs
       });
+      console.log('Product to save:', product); 
       const newProduct = await product.save();
       res.status(201).json(newProduct);
     } catch (err) {

@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "67d487d32940bb1991e3f797"
+  },
+  "key": "salesTaxRate",
+  "value": 0.08,
+  "description": "Default sales tax rate for products",
+  "updatedAt": {
+    "$date": "2025-03-14T00:00:00.000Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67d488742940bb1991e3f798"
+  },
+  "key": "shippingRatePerItem",
+  "value": 4,
+  "description": "Flat shipping rate per product item",
+  "updatedAt": {
+    "$date": "2025-03-14T00:00:00.000Z"
+  }
+}]

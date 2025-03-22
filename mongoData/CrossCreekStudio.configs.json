@@ -1,0 +1,16 @@
+[{
+  "_id": {
+    "$oid": "67d638ea09e14b8e943601a0"
+  },
+  "key": "taxRate",
+  "__v": 0,
+  "value": 0.08
+},
+{
+  "_id": {
+    "$oid": "67d638ea09e14b8e943601a1"
+  },
+  "key": "shippingRate",
+  "__v": 0,
+  "value": 4
+}]

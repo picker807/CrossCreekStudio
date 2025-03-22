@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Product } from '../../../models/product.model';
 import { ProductService } from '../../../services/product.service';
+import { CheckoutService } from '../../../services/checkout.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, map, Observable, of } from 'rxjs';
+import { Order } from '../../../models/interfaces';
+import { OrderService } from '../../../services/order.service';
+
+type StringOrderKeys = 'orderNumber' | 'email' | 'status' | 'cartId' | 'userId' | 'paymentId' | 'date' | 'trackingNumber' | 'carrier' | 'createdAt' | 'updatedAt';
 
 @Component({
   selector: 'cc-admin-products',
@@ -10,13 +15,18 @@ import { forkJoin, map, Observable, of } from 'rxjs';
   styleUrl: './admin-products.component.css'
 })
 export class AdminProductsComponent implements OnInit {
+  orders: Order[] = [];
+  orderEditForms: { [key: string]: FormGroup } = {};
+  expandedOrderIds: Set<string> = new Set();
+  sortColumn: keyof Order = 'orderNumber';
+  sortDirection: 'asc' | 'desc' = 'asc';
   products: Product[] = [];
   createForm: FormGroup;
   selectedFiles: File[] = [];
   editSelectedFiles: { [key: string]: File[] } = {};
   previews: string[] = [];
   editPreviews: { [key: string]: string[] } = {};
-  editForms: { [key: string]: FormGroup } = {};
+  productEditForms: { [key: string]: FormGroup } = {};
   taxRate: number = 0;
   shippingRate: number = 0;
   editingConfig: boolean = false;
@@ -24,7 +34,10 @@ export class AdminProductsComponent implements OnInit {
   expandedProductIds: Set<string> = new Set();
   error: string | null = null;
 
-  constructor(private productService: ProductService, private fb: FormBuilder) {
+  constructor(
+    private productService: ProductService, 
+    private fb: FormBuilder,
+    private orderService: OrderService) {
     this.createForm = this.fb.group({
       id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -38,6 +51,7 @@ export class AdminProductsComponent implements OnInit {
   ngOnInit(): void {
     this.loadProducts();
     this.loadConfig();
+    this.loadOrders();
   }
 
   loadProducts(): void {
@@ -45,7 +59,7 @@ export class AdminProductsComponent implements OnInit {
     this.productService.getProductsAdmin().subscribe({
       next: (products) => {
         this.products = products;
-        this.products.forEach(p => this.initEditForm(p));
+        this.products.forEach(p => this.initProductEditForm(p));
         this.loading = false;
       },
       error: (err) => {
@@ -66,8 +80,23 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  initEditForm(product: Product): void {
-    this.editForms[product.id] = this.fb.group({
+  loadOrders(): void {
+    this.orderService.getOrders().subscribe({
+      next: (orders) => {
+        this.orders = orders;
+        console.log("Raw Orders from Backend: ", JSON.stringify(orders, null, 2));
+        this.orders.forEach((order) => {
+          this.initOrderEditForm(order); 
+          console.log(`Form Created for ${order._id}: `, this.orderEditForms[order._id]?.value);
+          //this.orderEditForms[order.orderNumber].patchValue(order);
+        });
+      },
+      error: (err) => console.error('Load orders error:', err),
+    });
+  }
+
+  initProductEditForm(product: Product): void {
+    this.productEditForms[product.id] = this.fb.group({
       id: [product.id, [Validators.required, Validators.pattern(/^\d+$/)]],
       name: [product.name, [Validators.required, Validators.minLength(2)]],
       price: [product.price, [Validators.required, Validators.min(0)]],
@@ -77,6 +106,28 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  initOrderEditForm(order: any): void {
+    this.orderEditForms[order._id] = this.fb.group({
+      email: [order.email, [Validators.required, Validators.email]],
+      status: [order.status, Validators.required],
+      trackingNumber: [order.trackingNumber || ''],
+      carrier: [order.carrier || ''],
+      shippingAddress: this.fb.group({
+        fullName: [order.shippingAddress?.fullName || ''],
+        street1: [order.shippingAddress?.street1 || ''],
+        street2: [order.shippingAddress?.street2 || ''],
+        city: [order.shippingAddress?.city || ''],
+        state: [order.shippingAddress?.state || ''],
+        zip: [order.shippingAddress?.zip || ''],
+        country: [order.shippingAddress?.country || '']
+      })
+    });
+  }
+
+  hasShippingAddress(address: any): boolean {
+    return address && Object.values(address).some(value => value !== '' && value !== null && value !== undefined);
+  }
+
   toggleExpand(productId: string): void {
     if (this.expandedProductIds.has(productId)) {
       this.expandedProductIds.delete(productId);
@@ -84,6 +135,35 @@ export class AdminProductsComponent implements OnInit {
       this.expandedProductIds.add(productId);
     }
   }
+
+  toggleOrderExpand(orderId: string): void {
+    this.expandedOrderIds.has(orderId) ? this.expandedOrderIds.delete(orderId) : this.expandedOrderIds.add(orderId);
+  }
+
+  sortOrders(column: StringOrderKeys): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.orders.sort((a, b) => {
+      const aValue = a[column] || '';
+      const bValue = b[column] || '';
+      return this.sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    });
+  }
+
+  updateOrder(orderId: string): void {
+    if (this.orderEditForms[orderId].valid) {
+      const updatedOrder = { ...this.orders.find(o => o._id === orderId), ...this.orderEditForms[orderId].value };
+      this.orderService.updateOrder(orderId, updatedOrder).subscribe({
+        next: () => console.log('Order updated successfully'),
+        error: (err) => console.error('Error updating order:', err)
+      });
+    }
+  }
+    
 
   onFileDrop(event: DragEvent, form: FormGroup, productId?: string): void {
     event.preventDefault();
@@ -179,12 +259,12 @@ export class AdminProductsComponent implements OnInit {
   }
 
   updateProduct(productId: string): void {
-    if (this.editForms[productId].valid) {
+    if (this.productEditForms[productId].valid) {
       this.loading = true;
       const newFiles = this.editSelectedFiles[productId] || [];
       this.uploadFiles(newFiles).subscribe({
         next: (newUrls) => {
-          const productData = { ...this.editForms[productId].value, images: [...this.editForms[productId].value.images, ...newUrls] };
+          const productData = { ...this.productEditForms[productId].value, images: [...this.productEditForms[productId].value.images, ...newUrls] };
           this.productService.updateProduct(productId, productData).subscribe({
             next: () => {
               this.loadProducts();
@@ -231,4 +311,54 @@ export class AdminProductsComponent implements OnInit {
       }
     });
   }
+
+  /* transformOrderForForm(order: any): any {
+    return {
+      _id: order._id,
+      orderNumber: order.orderNumber,
+      email: order.email,
+      items: {
+        events: (order.items?.events || []).map(event => ({
+          eventStringId: event.eventId?._id || '',
+          eventName: event.eventId?.name || '',
+          eventLocation: event.eventId?.location || '',
+          eventDate: event.eventId?.date || '',
+          pricePaid: event.pricePaid,
+          enrollees: (event.enrollees || []).map(enrollee => ({
+            firstName: enrollee.firstName,
+            lastName: enrollee.lastName,
+            email: enrollee.email,
+            phone: enrollee.phone,
+          })),
+        })),
+        products: (order.items?.products || []).map(product => ({
+          productStringId: product.productId?.id || '',
+          productName: product.productId?.name || '',
+          quantity: product.quantity,
+          pricePaid: product.pricePaid,
+        })),
+      },
+      shippingAddress: order.shippingAddress ? {
+        fullName: order.shippingAddress.fullName || '',
+        street1: order.shippingAddress.street1 || '',
+        street2: order.shippingAddress.street2 || '',
+        city: order.shippingAddress.city || '',
+        state: order.shippingAddress.state || '',
+        zip: order.shippingAddress.zip || '',
+        country: order.shippingAddress.country || '',
+      } : undefined, // Keep undefined if null
+      paymentId: order.paymentId,
+      total: order.total,
+      salesTax: order.salesTax || 0,
+      shipping: order.shipping || 0,
+      taxRate: order.taxRate || 0,
+      shippingRate: order.shippingRate || 0,
+      date: order.date,
+      status: order.status,
+      trackingNumber: order.trackingNumber || '',
+      carrier: order.carrier || '',
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    };
+  } */
 }

@@ -269,7 +269,7 @@ export class CheckoutService {
         city: shippingAddress.city,
         postalCode: shippingAddress.zip,
         country: shippingAddress.country,
-        contactEmail: shippingAddress.contactEmail // Include email
+        contactEmail: shippingAddress.contactEmail
       } : null,
       paypalDetails,
       cartItems,

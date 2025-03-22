@@ -41,7 +41,7 @@ exports.createEvent = async (req, res) => {
     if (req.body.attendees) {
       const userIds = await Promise.all(
         req.body.attendees.map(async user => {
-          const foundUser = await User.findOne({ id: user.id });
+          const foundUser = await User.findOne({ _id: user._id });
           return foundUser ? foundUser._id : null;
         })
       );
@@ -84,7 +84,6 @@ exports.addUserToEvent = async (req, res) => {
     if (!user) {
       // Create a new user
       user = new User({
-        id: req.body.id,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,

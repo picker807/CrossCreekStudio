@@ -106,7 +106,9 @@ exports.uploadImage = async (req, res) => {
       Body: file.buffer,
     };
     const command = new PutObjectCommand(params);
-    const imageUrl = await s3Client.send(command);
+    
+    await s3Client.send(command);
+    const imageUrl = `https://${process.env.R2_DEV_IDENTIFIER}.r2.dev/${key}`;
     res.status(200).json({ imageUrl });
   } catch (error) {
     console.error(error);

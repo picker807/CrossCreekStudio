@@ -161,7 +161,7 @@ exports.logout = (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
 };
 
-exports.getOrders = async (req, res) => {
+/* exports.getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate('items.eventId', 'name date location')
@@ -172,7 +172,7 @@ exports.getOrders = async (req, res) => {
     console.error('Error fetching orders:', err);
     res.status(500).json({ message: err.message });
   }
-};
+}; 
 
 exports.updateOrderStatus = async (req, res) => {
   try {
@@ -189,4 +189,4 @@ exports.updateOrderStatus = async (req, res) => {
     console.error('Error updating order status:', err);
     res.status(500).json({ message: err.message });
   }
-};
+}; */

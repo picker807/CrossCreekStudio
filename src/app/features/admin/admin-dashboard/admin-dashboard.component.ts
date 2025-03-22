@@ -220,7 +220,7 @@ export class AdminDashboardComponent implements OnInit {
     if (this.notificationForm.valid) {
       const { subject, message } = this.notificationForm.value;
       const selectedUserEmails = this.selectedEventUsers
-        .filter(user => this.selectedUsers.includes(user.id))
+        .filter(user => this.selectedUsers.includes(user._id))
         .map(user => user.email);
   
       console.log('Preview Email Data:', { selectedUserEmails, subject, message, eventDetails: this.eventDetails });
@@ -369,7 +369,7 @@ export class AdminDashboardComponent implements OnInit {
     if (this.notificationForm.valid && this.selectedUsers.length > 0) {
       const { subject, message } = this.notificationForm.value;
       const selectedUsers = this.selectedEventUsers
-        .filter(user => this.selectedUsers.includes(user.id))
+        .filter(user => this.selectedUsers.includes(user._id))
         .map(user => ({ firstName: user.firstName, email: user.email }));
   
       console.log("Selected users sent to email: ", selectedUsers);
@@ -441,7 +441,7 @@ export class AdminDashboardComponent implements OnInit {
 
   toggleSelectAll(event: any): void {
     const isChecked = event.target.checked;
-    this.selectedUsers = isChecked ? this.selectedEventUsers.map(user => user.id) : [];
+    this.selectedUsers = isChecked ? this.selectedEventUsers.map(user => user._id) : [];
   }
 
   toggleUserSelection(userId: string): void {
