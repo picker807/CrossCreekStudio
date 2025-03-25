@@ -265,9 +265,12 @@ export class CheckoutService {
       cartId: this.getCartId(),
       paymentId,
       shippingAddress: shippingAddress ? {
-        street: shippingAddress.street1,
+        fullName: shippingAddress.fullName,
+        street1: shippingAddress.street1,
+        street2: shippingAddress.street2,
         city: shippingAddress.city,
-        postalCode: shippingAddress.zip,
+        state: shippingAddress.state,
+        zip: shippingAddress.zip,
         country: shippingAddress.country,
         contactEmail: shippingAddress.contactEmail
       } : null,

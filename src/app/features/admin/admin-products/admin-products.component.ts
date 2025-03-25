@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Product } from '../../../models/product.model';
 import { ProductService } from '../../../services/product.service';
 import { CheckoutService } from '../../../services/checkout.service';
@@ -6,6 +6,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, map, Observable, of } from 'rxjs';
 import { Order } from '../../../models/interfaces';
 import { OrderService } from '../../../services/order.service';
+import { MessageService } from '../../../services/message.service';
+import { EmailService } from '../../../services/email.service';
 
 type StringOrderKeys = 'orderNumber' | 'email' | 'status' | 'cartId' | 'userId' | 'paymentId' | 'date' | 'trackingNumber' | 'carrier' | 'createdAt' | 'updatedAt';
 
@@ -33,11 +35,15 @@ export class AdminProductsComponent implements OnInit {
   loading: boolean = false;
   expandedProductIds: Set<string> = new Set();
   error: string | null = null;
+  isCreateFormExpanded: boolean = false;
 
   constructor(
     private productService: ProductService, 
     private fb: FormBuilder,
-    private orderService: OrderService) {
+    private cdr: ChangeDetectorRef,
+    private orderService: OrderService,
+    private messageService: MessageService,
+    private emailService: EmailService) {
     this.createForm = this.fb.group({
       id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -58,8 +64,14 @@ export class AdminProductsComponent implements OnInit {
     this.loading = true;
     this.productService.getProductsAdmin().subscribe({
       next: (products) => {
+        console.log('Products received:', products); 
         this.products = products;
-        this.products.forEach(p => this.initProductEditForm(p));
+        this.products.forEach(p => {
+          this.initProductEditForm(p);
+          // Initialize editPreviews with existing images
+          this.editPreviews[p.id] = [];
+          this.editSelectedFiles[p.id] = [];
+        });
         this.loading = false;
       },
       error: (err) => {
@@ -129,11 +141,9 @@ export class AdminProductsComponent implements OnInit {
   }
 
   toggleExpand(productId: string): void {
-    if (this.expandedProductIds.has(productId)) {
-      this.expandedProductIds.delete(productId);
-    } else {
-      this.expandedProductIds.add(productId);
-    }
+    this.expandedProductIds.has(productId) ? this.expandedProductIds.delete(productId) :   this.expandedProductIds.add(productId);
+    console.log('Expanded IDs:', Array.from(this.expandedProductIds)); // Debug
+    this.cdr.detectChanges();
   }
 
   toggleOrderExpand(orderId: string): void {
@@ -158,8 +168,13 @@ export class AdminProductsComponent implements OnInit {
     if (this.orderEditForms[orderId].valid) {
       const updatedOrder = { ...this.orders.find(o => o._id === orderId), ...this.orderEditForms[orderId].value };
       this.orderService.updateOrder(orderId, updatedOrder).subscribe({
-        next: () => console.log('Order updated successfully'),
-        error: (err) => console.error('Error updating order:', err)
+        next: () => {
+          this.messageService.showMessage({ text: `Order updated`, type: 'success', duration: 3000 });
+        },
+        error: (error) => {
+          console.error(`Error removing item:`, error);
+          this.messageService.showMessage({ text: `Failed to update order`, type: 'error', duration: 3000 });
+        }
       });
     }
   }
@@ -185,6 +200,7 @@ export class AdminProductsComponent implements OnInit {
       this.selectedFiles = [...this.selectedFiles, ...fileArray];
       this.updatePreviews(this.selectedFiles);
     }
+    this.cdr.detectChanges();
   }
 
   updatePreviews(files: File[], productId?: string): void {
@@ -194,8 +210,12 @@ export class AdminProductsComponent implements OnInit {
       return new Promise<string>(resolve => reader.onload = () => resolve(reader.result as string));
     });
     Promise.all(previews).then(results => {
-      if (productId) this.editPreviews[productId] = results;
-      else this.previews = results;
+      if (productId) {
+        this.editPreviews[productId] = results;
+      } else {
+        this.previews = results;
+      }
+      this.cdr.detectChanges();
     });
   }
 
@@ -236,6 +256,11 @@ export class AdminProductsComponent implements OnInit {
     event.preventDefault();
   }
 
+  toggleCreateForm(): void {
+    this.isCreateFormExpanded = !this.isCreateFormExpanded;
+    this.cdr.detectChanges();
+  }
+
   createProduct(): void {
     if (this.createForm.valid) {
       this.loading = true;
@@ -248,6 +273,7 @@ export class AdminProductsComponent implements OnInit {
               this.createForm.reset({ id: '', name: '', price: 0, stock: 0, description: '', images: [] });
               this.selectedFiles = [];
               this.previews = [];
+              this.isCreateFormExpanded = false;
               this.loading = false;
             },
             error: () => (this.loading = false)
@@ -312,53 +338,68 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  /* transformOrderForForm(order: any): any {
-    return {
-      _id: order._id,
-      orderNumber: order.orderNumber,
-      email: order.email,
-      items: {
-        events: (order.items?.events || []).map(event => ({
-          eventStringId: event.eventId?._id || '',
-          eventName: event.eventId?.name || '',
-          eventLocation: event.eventId?.location || '',
-          eventDate: event.eventId?.date || '',
-          pricePaid: event.pricePaid,
-          enrollees: (event.enrollees || []).map(enrollee => ({
-            firstName: enrollee.firstName,
-            lastName: enrollee.lastName,
-            email: enrollee.email,
-            phone: enrollee.phone,
-          })),
-        })),
-        products: (order.items?.products || []).map(product => ({
-          productStringId: product.productId?.id || '',
-          productName: product.productId?.name || '',
-          quantity: product.quantity,
-          pricePaid: product.pricePaid,
-        })),
-      },
-      shippingAddress: order.shippingAddress ? {
-        fullName: order.shippingAddress.fullName || '',
-        street1: order.shippingAddress.street1 || '',
-        street2: order.shippingAddress.street2 || '',
-        city: order.shippingAddress.city || '',
-        state: order.shippingAddress.state || '',
-        zip: order.shippingAddress.zip || '',
-        country: order.shippingAddress.country || '',
-      } : undefined, // Keep undefined if null
-      paymentId: order.paymentId,
-      total: order.total,
-      salesTax: order.salesTax || 0,
-      shipping: order.shipping || 0,
-      taxRate: order.taxRate || 0,
-      shippingRate: order.shippingRate || 0,
-      date: order.date,
-      status: order.status,
-      trackingNumber: order.trackingNumber || '',
-      carrier: order.carrier || '',
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-    };
-  } */
+  sendTrackingEmail(orderId: string): void {
+    if (this.orderEditForms[orderId].valid) {
+      const orderData = { ...this.orders.find(o => o._id === orderId), ...this.orderEditForms[orderId].value };
+      const { email, trackingNumber, carrier, status, orderNumber } = orderData;
+  
+      // Verify required fields
+      if (!trackingNumber || !carrier) {
+        this.messageService.showMessage({
+          text: 'Tracking number and carrier are required to send a tracking email.',
+          type: 'error',
+          duration: 3000
+        });
+        return;
+      }
+  
+      if (status !== 'completed') {
+        this.messageService.showMessage({
+          text: 'Order status must be "complete" to send a tracking email.',
+          type: 'error',
+          duration: 3000
+        });
+        return;
+      }
+  
+      // If all checks pass, prepare and send the email
+      const templateData = {
+        orderNumber: orderNumber,
+        trackingNumber: trackingNumber, 
+        carrier: carrier,              
+        date: new Date().toISOString(),
+      };
+  
+      this.emailService.sendEmail(
+        [email],
+        `Your Tracking Update - ${orderNumber}`,
+        'tracking',
+        templateData
+      ).subscribe({
+        next: () => {
+          console.log(`Tracking email sent to ${email}`);
+          this.messageService.showMessage({
+            text: `Tracking email sent`,
+            type: 'success',
+            duration: 3000
+          });
+        },
+        error: (error) => {
+          console.error(`Failed to send tracking email to ${email}`, error);
+          this.messageService.showMessage({
+            text: `Failed to send tracking email`,
+            type: 'error',
+            duration: 3000
+          });
+        }
+      });
+    } else {
+      this.messageService.showMessage({
+        text: 'Form is invalid. Please check all fields.',
+        type: 'error',
+        duration: 3000
+      });
+    }
+  }
+
 }

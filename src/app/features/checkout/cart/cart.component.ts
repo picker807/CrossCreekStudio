@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CheckoutService } from '../../../services/checkout.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { catchError, concatMap, finalize, from, of, Subscription, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { OrderDetails, PayPalOrderDetails, CartItems, CartVerificationResult, Address } from '../../../models/interfaces';
@@ -40,8 +40,15 @@ export class CartComponent implements OnInit {
     private router: Router,
     private emailService: EmailService,
     private messageService: MessageService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.loadRates();
+      }
+    });
+
     this.mailingForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       contactEmail: ['', [Validators.required, Validators.email]],
@@ -65,15 +72,48 @@ export class CartComponent implements OnInit {
   }
 
   loadRates() {
+    let ratesLoaded = 0;
+
     this.checkoutService.getTaxRate().subscribe({
-      next: (result) => this.taxRate = result.taxRate,
+      next: (result) => {
+        this.taxRate = result.taxRate;
+        console.log('Tax Rate set to:', this.taxRate);
+        ratesLoaded++;
+        if (ratesLoaded === 2) {
+          this.calculateTotalPrice();
+          this.cdr.detectChanges();
+        }
+      },
+
       error: (err) => console.error('Failed to load tax rate', err)
     });
     this.checkoutService.getShippingRate().subscribe({
-      next: (result) => this.shippingRate = result.shippingRate,
+      next: (result) => {
+        this.shippingRate = result.shippingRate;
+        console.log('Shipping Rate set to:', this.shippingRate);
+        ratesLoaded++;
+        if (ratesLoaded === 2) {
+          this.calculateTotalPrice();
+          this.cdr.detectChanges();
+        }
+      },
       error: (err) => console.error('Failed to load shipping rate', err)
     });
   }
+
+  // Getters for dynamic calculation
+  /* get salesTax(): number {
+    const salesTax = this.cartTotal * this.taxRate;
+    console.log('Calculated salesTax:', salesTax); // Debug
+    return salesTax;
+  }
+
+  get shipping(): number {
+    const shipping = this.itemCount * this.shippingRate;
+    console.log('Calculated shipping:', shipping); // Debug
+    return shipping;
+  }
+} */
 
   calculateTotalPrice(): void {
     this.salesTax = 0; // Reset
@@ -186,6 +226,7 @@ export class CartComponent implements OnInit {
     if (this.mailingForm.valid) {
       console.log("Mailing Form Data: ", this.mailingForm.value);
       this.mailingAddress = this.mailingForm.value;
+      console.log("Captured Mailing Address: ", this.mailingAddress);
       this.showMailingForm = false;
       this.loadPayPalScript();
       this.showPaypalButton = true;
@@ -241,6 +282,7 @@ export class CartComponent implements OnInit {
               postalCode: details.payer.address?.postal_code || '',
               country: details.payer.address?.country_code || ''
             }; */
+            console.log("mailingAddress second check: ", this.mailingAddress)
             this.checkoutService.completeCheckout(
               data.paymentID, 
               this.mailingAddress, //|| addressFromPaypal, 

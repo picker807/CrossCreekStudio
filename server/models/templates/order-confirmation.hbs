@@ -10,26 +10,35 @@
     <li><strong>Order Number:</strong> {{orderNumber}}</li>
     <li><strong>Date:</strong> {{dateFormat date "MMMM D, YYYY, h:mm A"}}</li>
     {{#if shippingAddress}}
-    <li><strong>Shipping Address:</strong> {{shippingAddress.street1}}, 
-    {{shippingAddress.street2}},
-    {{shippingAddress.city}},
-    {{shippingAddress.state}},
-    {{shippingAddress.zip}}, 
-    {{shippingAddress.country}}</li>
+        <li>
+            <strong>Shipping Address:</strong>
+            <br>{{shippingAddress.street1}}
+            {{#if shippingAddress.street2}}
+                <br>{{shippingAddress.street2}}
+            {{/if}}
+            <br>{{shippingAddress.city}}, {{shippingAddress.state}} {{shippingAddress.zip}}
+            <br>{{shippingAddress.country}}
+        </li>
     {{/if}}
     <li><strong>Contact Email:</strong> {{email}}</li>
 </ul>
 
 <h3>Items Purchased:</h3>
 <ul>
-    {{#each items}}
-        {{#each events}}
-        <li>{{this.eventId.name}} - {{this.enrollees.length}} enrollee(s) at ${{this.pricePaid}} each (Subtotal: ${{multiply this.pricePaid this.enrollees.length}})</li>
-        {{/each}}
-        {{#each products}}
-        <li>{{this.productId.name}} - {{this.quantity}} x ${{this.pricePaid}} (Subtotal: ${{multiply this.pricePaid this.quantity}})</li>
-        {{/each}}
+  {{#each items}}
+    {{#each events}}
+      <li>
+        <img src="{{this.eventId.images.0.imageUrl}}" style="max-width: 100px" alt="Event Image">
+        {{this.eventId.name}} - {{this.enrollees.length}} enrollee(s) at ${{this.pricePaid}} each (Subtotal: ${{multiply this.pricePaid this.enrollees.length}})
+      </li>
     {{/each}}
+    {{#each products}}
+      <li>
+        <img src="{{getFirst this.productId.images}}" style="max-width: 100px" alt="Product Image">
+        {{this.productId.name}} - {{this.quantity}} x ${{this.pricePaid}} (Subtotal: ${{multiply this.pricePaid this.quantity}})
+      </li>
+    {{/each}}
+  {{/each}}
 </ul>
 
 <h3>Order Summary:</h3>

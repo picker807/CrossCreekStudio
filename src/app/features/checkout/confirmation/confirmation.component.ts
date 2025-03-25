@@ -26,6 +26,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
               this.orderDetails = order;
               this.showShippingAddress = this.orderDetails.shippingAddress && 
                 this.orderDetails.items.some(item => item.products && item.products.length > 0);
+                console.log("******** Images in Order: ", JSON.stringify(order.items));
               this.sendOrderConfirmationEmail(order);
             },
             error: (error) => {
@@ -61,22 +62,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
       templateData
     ).subscribe();
   }
-
-  /* async fetchItemDetails() {
-    // If cartContents only has IDs, fetch full details
-    for (const item of this.orderDetails.items) {
-      for (const event of item.events) {
-        if (!event.event) {
-          event.event = await this.checkoutService.getEventDetails(event.eventId).toPromise();
-        }
-      }
-      for (const product of item.products) {
-        if (!product.product) {
-          product.product = await this.checkoutService.getProductDetails(product.productId).toPromise();
-        }
-      }
-    } 
-  }*/
 
   ngOnDestroy() {
     if (this.orderSubscription) {

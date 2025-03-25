@@ -19,6 +19,9 @@ handlebars.registerHelper('multiply', function(a, b) {
 handlebars.registerHelper('formatNumber', function(number) {
   return Number(number).toFixed(2); // Always 2 decimal places
 });
+handlebars.registerHelper('getFirst', function(array) {
+  return array && array.length ? array[0] : '';
+});
 
 const { EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVE1, EMAIL_RECEIVE2 } = process.env;
 

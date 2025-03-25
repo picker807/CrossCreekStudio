@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/order');
+const mongoose = require('mongoose');
 const { authMiddleware } = require('../middleware/auth');
 
 
@@ -10,8 +11,15 @@ router.get('/:orderNumber', async (req, res) => {
     const orderNumber = req.params.orderNumber;
     console.log("orderController orderNumber: ", orderNumber);
     const order = await Order.findOne({ orderNumber: orderNumber })
-      .populate('items.events.eventId', 'name date location price')
-      .populate('items.products.productId', 'name price');
+    .populate({
+      path: 'items.events.eventId',
+      select: 'name date location price images',
+      populate: { 
+        path: 'images',
+        select: 'imageUrl'
+      }
+    })
+    .populate('items.products.productId', 'name price images');
 
     if (!order) return res.status(404).send('Order not found');
 
@@ -34,13 +42,14 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// PUT /api/orders/:orderNumber - Update an order by orderNumber (admin only)
+// PUT /api/orders/:orderNumber - Update an order by orderNumber (actually _id in this case) (admin only)
 router.put('/:orderNumber', authMiddleware, async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const { orderNumber} = req.params;
     const updateData = req.body.$set || req.body;
+    const objectId = new mongoose.Types.ObjectId(orderNumber);
     const updatedOrder = await Order.findByIdAndUpdate(
-      { orderId },
+      objectId,
       updateData,
       { new: true }
     );

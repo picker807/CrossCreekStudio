@@ -31,15 +31,15 @@
           </div>
           <div class="sm:col-span-2" *ngIf="showShippingAddress">
             <dt class="text-sm font-medium text-gray-500">Shipping Address</dt>
-            <dd class="mt-1 text-sm text-gray-900">
-              {{ orderDetails.shippingAddress.fullName }},
-              {{ orderDetails.shippingAddress.street1 }}, 
-              {{ orderDetails.shippingAddress.street2 }},
-              {{ orderDetails.shippingAddress.city }}, 
-              {{ orderDetails.shippingAddress.state }},
-              {{ orderDetails.shippingAddress.zip }}, 
-              {{ orderDetails.shippingAddress.country }}
-            </dd>
+              <dd class="mt-1 text-sm text-gray-900">
+                {{ orderDetails.shippingAddress.fullName }}<br>
+                {{ orderDetails.shippingAddress.street1 }}<br>
+                <span *ngIf="orderDetails.shippingAddress.street2">
+                  {{ orderDetails.shippingAddress.street2 }}<br>
+                </span>
+                {{ orderDetails.shippingAddress.city }}, {{ orderDetails.shippingAddress.state }} {{ orderDetails.shippingAddress.zip }}<br>
+                {{ orderDetails.shippingAddress.country }}
+              </dd>
           </div>
           <div class="sm:col-span-1">
             <dt class="text-sm font-medium text-gray-500">Contact Email</dt>
@@ -52,45 +52,51 @@
         <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Purchased Items</h2>
         <div class="flow-root">
           <ul role="list" class="-my-6 divide-y divide-gray-200">
-            <!-- Events -->
+           
             <ng-container *ngFor="let item of orderDetails.items">
-              <li *ngFor="let event of item.events" class="py-6 flex">
-                <div class="flex-1 ml-4">
-                  <h3 class="text-sm font-medium text-gray-900">{{ event.eventId.name || 'Event' }}</h3>
-                  <dl class="mt-1 text-sm text-gray-500">
-                    <div>
-                      <dt class="inline">Date: </dt>
-                      <dd class="inline">{{ event.eventId.date | date:'mediumDate' || 'N/A' }}</dd>
+               <!-- Events -->
+              <ng-container *ngIf="item.events?.length">
+                <li *ngFor="let event of item.events" class="py-6 flex">
+                  <div class="flex-1 ml-4">
+                    <img style="max-width: 100px" [src]="event?.eventId.images[0]?.imageUrl" alt="Event Image">
+                    <h3 class="text-sm font-medium text-gray-900">{{ event.eventId.name || 'Event' }}</h3>
+                    <dl class="mt-1 text-sm text-gray-500">
+                      <div>
+                        <dt class="inline">Date: </dt>
+                        <dd class="inline">{{ event.eventId.date | date:'mediumDate' || 'N/A' }}</dd>
+                      </div>
+                      <div>
+                        <dt class="inline">Location: </dt>
+                        <dd class="inline">{{ event.eventId.location || 'N/A' }}</dd>
+                      </div>
+                      <div>
+                        <dt class="inline">Price: </dt>
+                        <dd class="inline">${{ event.eventId.price || 0 }}</dd>
+                      </div>
+                      <div>
+                        <dt class="inline">Enrollees: </dt>
+                        <dd class="inline">{{ event.enrollees.length }}</dd>
+                      </div>
+                    </dl>
+                    <div class="mt-2">
+                      <h4 class="text-sm font-medium text-gray-900">Enrollees:</h4>
+                      <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
+                        <li *ngFor="let enrollee of event.enrollees">
+                          {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
+                        </li>
+                      </ul>
                     </div>
-                    <div>
-                      <dt class="inline">Location: </dt>
-                      <dd class="inline">{{ event.eventId.location || 'N/A' }}</dd>
-                    </div>
-                    <div>
-                      <dt class="inline">Price: </dt>
-                      <dd class="inline">${{ event.eventId.price || 0 }}</dd>
-                    </div>
-                    <div>
-                      <dt class="inline">Enrollees: </dt>
-                      <dd class="inline">{{ event.enrollees.length }}</dd>
-                    </div>
-                  </dl>
-                  <div class="mt-2">
-                    <h4 class="text-sm font-medium text-gray-900">Enrollees:</h4>
-                    <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
-                      <li *ngFor="let enrollee of event.enrollees">
-                        {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
-                      </li>
-                    </ul>
                   </div>
-                </div>
-                <div class="flex-shrink-0 ml-4">
-                  <p class="text-sm font-medium text-gray-900">${{ (event.pricePaid || 0) * event.enrollees.length }}</p>
-                </div>
-              </li>
+                  <div class="flex-shrink-0 ml-4">
+                    <p class="text-sm font-medium text-gray-900">${{ (event.pricePaid || 0) * event.enrollees.length }}</p>
+                  </div>
+                </li>
+              </ng-container>
               <!-- Products -->
+              <ng-container *ngIf="item.products?.length">
               <li *ngFor="let product of item.products" class="py-6 flex">
                 <div class="flex-1 ml-4">
+                  <img style="max-width: 100px" [src]="product?.productId.images[0]" alt="Product Image">
                   <h3 class="text-sm font-medium text-gray-900">{{ product.productId.name || 'Product' }}</h3>
                   <dl class="mt-1 text-sm text-gray-500">
                     <div>
@@ -108,6 +114,7 @@
                 </div>
               </li>
             </ng-container>
+          </ng-container>
           </ul>
         </div>
       </div>
