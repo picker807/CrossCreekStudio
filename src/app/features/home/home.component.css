@@ -1,48 +1,75 @@
 .parallax-section {
-  position: relative;
   background-attachment: fixed;
-  background-size: cover;
   background-position: center;
-  padding: 100px 0;
-  color: white;
-  text-align: center;
+  background-size: cover;
 }
 
-.content-section {
-  margin-bottom: 50px;
+.polaroid-stack {
+  position: relative;
 }
 
-.text-block {
-  margin-bottom: 30px;
+.polaroid {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.125rem;
+  
 }
 
-.image-row {
+.photo-frame {
+  background: black;
+  overflow: hidden;
+}
+
+/* Base stack */
+.polaroid:not(.dropping):not(.middle):not(.bottom) {
+  opacity: 0.8;
+}
+
+/* Active stack */
+.polaroid.dropping {
+  z-index: 10;
+  animation: dropPolaroid 1s ease-out forwards;
+}
+
+.polaroid.middle {
+  z-index: 5;
+  opacity: 0.9;
+}
+
+.polaroid.bottom {
+  z-index: 3;
+  opacity: 0.7;
+}
+
+@keyframes dropPolaroid {
+  0% { transform: translateY(-120px); opacity: 0; }
+  70% { transform: translateY(15px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.parade-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.parade-track {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 50px;
+  gap: 0.5rem;
 }
 
-.gallery-image {
-  width: 20%;
-  height: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+.parade-image {
+  flex-shrink: 0;
 }
 
-.gallery-image:hover {
-  transform: scale(1.05);
+.cursor-pointer {
+  cursor: pointer;
 }
 
-
-
-.text-cutout {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: inherit;
-  background-attachment: fixed;
-  background-position: inherit;
-  background-repeat: inherit;
-  background-size: inherit;
+/* Optional: Visual feedback for clickable sections */
+.parade-section:hover, .py-12:hover {
+  opacity: 0.95; /* Subtle hover effect */
 }

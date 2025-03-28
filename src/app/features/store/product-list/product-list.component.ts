@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CheckoutService } from '../../../services/checkout.service';
 import { Router } from '@angular/router';
 import { MessageService } from '../../../services/message.service';
+import { ProductService } from '../../../services/product.service';
 
 interface Product {
   id: string;
@@ -24,10 +25,11 @@ export class ProductListComponent implements OnInit {
   searchTerm: string = '';
 
   constructor(
-    private http: HttpClient,
+    //private http: HttpClient,
     private checkoutService: CheckoutService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private productService: ProductService
   ) {}
 
   ngOnInit(): void {
@@ -35,7 +37,7 @@ export class ProductListComponent implements OnInit {
   }
 
   loadProducts(): void {
-    this.http.get<Product[]>('/api/products').subscribe({
+    this.productService.getAllProducts().subscribe({
       next: (products) => {
         this.products = products;
         this.filteredProducts = products;

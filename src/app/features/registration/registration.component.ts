@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
@@ -27,6 +27,8 @@ export class RegistrationComponent {
   previewEnrollees: any[] = [];
   validationErrors: string[] = [];
   showPreview: boolean = false;
+
+  @ViewChild('previewSection') previewSection!: ElementRef; 
 
   constructor(
     private fb: FormBuilder,
@@ -178,6 +180,9 @@ export class RegistrationComponent {
       };
     });
     this.validateEnrollees();
+    setTimeout(() => {
+      this.previewSection.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
   
 

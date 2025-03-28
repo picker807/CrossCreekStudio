@@ -1,31 +1,55 @@
-<div class="parallax-section" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/abstract_background.png');">
-  <div class="content-section">
-    <div class="text-block p-6 bg-slate-600 bg-opacity-80 rounded-lg shadow-lg transform transition-transform duration-500 hover:scale-105">
-      <h2 class="text-5xl font-extrabold text-slate-300">Cross Creek Studio</h2>
-      <p class="text-3xl text-slate-300">Unleash your creativity and have fun with us!</p>
-    </div>
-    <div class="image-row">
-      <img *ngFor="let image of images.slice(0, 4)" [src]="image" alt="Gallery image" class="gallery-image">
-    </div>
-  </div>
-
-  <div class="content-section">
-    <div class="text-block p-6 bg-slate-600 bg-opacity-80 rounded-lg shadow-lg transform transition-transform duration-500 hover:scale-105">
-      <h2 class="text-5xl font-extrabold text-slate-300">What is a Paint Party?</h2>
-      <p class="text-3xl text-slate-300">Paint parties are social gatherings where participants create art under the guidance of a professional artist. These events are designed for all skill levels, focusing on creativity and fun rather than artistic expertise. Key features include a relaxed atmosphere, step-by-step instruction, and social interaction. Paint parties offer a unique opportunity to explore creativity, relax, and enjoy the company of others while creating a personal masterpiece.</p>
-    </div>
-    <div class="image-row">
-      <img *ngFor="let image of images.slice(4, 8)" [src]="image" alt="Gallery image" class="gallery-image">
+<div class="min-h-screen bg-gray-100">
+  <!-- Hero Section -->
+  <div class="parallax-section" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/abstract_background.png');">
+    <div class="content-section flex flex-col items-center justify-center min-h-screen text-center bg-black bg-opacity-30">
+      <img src="path/to/your/logo.png" alt="Cross Creek Studio Logo" class="w-48 md:w-64 mb-6 animate-fade-in">
+      <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">Cross Creek Studio</h1>
+      <p class="text-2xl md:text-3xl text-white mb-8 drop-shadow-lg">Create, Shop, Celebrate!</p>
+      <div class="flex gap-4 flex-col sm:flex-row">
+        <a routerLink="/events" class="bg-blue-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105">Book a Paint Party</a>
+        <a routerLink="/store" class="bg-green-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition transform hover:scale-105">Shop Our Store</a>
+      </div>
     </div>
   </div>
 
-  <div class="content-section">
-    <div class="text-block p-6 bg-slate-600 bg-opacity-80 rounded-lg shadow-lg transform transition-transform duration-500 hover:scale-105">
-      <h2 class="text-5xl font-extrabold text-slate-300">Contact Us</h2>
-      <p class="text-3xl text-slate-300">Are you ready to book your own paint party? <a href="/contact" class="text-yellow-300 underline">Contact us today!</a></p>
+  <!-- Paint Party Section (Clickable) -->
+<div routerLink="/events" class="parade-section cursor-pointer" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/gallery_image1.png');" (click)="navigate('/events')">
+  <div class="content-section py-16 px-8 bg-black bg-opacity-50">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-4xl font-bold text-white mb-4">Paint Parties</h2>
+      <p class="text-xl text-white mb-6">Gather your crew for a creative, fun-filled event—no experience needed!</p>
+      <div class="polaroid-stack relative w-72 h-96 mx-auto mt-6">
+        <!-- Base stack (blank Polaroids) -->
+        <div class="polaroid absolute w-full h-full bg-gray-100 shadow-lg rounded-sm transform -rotate-3 z-0"></div>
+        <div class="polaroid absolute w-full h-full bg-gray-100 shadow-lg rounded-sm transform rotate-2 z-1"></div>
+        <!-- Active stack -->
+        <div *ngFor="let image of visibleImages; let i = index" 
+     class="polaroid absolute w-full h-full bg-white shadow-lg rounded-sm"
+     [ngClass]="{'dropping': i === 0 && image, 'middle': i === 1, 'bottom': i === 2}"
+     [style.transform]="getDropTransform(image)"
+     [style.rotate]="getRotation(image)"
+     [style.display]="image || i > 0 ? 'block' : 'none'">
+  <div class="photo-frame absolute w-56 h-60 top-6 left-1/2 transform -translate-x-1/2 bg-black">
+    <img *ngIf="image" [src]="image" class="w-full h-full object-cover" alt="Paint Party Event">
+  </div>
+</div>
+      </div>
     </div>
-    <div class="image-row">
-      <img *ngFor="let image of images.slice(8, 12)" [src]="image" alt="Gallery image" class="gallery-image">
+  </div>
+</div>
+
+  <!-- Product Parade Section (Clickable) -->
+  <div routerLink="/store" class="py-12 bg-gray-200 cursor-pointer" (click)="navigate('/store')">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Explore Our Products</h2>
+    <div class="parade-container relative overflow-hidden">
+      <div #paradeTrack class="parade-track flex">
+        <img *ngFor="let product of products" 
+             [src]="product.images[0]" 
+             [alt]="product.name" 
+             class="parade-image w-48 h-32 sm:h-40 md:h-48 object-cover rounded-lg shadow-md">
+      </div>
+      <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-200 to-transparent z-10 pointer-events-none"></div>
+      <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-200 to-transparent z-10 pointer-events-none"></div>
     </div>
   </div>
 </div>

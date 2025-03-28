@@ -3,7 +3,7 @@ import { Product } from '../../../models/product.model';
 import { ProductService } from '../../../services/product.service';
 import { CheckoutService } from '../../../services/checkout.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { forkJoin, map, Observable, of } from 'rxjs';
+import { forkJoin, map, Observable, of, Subscription } from 'rxjs';
 import { Order } from '../../../models/interfaces';
 import { OrderService } from '../../../services/order.service';
 import { MessageService } from '../../../services/message.service';
@@ -17,25 +17,35 @@ type StringOrderKeys = 'orderNumber' | 'email' | 'status' | 'cartId' | 'userId' 
   styleUrl: './admin-products.component.css'
 })
 export class AdminProductsComponent implements OnInit {
+  //Orders realted properties
   orders: Order[] = [];
   orderEditForms: { [key: string]: FormGroup } = {};
   expandedOrderIds: Set<string> = new Set();
-  sortColumn: keyof Order = 'orderNumber';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  isOrderListExpanded: boolean = false;
+  expandedShippingIds: Set<string> = new Set();
+
+  //Products related properties
   products: Product[] = [];
-  createForm: FormGroup;
-  selectedFiles: File[] = [];
   editSelectedFiles: { [key: string]: File[] } = {};
   previews: string[] = [];
   editPreviews: { [key: string]: string[] } = {};
   productEditForms: { [key: string]: FormGroup } = {};
+  createForm: FormGroup;
+  selectedFiles: File[] = [];
+  expandedProductIds: Set<string> = new Set();
+  isCreateFormExpanded: boolean = false;
+  isProductListExpanded: boolean = false;
+  
+  //Other
+  sortColumn: keyof Order = 'orderNumber';
+  sortDirection: 'asc' | 'desc' = 'asc';
+  error: string | null = null;
+  loading: boolean = false;
+  editingConfig: boolean = false;
   taxRate: number = 0;
   shippingRate: number = 0;
-  editingConfig: boolean = false;
-  loading: boolean = false;
-  expandedProductIds: Set<string> = new Set();
-  error: string | null = null;
-  isCreateFormExpanded: boolean = false;
+
+  private orderSubscription!: Subscription;
 
   constructor(
     private productService: ProductService, 
@@ -45,7 +55,7 @@ export class AdminProductsComponent implements OnInit {
     private messageService: MessageService,
     private emailService: EmailService) {
     this.createForm = this.fb.group({
-      id: [''],
+      id: [{value: '', disabled: true}],
       name: ['', [Validators.required, Validators.minLength(2)]],
       price: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [ Validators.min(0)]],
@@ -58,6 +68,10 @@ export class AdminProductsComponent implements OnInit {
     this.loadProducts();
     this.loadConfig();
     this.loadOrders();
+
+    this.orderSubscription = this.orderService.order$.subscribe((orders) => {
+      this.orders = orders;
+    });
   }
 
   loadProducts(): void {
@@ -140,15 +154,22 @@ export class AdminProductsComponent implements OnInit {
     return address && Object.values(address).some(value => value !== '' && value !== null && value !== undefined);
   }
 
-  toggleExpand(productId: string): void {
-    this.expandedProductIds.has(productId) ? this.expandedProductIds.delete(productId) :   this.expandedProductIds.add(productId);
-    console.log('Expanded IDs:', Array.from(this.expandedProductIds)); // Debug
-    this.cdr.detectChanges();
+  
+
+  toggleOrderList() {
+    this.isOrderListExpanded = !this.isOrderListExpanded;
+    if (!this.isOrderListExpanded) {
+      this.expandedOrderIds.clear(); // Reset expanded orders when collapsing
+    }
   }
 
   toggleOrderExpand(orderId: string): void {
     this.expandedOrderIds.has(orderId) ? this.expandedOrderIds.delete(orderId) : this.expandedOrderIds.add(orderId);
   }
+
+  toggleShippingExpand(orderId: string) {
+    this.expandedShippingIds.has(orderId) ? this.expandedShippingIds.delete(orderId) : this.expandedShippingIds.add(orderId);
+    }
 
   sortOrders(column: StringOrderKeys): void {
     if (this.sortColumn === column) {
@@ -284,6 +305,17 @@ export class AdminProductsComponent implements OnInit {
     }
   }
 
+  toggleProductList() {
+    this.isProductListExpanded = !this.isProductListExpanded;
+    if (!this.isProductListExpanded) this.expandedProductIds.clear(); // Reset expanded products
+  }
+
+  toggleExpand(productId: string): void {
+    this.expandedProductIds.has(productId) ? this.expandedProductIds.delete(productId) :   this.expandedProductIds.add(productId);
+    console.log('Expanded IDs:', Array.from(this.expandedProductIds)); // Debug
+    this.cdr.detectChanges();
+  }
+
   updateProduct(productId: string): void {
     if (this.productEditForms[productId].valid) {
       this.loading = true;
@@ -400,6 +432,10 @@ export class AdminProductsComponent implements OnInit {
         duration: 3000
       });
     }
+  }
+
+  ngOnDestroy() {
+    if (this.orderSubscription) this.orderSubscription.unsubscribe();
   }
 
 }

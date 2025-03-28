@@ -28,6 +28,10 @@ export class ProductService {
     return this.http.get<Product[]>(`${this.apiUrl}/admin`, { headers });
   }
 
+  getAllProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}`);
+  }
+
   getProductById(productId: string): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${productId}`);
   }

@@ -12,3 +12,7 @@ if (environment.production) {
   enableProdMode();
   window.console.log = () => {};
 }
+
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'auto';
+}

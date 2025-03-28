@@ -50,13 +50,8 @@ const orderSchema = new mongoose.Schema({
   },
   trackingNumber: { type: String, required: false },
   carrier: { type: String, required: false },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-});
-
-orderSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+},
+{ timestamps: true }
+);
 
 module.exports = mongoose.model('Order', orderSchema, 'orders');

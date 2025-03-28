@@ -34,6 +34,9 @@ export class CartComponent implements OnInit {
   @ViewChild('paypalButton') paypalButton: ElementRef;
   showPaypalButton: boolean = false;
 
+  @ViewChild('addressSection') addressSection!: ElementRef;
+  applyMargin: boolean = false;
+
   constructor(
     private checkoutService: CheckoutService,
     private fb: FormBuilder,
@@ -209,6 +212,8 @@ export class CartComponent implements OnInit {
         if (this.invalidItems.length === 0) {
           if (this.cartItems.products.length > 0) {
             this.showMailingForm = true; // Show form if products are present
+            this.scrollToAddress();
+            
           } else {
             this.mailingAddress = null;
             this.loadPayPalScript();
@@ -220,6 +225,17 @@ export class CartComponent implements OnInit {
         console.error('Cart verification failed', error);
       }
     });
+  }
+
+  scrollToAddress(): void {
+    this.applyMargin = true;
+    setTimeout(() => {
+      this.addressSection.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        this.applyMargin = false
+      }, 500);
+    }, 400);
+    
   }
 
   submitMailingAddress(): void {

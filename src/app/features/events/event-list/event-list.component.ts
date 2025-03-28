@@ -25,6 +25,7 @@ export class EventListComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(): void {
+    
     this.authService.isAdmin$.subscribe(isAdmin => {
       console.log("isAdmin in Event List: ", isAdmin);
       this.isAdmin = isAdmin;

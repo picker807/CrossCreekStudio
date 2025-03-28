@@ -48,14 +48,17 @@ router.put('/:orderNumber', authMiddleware, async (req, res) => {
     const { orderNumber} = req.params;
     const updateData = req.body.$set || req.body;
     const objectId = new mongoose.Types.ObjectId(orderNumber);
-    const updatedOrder = await Order.findByIdAndUpdate(
-      objectId,
-      updateData,
-      { new: true }
-    );
-    if (!updatedOrder) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
+    const order = await Order.findById(objectId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    Object.assign(order, updateData);
+    await order.save();
+
+    const updatedOrder = await order.populate([
+      { path: 'items.events.eventId', select: 'id name date location' },
+      { path: 'items.products.productId', select: 'id name' }
+    ]);
+
     res.status(200).json(updatedOrder);
   } catch (err) {
     res.status(400).json({ message: err.message });

@@ -19,6 +19,9 @@
         <input type="number" id="numAttendees" [formControl]="numAttendeesControl" min="1" class="w-20 px-3 py-2 border-t border-b border-gray-300 text-center">
         <button type="button" (click)="incrementAttendees()" class="px-3 py-2 border border-gray-300 rounded-r-md bg-gray-100 hover:bg-gray-200">+</button>
       </div>
+      <div class="text-black text-sm mt-1">
+        Contact information is only used to provide event updates and avoid duplicate enrollments. We never sell or share your information.
+      </div>
       <div *ngIf="!registrationForm.valid && registrationForm.enabled" class="text-red-500 text-sm mt-1">
         Please complete all attendee information.
       </div>
@@ -69,7 +72,7 @@
       </div>
     </div>
     
-    <div *ngIf="previewEnrollees.length > 0" class="mt-4 p-4 border border-gray-300 rounded-md bg-white shadow-sm">
+    <div *ngIf="previewEnrollees.length > 0" #previewSection class="mt-4 p-4 border border-gray-300 rounded-md bg-white shadow-sm">
       <h3 class="text-lg font-bold mb-2">Order Preview</h3>
       <ul class="list-disc list-inside text-gray-700">
         <li *ngFor="let enrollee of previewEnrollees">

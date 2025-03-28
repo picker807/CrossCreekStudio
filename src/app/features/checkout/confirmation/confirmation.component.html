@@ -71,7 +71,7 @@
                       </div>
                       <div>
                         <dt class="inline">Price: </dt>
-                        <dd class="inline">${{ event.eventId.price || 0 }}</dd>
+                        <dd class="inline">${{ event.eventId.price | number:'1.2-2' }}</dd>
                       </div>
                       <div>
                         <dt class="inline">Enrollees: </dt>
@@ -101,7 +101,7 @@
                   <dl class="mt-1 text-sm text-gray-500">
                     <div>
                       <dt class="inline">Price: </dt>
-                      <dd class="inline">${{ product.pricePaid || 0 }}</dd>
+                      <dd class="inline">${{ product.pricePaid | number:'1.2-2' }}</dd>
                     </div>
                     <div>
                       <dt class="inline">Quantity: </dt>
@@ -110,7 +110,7 @@
                   </dl>
                 </div>
                 <div class="flex-shrink-0 ml-4">
-                  <p class="text-sm font-medium text-gray-900">${{ (product.pricePaid || 0) * product.quantity }}</p>
+                  <p class="text-sm font-medium text-gray-900">${{ (product.pricePaid * product.quantity) | number:'1.2-2' }}</p>
                 </div>
               </li>
             </ng-container>
