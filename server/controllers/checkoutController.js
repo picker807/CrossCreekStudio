@@ -65,8 +65,8 @@ const checkoutController = {
         console.timeLog('completeCheckout', `Event ${event._id} found`);
 
         const attendeeIds = [];
-for (const enrollee of event.enrollees || []) {
-  const compositeKey = `${enrollee.firstName?.toLowerCase()}_${enrollee.lastName?.toLowerCase()}_${enrollee.email?.toLowerCase()}`;
+        for (const enrollee of event.enrollees || []) {
+          const compositeKey = `${enrollee.firstName?.toLowerCase()}_${enrollee.lastName?.toLowerCase()}_${enrollee.email?.toLowerCase()}`;
   let user = await User.findOne({ compositeKey });
   if (!user) {
     user = new User({
@@ -129,7 +129,16 @@ console.timeLog('completeCheckout', `Event ${event._id} updated`);
       console.timeEnd('completeCheckout');
 
       console.log('Sending orderNumber:', order.orderNumber);
-      res.json({ orderNumber });
+      
+      const enrichedEvents = events.map(event => ({
+        eventId: event.eventId,
+        eventName: event.name,
+        eventDate: event.date,
+        eventLocation: event.location,
+        enrollees: event.enrollees
+      }));
+
+      res.json({ orderNumber, events: enrichedEvents });
 
     } catch (error) {
       console.error('Checkout error:', error);

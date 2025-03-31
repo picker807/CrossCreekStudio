@@ -309,10 +309,11 @@ export class CartComponent implements OnInit {
               this.taxRate, 
               this.shippingRate
             ).subscribe({
-              next: (response: { orderNumber: string }) => {
+              next: (response: { orderNumber: string, events: any }) => {
                
                 // Send receipt to PayPal payer
                 this.sendReceiptEmail(details, response.orderNumber);
+                this.sendEnrolleeEmail(response.events);
                 
                 this.checkoutService.storeOrderId(response.orderNumber);
                 this.checkoutService.clearCart().subscribe(() => {
@@ -343,6 +344,28 @@ export class CartComponent implements OnInit {
         }
       }).render(this.paypalButton.nativeElement);
     }}
+
+    private sendEnrolleeEmail(events: any[]) {
+      events.forEach(event => {
+        event.enrollees.forEach(enrollee => {
+          const templateData = {
+            user: { firstName: enrollee.firstName },
+            eventName: event.eventName,
+            eventDate: event.eventDate,
+            eventLocation: event.eventLocation
+          };
+          this.emailService.sendEmail(
+            [enrollee.email],
+            'Event Registration Confirmation',
+            'enroll-event',
+            templateData
+          ).subscribe({
+            next: () => console.log(`Confirmation email sent to ${enrollee.email}`),
+            error: (error) => console.error(`Failed to send confirmation email to ${enrollee.email}`, error)
+          });
+        });
+      });
+    }
 
   private sendReceiptEmail(paypalDetails: any, orderNumber) {
     const payerEmail = paypalDetails.payer.email_address;

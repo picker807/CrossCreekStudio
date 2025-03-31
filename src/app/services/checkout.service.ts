@@ -281,7 +281,7 @@ export class CheckoutService {
       taxRate,
       shippingRate
     };
-    return this.http.post<{ orderNumber: string }>('/api/checkout/complete', body);
+    return this.http.post<{ orderNumber: string, events: any }>('/api/checkout/complete', body);
   }
 
   

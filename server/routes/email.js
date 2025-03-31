@@ -67,7 +67,6 @@ const ensureTemplateExists = async (req, res, next) => {
 // Endpoint for sending emails
 router.post('/send', ensureTemplateExists, async (req, res) => {
   const { recipients, subject, templateType, templateData } = req.body; // Accessing from emailData
-  //console.log('Send Data:', { recipients, subject, templateType, templateData });
 
   let finalRecipients = recipients;
   let mailOptions = {
