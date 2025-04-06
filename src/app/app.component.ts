@@ -1,10 +1,10 @@
 import { Component, HostListener } from '@angular/core';
 import { AuthService } from './core/authentication/auth.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
 import { AdminService } from './services/admin.service';
 import { CartItems } from './models/interfaces';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'cc-root',
@@ -16,6 +16,7 @@ export class AppComponent {
   isAdmin: boolean = false;
   cartItemCount: number = 0;
   isMenuOpen = false;
+  isHomePage: boolean = false;
 
   private subscription: Subscription;
 
@@ -38,6 +39,12 @@ export class AppComponent {
       const eventsCount = Array.isArray(cart.events) ? cart.events.reduce((sum, e) => sum + (e.enrollees?.length || 0), 0) : 0;
       const productsCount = Array.isArray(cart.products) ? cart.products.reduce((sum, p) => sum + (p.quantity || 0), 0) : 0;
       this.cartItemCount = eventsCount + productsCount;
+    });
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.isHomePage = event.urlAfterRedirects === '/' || event.urlAfterRedirects === '/home';
     });
   }
 

@@ -1,24 +1,25 @@
-<div class="min-h-screen bg-gray-100">
+<div class="w-full top-[80px] min-h-[calc(100vh-95px)] bg-gray-600">
   <!-- Hero Section -->
-  <div class="parallax-section" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/abstract_background.png');">
-    <div class="content-section flex flex-col items-center justify-center min-h-screen text-center bg-black bg-opacity-30">
-      <img src="path/to/your/logo.png" alt="Cross Creek Studio Logo" class="w-48 md:w-64 mb-6 animate-fade-in">
-      <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">Cross Creek Studio</h1>
-      <p class="text-2xl md:text-3xl text-white mb-8 drop-shadow-lg">Create, Shop, Celebrate!</p>
-      <div class="flex gap-4 flex-col sm:flex-row">
-        <a routerLink="/events" class="bg-blue-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105">Book a Paint Party</a>
-        <a routerLink="/store" class="bg-green-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition transform hover:scale-105">Shop Our Store</a>
+  <div class="parallax-section w-full" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/canvas_background.jpg');">
+    <div class="content-section flex flex-col items-center justify-center min-h-screen text-center bg-black bg-opacity-10 w-full">
+      <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/inbetween_CCS_dk_(9_4.25in).png" alt="Cross Creek Studio Logo" class="w-[70vw] mt-[10vw] sm:w-[70vw] sm:mt-[15vw] md:w-[70vw] md:mt-[15vw] lg:w-[50vw] lg:mt-[15vw] xl:mt-[4vw] 2xl:mt-[8vw]">
+      
+      <p class="text-xl sm:text-2xl md:text-3xl lg:text-3xl 2xl:text-4xl text-black mb-10 drop-shadow-lg max-w-full">Create, Shop, Celebrate!</p>
+      <div class="flex gap-4 flex-col items-center sm:flex-row w-full sm:w-auto mb-[10vw]">
+        <a routerLink="/events" style="background-color: #4bb9b7; color: #f9e8d9;" class="text-base w-[50vw] sm:w-[30vw] lg:w-[18vw] sm:text-lg md:text-xl lg:text-2xl text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105">Book a Paint Party</a>
+        <a routerLink="/store" style="background-color: #5891c3; color: #f9e8d9;" class="text-base w-[50vw] sm:w-[30vw] lg:w-[18vw] sm:text-lg md:text-xl lg:text-2xl text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg shadow-lg hover:bg-green-700 transition transform hover:scale-105">Shop Our Store</a>
       </div>
     </div>
   </div>
 
   <!-- Paint Party Section (Clickable) -->
-<div routerLink="/events" class="parade-section cursor-pointer" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/gallery_image1.png');" (click)="navigate('/events')">
+<div routerLink="/events" class="parade-section cursor-pointer" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/wood_background.jpg');" (click)="navigate('/events')">
+  <hr style="border-color: #342c25;" class="w-full border-4 border-solid">
   <div class="content-section py-16 px-8 bg-black bg-opacity-50">
     <div class="max-w-4xl mx-auto text-center">
-      <h2 class="text-4xl font-bold text-white mb-4">Paint Parties</h2>
-      <p class="text-xl text-white mb-6">Gather your crew for a creative, fun-filled event—no experience needed!</p>
-      <div class="polaroid-stack relative w-72 h-96 mx-auto mt-6">
+      <h2 style="border-color: #342c25;" class="text-4xl font-bold mb-4">Paint Parties</h2>
+      <p style="border-color: #342c25;" class="text-xl mb-6">Gather your crew for a creative, fun-filled event—no experience needed!</p>
+      <div class="polaroid-stack relative w-72 h-96 mx-auto mt-6 mb-10">
         <!-- Base stack (blank Polaroids) -->
         <div class="polaroid absolute w-full h-full bg-gray-100 shadow-lg rounded-sm transform -rotate-3 z-0"></div>
         <div class="polaroid absolute w-full h-full bg-gray-100 shadow-lg rounded-sm transform rotate-2 z-1"></div>
@@ -36,12 +37,15 @@
       </div>
     </div>
   </div>
+  <hr style="border-color: #4bb9b7;" class="w-full border-4 border-solid">
 </div>
 
+
   <!-- Product Parade Section (Clickable) -->
-  <div routerLink="/store" class="py-12 bg-gray-200 cursor-pointer" (click)="navigate('/store')">
-    <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Explore Our Products</h2>
-    <div class="parade-container relative overflow-hidden">
+  <div routerLink="/store" class="py-16 bg-gray-200 cursor-pointer" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/pallet_wood_background.jpg');" (click)="navigate('/store')">
+    <div class="bg-[#f9e8d9] bg-opacity-75 py-12 w-full">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">Explore Our Products</h2>
+    <div class="parade-container relative overflow-x-hidden">
       <div #paradeTrack class="parade-track flex">
         <img *ngFor="let product of products" 
              [src]="product.images[0]" 
@@ -51,5 +55,6 @@
       <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-200 to-transparent z-10 pointer-events-none"></div>
       <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-200 to-transparent z-10 pointer-events-none"></div>
     </div>
+  </div>
   </div>
 </div>

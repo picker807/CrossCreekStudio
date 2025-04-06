@@ -1,12 +1,11 @@
 <div class="app-container flex flex-col min-h-screen">
   <cc-message class="fixed top-30 left-0 right-0 z-[900]">test Message</cc-message>
 
-  <header class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-[800]">
+  <header style="background-color: #342c25; color:#f9e8d9;" class="fixed top-0 left-0 right-0 z-[800]">
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-start">
       <div class="flex items-start">
         <a href="/" class="flex items-center">
-          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_logo_image.PNG" alt="Cross Creek Studio Logo" class="h-20 mr-2">
-          <span class="text-xl font-bold">Cross Creek Studio</span>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/stacked_words_CCS_green.png" alt="Cross Creek Studio Logo" class="h-20 mr-2 max-w-full" loading="lazy">
         </a>
       </div>
       
@@ -40,19 +39,19 @@
     </nav>
   </header>
   
-  <main class="flex-grow mx-auto w-[95%] px-4 sm:px-6 py-4 mt-[95px]">
+  <main [ngClass]="{'px-4 sm:px-6 py-4 mt-[95px]': !isHomePage, 'w-full': true}" class="flex-grow">
     <router-outlet></router-outlet>
   </main>
   
   
-  <footer class="bg-gray-700 text-white text-center py-6 relative">
-    <div class="container mx-auto">
+  <footer style="background-color: #342c25;" class="text-white text-center py-6 relative w-full mx-0 left-0 right-0">
+    <div class="w-full">
       <div class="flex justify-center space-x-4 mb-4">
-        <a href="/home" class="hover:underline">Home</a>
-        <a href="/store" class="hover:underline">Store</a>
-        <a href="/events" class="hover:underline">Events</a>
-        <a href="/gallery" class="hover:underline">Gallery</a>
-        <a href="/cart" class="hover:underline">Cart</a>
+        <a href="/home" class="hover:underline footer-link">Home</a>
+        <a href="/store" class="hover:underline footer-link">Store</a>
+        <a href="/events" class="hover:underline footer-link">Events</a>
+        <a href="/gallery" class="hover:underline footer-link">Gallery</a>
+        <a href="/cart" class="hover:underline footer-link">Cart</a>
       </div>
       <div class="flex justify-center space-x-4 mb-4">
         <a href="https://www.facebook.com/profile.php?id=61558600351978" target="_blank" class="hover:text-blue-500">
@@ -66,6 +65,9 @@
         </a>
       </div>
       <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
+      <div class="flex justify-center">
+      <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/inbetween_CCS_blue_(9_4.25in).png" alt="Cross Creek Studio Logo" class=" h-20 max-w-full" loading="lazy">
+      </div>
       <p>© 2025 Cross Creek Studio</p>
     </div>
     
