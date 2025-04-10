@@ -1,20 +1,21 @@
-<div class="container mx-auto p-4">
-  <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
+<div class="w-full min-h-[calc(100vh-95px)] parallax-section" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/white_brick_background.jpg');">
+  <div class="container mx-auto p-4 mt-[95px]" >
+  <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/cart.png" class="w-[65vw] lg:w-[50vw] xl:w-[40vw] mx-auto mb-4">
 
   <!-- Cart contents -->
   <ng-container *ngIf="(cartItems.events?.length || 0) + (cartItems.products?.length || 0) > 0; else emptyCart">
     <!-- Events Section -->
     <div class="mb-8">
-      <h3 class="text-xl font-semibold mb-4">Events</h3>
+      <h3 class="text-4xl text-ccs-green-mint font-semibold mb-4">Events</h3>
       <ng-container *ngIf="cartItems.events?.length > 0; else noEvents">
-        <div *ngFor="let eventItem of cartItems.events" class="bg-white shadow-md rounded-lg p-4 mb-4">
+        <div *ngFor="let eventItem of cartItems.events" class="bg-white bg-opacity-60 shadow-md rounded-lg p-4 mb-4 text-md sm:text-lg md:text-xl lg:text-xl 2xl:text-2xl drop-shadow-lg max-w-full">
           <div class="flex items-center">
             <img [src]="eventItem.images?.length > 0 ? eventItem.images[0].imageUrl : '/assets/no-image-available.jpg'" 
                  alt="{{ eventItem.name }}" 
                  class="w-24 h-24 object-cover mr-4 rounded"
                  (error)="this.src='/assets/no-image-available.jpg'">
             <div>
-              <h4 class="text-lg font-semibold">{{ eventItem.name || 'Unknown Event' }}</h4>
+              <h4 class="font-semibold mb-4">{{ eventItem.name || 'Unknown Event' }}</h4>
               <p class="text-gray-600">Date: {{ eventItem.date | date:'mediumDate' }}</p>
               <p class="text-gray-600">Time: {{ eventItem.date | date:'shortTime' }}</p>
               <p class="text-gray-600">Location: {{ eventItem.location || 'N/A' }}</p>
@@ -24,7 +25,7 @@
             </div>
           </div>
           <div class="mt-4">
-            <h5 class="text-md font-semibold">Enrollees:</h5>
+            <h5 class="font-semibold">Enrollees:</h5>
             <ul class="list-disc list-inside">
               <li *ngFor="let enrollee of eventItem.enrollees" class="text-gray-700 flex items-center">
                 {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
@@ -35,7 +36,7 @@
               </li>
             </ul>
           </div>
-          <button (click)="removeItem(eventItem._id, 'event')" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+          <button (click)="removeItem(eventItem._id, 'event')" style="background-color: #9c8571;" class="mt-4 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
         </div>
       </ng-container>
       <ng-template #noEvents>
@@ -45,9 +46,9 @@
 
     <!-- Products Section -->
     <div class="mb-8">
-      <h3 class="text-xl font-semibold mb-4">Products</h3>
+      <h3 class="text-4xl text-ccs-green-mint font-semibold mb-4">Products</h3>
       <ng-container *ngIf="cartItems.products?.length > 0; else noProducts">
-        <div *ngFor="let productItem of cartItems.products" class="bg-white shadow-md rounded-lg p-4 mb-4">
+        <div *ngFor="let productItem of cartItems.products" class="bg-white bg-opacity-60 shadow-md rounded-lg p-4 mb-4 text-md sm:text-lg md:text-xl lg:text-xl 2xl:text-2xl drop-shadow-lg max-w-full">
           <div class="flex items-center">
             <img [src]="productItem.images?.length > 0 ? productItem.images[0] : '/assets/no-image-available.jpg'" 
                  alt="{{ productItem.name }}" 
@@ -64,7 +65,7 @@
           <button (click)="adjustProductQuantity(productItem._id, -1)" class="bg-gray-300 text-black py-1 px-2 rounded">-</button>
           <span class="mx-2">{{ productItem.quantity }}</span>
           <button (click)="adjustProductQuantity(productItem._id, 1)" class="bg-gray-300 text-black py-1 px-2 rounded">+</button>
-          <button (click)="removeItem(productItem._id, 'product')" class="ml-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
+          <button (click)="removeItem(productItem._id, 'product')" style="background-color: #9c8571;" class="ml-4 text-white py-2 px-4 rounded hover:bg-red-600">Remove</button>
   
         </div>
       </ng-container>
@@ -182,19 +183,21 @@
   <!-- Empty cart message and graphic -->
   <ng-template #emptyCart>
     <div class="text-center py-12">
-      <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-      <h3 class="mt-2 text-xl font-medium text-gray-900">Your cart is empty</h3>
-      <p class="mt-1 text-gray-500">Add events or products to your cart to see them here.</p>
+
+      
+      <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/cart_green.png" alt="Cart" class="mx-auto h-auto w-1/4 lg:w-1/5 xl:w-1/5 max-w-xs">
+      
+      <h3 class="text-2xl sm:text-2xl md:text-3xl lg:text-3xl 2xl:text-4xl mb-10 drop-shadow-lg max-w-full">Your cart is empty</h3>
+      <p class="text-2xl sm:text-2xl md:text-3xl lg:text-3xl 2xl:text-4xl mb-10 drop-shadow-lg max-w-full">Add events or products to your cart to see them here.</p>
       <div class="mt-6">
-        <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <a href="/events" style="background-color: #58c2c0;" class="text-base w-[50vw] sm:w-[30vw] lg:w-[18vw] sm:text-lg md:text-xl lg:text-2xl text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105">
           Browse Events
         </a>
-        <a href="/store" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <a href="/store" style="background-color: #58c2c0;" class="text-base w-[50vw] sm:w-[30vw] lg:w-[18vw] sm:text-lg md:text-xl lg:text-2xl text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105 ml-2">
           Browse Products
         </a>
       </div>
     </div>
   </ng-template>
+</div>
 </div>

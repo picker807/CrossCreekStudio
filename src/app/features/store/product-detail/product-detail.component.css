@@ -1,0 +1,16 @@
+.thumbnail:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s;
+}
+
+.background-wrapper {
+  position: relative;
+  min-height: calc(100vh - 95px); /* Full viewport minus header */
+  background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/white_brick_background.jpg');
+  background-size: cover;
+  background-position: top center;
+}
+
+.content-container {
+  position: relative; 
+}

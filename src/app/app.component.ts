@@ -16,7 +16,7 @@ export class AppComponent {
   isAdmin: boolean = false;
   cartItemCount: number = 0;
   isMenuOpen = false;
-  isHomePage: boolean = false;
+  isAlternateStyle: boolean = false;
 
   private subscription: Subscription;
 
@@ -44,7 +44,8 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.isHomePage = event.urlAfterRedirects === '/' || event.urlAfterRedirects === '/home';
+      const url = event.urlAfterRedirects;
+      this.isAlternateStyle = url.startsWith('/store') || url.startsWith('/events');
     });
   }
 

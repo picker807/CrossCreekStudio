@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../../services/product.service';
 import { CheckoutService } from '../../../services/checkout.service';
@@ -15,6 +15,8 @@ export class ProductDetailComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
   currentImageIndex: number = 0;
+
+ 
 
   constructor(
     private route: ActivatedRoute,
@@ -72,7 +74,11 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
-  nextImage(): void {
+  selectImage(index: number) {
+    this.currentImageIndex = index;
+  }
+
+ /*  nextImage(): void {
     if (this.product && this.product.images.length > 1) {
       this.currentImageIndex = (this.currentImageIndex + 1) % this.product.images.length;
     }
@@ -82,5 +88,5 @@ export class ProductDetailComponent implements OnInit {
     if (this.product && this.product.images.length > 1) {
       this.currentImageIndex = (this.currentImageIndex - 1 + this.product.images.length) % this.product.images.length;
     }
-  }
+  } */
 }

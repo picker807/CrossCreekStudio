@@ -1,7 +1,10 @@
 <div class="app-container flex flex-col min-h-screen">
   <cc-message class="fixed top-30 left-0 right-0 z-[900]">test Message</cc-message>
 
-  <header style="background-color: #342c25; color:#f9e8d9;" class="fixed top-0 left-0 right-0 z-[800]">
+  <header [ngClass]="{
+      'default-colors': !isAlternateStyle,
+      'alternate-colors': isAlternateStyle
+    }" class="fixed top-0 left-0 right-0 z-[800]">
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-start">
       <div class="flex items-start">
         <a href="/" class="flex items-center">
@@ -29,7 +32,7 @@
         <!-- Cart icon -->
         <div class="relative ml-4">
           <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300 block">
-            <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/cart1.png" alt="Cart" class="size-12 sm:size-10 md:size-12 lg:size-14 xl:size-16">
+            <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/cart_green.png" alt="Cart" class="size-12 sm:size-10 md:size-12 lg:size-10">
             <span *ngIf="cartItemCount > 0" class="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               {{cartItemCount}}
             </span>
@@ -39,12 +42,12 @@
     </nav>
   </header>
   
-  <main [ngClass]="{'px-4 sm:px-6 py-4 mt-[95px]': !isHomePage, 'w-full': true}" class="flex-grow">
+  <main class="w-full min-h-[calc(100vh-95px)] flex-grow">
     <router-outlet></router-outlet>
   </main>
   
   
-  <footer style="background-color: #342c25;" class="text-white text-center py-6 relative w-full mx-0 left-0 right-0">
+  <footer class="text-white bg-ccs-brown text-center py-6 relative w-full mx-0 left-0 right-0">
     <div class="w-full">
       <div class="flex justify-center space-x-4 mb-4">
         <a href="/home" class="hover:underline footer-link">Home</a>
@@ -55,13 +58,13 @@
       </div>
       <div class="flex justify-center space-x-4 mb-4">
         <a href="https://www.facebook.com/profile.php?id=61558600351978" target="_blank" class="hover:text-blue-500">
-          <i class="fab fa-facebook-f"></i>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/socials/1.png" alt="Facebook" class="w-6 h-6">
         </a>
         <a href="https://www.x.com/CrossCreekAcres" target="_blank" class="hover:text-blue-300">
-          <i class="fa-brands fa-x-twitter"></i>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/socials/2.png" alt="X" class="w-6 h-6">
         </a>
         <a href="https://www.instagram.com/cross_creek_acres_ny/" target="_blank" class="hover:text-pink-500">
-          <i class="fab fa-instagram"></i>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/socials/3.png" alt="Instagram" class="w-6 h-6">
         </a>
       </div>
       <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
