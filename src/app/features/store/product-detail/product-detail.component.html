@@ -36,15 +36,16 @@
     </div>
 
     <!-- Product Details -->
-    <div *ngIf="product && !loading && !error" class="bg-white bg-opacity-75 p-6 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
-      <div class="flex flex-col gap-6 relative">
-        <!-- Main Image (Top on small, Center on large) -->
-        <div *ngIf="product.images && product.images.length > 0" class="w-full md:max-w-[400px] mx-auto relative">
-          <img
-            [src]="product.images[currentImageIndex]"
-            [alt]="product.name + ' image ' + (currentImageIndex + 1)"
-            class="w-full h-[40vh] md:h-[300px] object-contain rounded bg-white p-4 shadow"
-          >
+<div *ngIf="product && !loading && !error" class="bg-white bg-opacity-75 p-6 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
+  <div class="flex flex-col gap-6 relative">
+    <!-- Main Image (Top on small, Center on large) -->
+    <div class="w-full md:max-w-[400px] mx-auto relative">
+      <img
+        [src]="product.images?.[currentImageIndex] || ''"
+        [alt]="product.name + ' image ' + (currentImageIndex + 1)"
+        class="w-full h-[40vh] md:h-[300px] object-contain rounded bg-white p-4 shadow"
+      >
+    
           <!-- Thumbnails (Floating on large, Horizontal scroll on small) -->
           <div class="flex md:hidden w-full overflow-x-auto gap-2 py-2 justify-center">
             <img

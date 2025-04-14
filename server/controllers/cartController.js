@@ -122,7 +122,7 @@ const cartController = {
             removedItems: []
           };
   
-          console.log('Response from addToCart:', JSON.stringify(response, null, 2));
+          //console.log('Response from addToCart:', JSON.stringify(response, null, 2));
           res.set('X-Cart-ID', cartId);
           res.json(response);
         } catch (error) {

@@ -28,7 +28,7 @@ const checkoutController = {
 
   completeCheckout: async (req, res) => {
     console.time('completeCheckout');
-    console.log("Checkout Request Body: ", JSON.stringify(req.body, null, 2));
+    //console.log("Checkout Request Body: ", JSON.stringify(req.body, null, 2));
     const { cartId, paymentId, shippingAddress, paypalDetails, cartItems, email } = req.body;
     const { events, products } = cartItems;
     console.timeLog('completeCheckout', 'Starting...');
@@ -128,7 +128,7 @@ console.timeLog('completeCheckout', `Event ${event._id} updated`);
 
       console.timeEnd('completeCheckout');
 
-      console.log('Sending orderNumber:', order.orderNumber);
+      //console.log('Sending orderNumber:', order.orderNumber);
       
       const enrichedEvents = events.map(event => ({
         eventId: event.eventId,

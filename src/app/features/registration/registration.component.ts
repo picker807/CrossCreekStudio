@@ -255,11 +255,11 @@ export class RegistrationComponent {
         }))
       };
   
-      console.log('Sending to cart:', eventForCart); // Debug log
+      //console.log('Sending to cart:', eventForCart); // Debug log
   
       this.checkoutService.addEventToCart(eventForCart).subscribe({
         next: (response) => {
-          console.log('Event added:', response);
+          //console.log('Event added:', response);
           this.previewEnrollees = [];
           this.registrationForm.reset();
           this.numAttendeesControl.setValue(1);

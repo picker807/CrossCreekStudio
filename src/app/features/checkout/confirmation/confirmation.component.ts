@@ -26,7 +26,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
               this.orderDetails = order;
               this.showShippingAddress = this.orderDetails.shippingAddress && 
                 this.orderDetails.items.some(item => item.products && item.products.length > 0);
-                console.log("******** Images in Order: ", JSON.stringify(order.items));
+                //console.log("******** Images in Order: ", JSON.stringify(order.items));
               this.sendOrderConfirmationEmail(order);
             },
             error: (error) => {

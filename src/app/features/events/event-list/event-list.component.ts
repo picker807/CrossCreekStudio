@@ -27,12 +27,12 @@ export class EventListComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     
     this.authService.isAdmin$.subscribe(isAdmin => {
-      console.log("isAdmin in Event List: ", isAdmin);
+      //console.log("isAdmin in Event List: ", isAdmin);
       this.isAdmin = isAdmin;
     });
     
     this.subscription = this.eventService.events$.subscribe((eventsList: Event[]) => {
-      console.log('Received events in list component:', eventsList);
+      //console.log('Received events in list component:', eventsList);
       this.events = eventsList;
       this.loading = false;
       this.filterFutureEvents();

@@ -4,7 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { CheckoutService } from './services/checkout.service';
 import { AdminService } from './services/admin.service';
 import { CartItems } from './models/interfaces';
-import { filter, Subscription } from 'rxjs';
+import { combineLatest, filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'cc-root',
@@ -17,6 +17,7 @@ export class AppComponent {
   cartItemCount: number = 0;
   isMenuOpen = false;
   isAlternateStyle: boolean = false;
+  isGalleryStyle: boolean = false;
 
   private subscription: Subscription;
 
@@ -33,8 +34,11 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
-      console.log("AppComponent recevied cartItems$ update: ", cartList);
+    this.subscription = combineLatest([
+      this.authService.isAdmin$,
+      this.checkoutService.cartItems$])
+      .subscribe(([isAdmin, cartList]: [boolean, CartItems]) => {
+      this.isAdmin = isAdmin;
       const cart = cartList || { events: [], products: [] };
       const eventsCount = Array.isArray(cart.events) ? cart.events.reduce((sum, e) => sum + (e.enrollees?.length || 0), 0) : 0;
       const productsCount = Array.isArray(cart.products) ? cart.products.reduce((sum, p) => sum + (p.quantity || 0), 0) : 0;
@@ -44,8 +48,16 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
+      this.isAlternateStyle =false;
+      this.isGalleryStyle = false;
+      
       const url = event.urlAfterRedirects;
-      this.isAlternateStyle = url.startsWith('/store') || url.startsWith('/events');
+      if (url.startsWith('/store') || url.startsWith('/events')){
+        this.isAlternateStyle = true;
+      } else if (url.startsWith('/gallery')){
+        this.isGalleryStyle = true;
+      }
+      
     });
   }
 

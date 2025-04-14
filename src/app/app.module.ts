@@ -21,6 +21,7 @@ import { PageNotFoundComponent } from './features/page-not-found/page-not-found.
 import { ContactModule } from './features/contact/contact.module';
 import { ProductStoreModule } from './features/store/product-store.module';
 import { AdminProductsComponent } from './features/admin/admin-products/admin-products.component';
+import { ImageErrorService } from './services/image-error.service';
 
 
 export function tokenGetter(platformId: Object) {
@@ -72,4 +73,8 @@ export function tokenGetter(platformId: Object) {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(private imageErrorService: ImageErrorService) {
+    this.imageErrorService.initialize();
+  }
+ }

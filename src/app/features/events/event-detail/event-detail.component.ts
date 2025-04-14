@@ -27,7 +27,7 @@ export class EventDetailComponent implements OnInit {
       this.authService.isAdmin$.subscribe(isAdmin => {
         this.isAdmin = isAdmin;
       });
-      console.log("Admin?:", this.isAdmin);
+      //console.log("Admin?:", this.isAdmin);
   
       this.route.params.subscribe(params => {
         const id = params['id'];

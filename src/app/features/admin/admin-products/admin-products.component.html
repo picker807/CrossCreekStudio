@@ -1,4 +1,4 @@
-<div class="container mx-auto p-4 flex justify-center">
+<div class="container w-full mx-auto p-4 flex justify-center mt-[100px]">
   <div class="max-w-4xl w-full">
     <h1 class="text-3xl font-bold mb-6 text-center">Admin: Manage Orders & Products</h1>
 
@@ -7,289 +7,285 @@
       <p>Loading...</p>
     </div>
 
-   <!-- Orders Table -->
-<div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8">
-  <h2 class="text-2xl font-semibold mb-4 cursor-pointer" (click)="toggleOrderList()">
-    Orders {{ isOrderListExpanded ? '▼' : '▶' }}
-  </h2>
-  <div *ngIf="isOrderListExpanded">
-  <table class="w-full border-collapse">
-    <thead>
-      <tr class="bg-gray-200 border-b-2 border-gray-300">
-        <th (click)="sortOrders('orderNumber')" class="text-left p-3 cursor-pointer">Order Number {{ sortColumn === 'orderNumber' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
-        <th (click)="sortOrders('email')" class="text-left p-3 cursor-pointer">Email {{ sortColumn === 'email' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
-        <th (click)="sortOrders('status')" class="text-left p-3 cursor-pointer">Status {{ sortColumn === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
-        <th (click)="sortOrders('date')" class="text-left p-3 cursor-pointer">Date {{ sortColumn === 'date' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
-        <th class="w-10 p-3"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let order of orders">
-        <tr (click)="toggleOrderExpand(order._id)" class="cursor-pointer hover:bg-gray-100 border-b" [ngClass]="{'bg-blue-200': expandedOrderIds.has(order._id)}">
-          <td class="p-3">{{ order.orderNumber }}</td>
-          <td class="p-3">{{ order.email }}</td>
-          <td class="p-3">{{ order.status }}</td>
-          <td class="p-3 text-right">{{ order.date | date: 'shortDate' }} <span class="text-gray-500">{{ expandedOrderIds.has(order._id) ? '▼' : '▶' }}</span></td>
-        </tr>
-        <tr *ngIf="expandedOrderIds.has(order._id) && orderEditForms[order._id]" class="bg-gray-100">
-          <td colspan="5" class="p-4 border-t-2 border-gray-400">
-            <form [formGroup]="orderEditForms[order._id]" (ngSubmit)="updateOrder(order._id)" class="space-y-6">
-              <!-- Order Number -->
-              <div class="grid grid-cols-1 gap-4">
-                <div><label class="block text-sm font-medium">Order Number</label><input value="{{ order.orderNumber }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-              </div>
-
-              <!-- Contact Info -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-sm font-medium">Email</label><input formControlName="email" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
-                <div *ngIf="order.shippingAddress && hasShippingAddress(order.shippingAddress)">
-                  <label class="block text-sm font-medium">Shipping Contact</label>
-                  <div class="mt-1 flex items-center">
-                    <span>{{ order.shippingAddress.fullName }}</span>
-                    <button type="button" (click)="toggleShippingExpand(order._id)" class="ml-2 text-gray-500">{{ expandedShippingIds.has(order._id) ? '▼' : '▶' }}</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Collapsible Shipping Address -->
-              <div *ngIf="expandedShippingIds.has(order._id) && order.shippingAddress && hasShippingAddress(order.shippingAddress)" class="border-2 border-gray-200 rounded-md p-4">
-                <div formGroupName="shippingAddress" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input formControlName="street1" placeholder="Street" class="w-full border-2 border-gray-200 rounded-md p-2">
-                  <input formControlName="street2" placeholder="Apt/Suite" class="w-full border-2 border-gray-200 rounded-md p-2">
-                  <input formControlName="city" placeholder="City" class="w-full border-2 border-gray-200 rounded-md p-2">
-                  <input formControlName="state" placeholder="State" class="w-full border-2 border-gray-200 rounded-md p-2">
-                  <input formControlName="zip" placeholder="ZIP Code" class="w-full border-2 border-gray-200 rounded-md p-2">
-                  <input formControlName="country" placeholder="Country" class="w-full border-2 border-gray-200 rounded-md p-2">
-                </div>
-              </div>
-              <div *ngIf="!order.shippingAddress || !hasShippingAddress(order.shippingAddress)" class="text-sm text-gray-500">No shipping address provided (no products to ship)</div>
-
-              <!-- Money Fields -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label class="block text-sm font-medium">Shipping Rate</label><input type="number" value="{{ order.shippingRate | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-                <div><label class="block text-sm font-medium">Shipping Amount</label><input type="number" value="{{ order.shipping | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-                <div><label class="block text-sm font-medium">Tax Rate</label><input type="number" value="{{ order.taxRate | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-                <div><label class="block text-sm font-medium">Sales Tax</label><input type="number" value="{{ order.salesTax | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-                <div><label class="block text-sm font-medium">Total</label><input type="number" value="{{ order.total | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-              </div>
-
-              <!-- Items (Flattened Structure) -->
-              <div class="space-y-4">
-                <!-- Events -->
-                <div *ngIf="order.items?.[0]?.events?.length > 0">
-                  <h3 class="text-lg font-medium">Events</h3>
-                  <div class="space-y-2">
-                    <div *ngFor="let event of order.items[0].events" class="bg-gray-50 p-4 rounded-md">
-                      <p><strong>Event ID:</strong> {{ event.eventId.id }}</p>
-                      <p><strong>Event Name:</strong> {{ event.eventId.name }}</p>
-                      <p><strong>Location:</strong> {{ event.eventId.location }}</p>
-                      <p><strong>Date:</strong> {{ event.eventId.date }}</p>
-                      <p><strong>Price Paid:</strong> {{ event.pricePaid | number:'1.2-2' }}</p>
-                      <p><strong>Enrollees:</strong></p>
-                      <ul class="list-disc pl-4">
-                        <li *ngFor="let enrollee of event.enrollees">
-                          {{ enrollee.firstName }} {{ enrollee.lastName }} ({{ enrollee.email }}, {{ enrollee.phone || 'N/A' }})
-                        </li>
-                      </ul>
+    <!-- Orders Table -->
+    <div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8 mx-auto w-full">
+      <h2 class="text-2xl font-semibold mb-4 cursor-pointer" (click)="toggleOrderList()">
+        Orders {{ isOrderListExpanded ? '▼' : '▶' }}
+      </h2>
+      <div *ngIf="isOrderListExpanded" class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-200 border-b-2 border-gray-300">
+              <th (click)="sortOrders('orderNumber')" class="text-left p-3 cursor-pointer">Order Number {{ sortColumn === 'orderNumber' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+              <th (click)="sortOrders('email')" class="text-left p-3 cursor-pointer">Email {{ sortColumn === 'email' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+              <th (click)="sortOrders('status')" class="text-left p-3 cursor-pointer">Status {{ sortColumn === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+              <th (click)="sortOrders('date')" class="text-left p-3 cursor-pointer">Date {{ sortColumn === 'date' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}</th>
+              <th class="w-10 p-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let order of orders">
+              <tr (click)="toggleOrderExpand(order._id)" class="cursor-pointer hover:bg-gray-100 border-b" [ngClass]="{'bg-blue-200': expandedOrderIds.has(order._id)}">
+                <td class="p-3 truncate" title="{{ order.orderNumber }}">{{ order.orderNumber }}</td>
+                <td class="p-3 truncate" title="{{ order.email }}">{{ order.email }}</td>
+                <td class="p-3 truncate" title="{{ order.status }}">{{ order.status }}</td>
+                <td class="p-3 text-right">{{ order.date | date: 'shortDate' }} <span class="text-gray-500">{{ expandedOrderIds.has(order._id) ? '▼' : '▶' }}</span></td>
+              </tr>
+              <tr *ngIf="expandedOrderIds.has(order._id) && orderEditForms[order._id]" class="bg-gray-100">
+                <td colspan="5" class="p-4 border-t-2 border-gray-400">
+                  <form [formGroup]="orderEditForms[order._id]" (ngSubmit)="updateOrder(order._id)" class="space-y-6">
+                    <!-- Order Number -->
+                    <div class="grid grid-cols-1 gap-4">
+                      <div><label class="block text-sm font-medium">Order Number</label><input value="{{ order.orderNumber }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
                     </div>
-                  </div>
-                </div>
-                <!-- Products -->
-                <div *ngIf="order.items?.[0]?.products?.length > 0">
-                  <h3 class="text-lg font-medium">Products</h3>
-                  <div class="space-y-2">
-                    <div *ngFor="let product of order.items[0].products" class="bg-gray-50 p-4 rounded-md">
-                      <p><strong>Product ID:</strong> {{ product.productId.id }}</p>
-                      <p><strong>Product Name:</strong> {{ product.productId.name }}</p>
-                      <p><strong>Quantity:</strong> {{ product.quantity }}</p>
-                      <p><strong>Price Paid:</strong> {{ product.pricePaid | number:'1.2-2' }}</p>
+
+                    <!-- Contact Info -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                      <div><label class="block text-sm font-medium">Email</label><input formControlName="email" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
+                      <div *ngIf="order.shippingAddress && hasShippingAddress(order.shippingAddress)">
+                        <label class="block text-sm font-medium">Shipping Contact</label>
+                        <div class="mt-1 flex items-center">
+                          <span>{{ order.shippingAddress.fullName }}</span>
+                          <button type="button" (click)="toggleShippingExpand(order._id)" class="ml-2 text-gray-500">{{ expandedShippingIds.has(order._id) ? '▼' : '▶' }}</button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              <!-- Status, Tracking, Carrier, and Buttons -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label class="block text-sm font-medium">Status</label>
-                  <select formControlName="status" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2">
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="canceled">Canceled</option>
-                  </select>
-                </div>
-                <div><label class="block text-sm font-medium">Tracking Number</label><input formControlName="trackingNumber" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
-                <div><label class="block text-sm font-medium">Carrier</label><input formControlName="carrier" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
-              </div>
-              <div class="flex gap-2 justify-end">
-                <button type="submit" [disabled]="orderEditForms[order._id].invalid || orderEditForms[order._id].pristine" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Save</button>
-                <button type="button" (click)="sendTrackingEmail(order._id)" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Send Tracking Email</button>
-              </div>
+                    <!-- Collapsible Shipping Address -->
+                    <div *ngIf="expandedShippingIds.has(order._id) && order.shippingAddress && hasShippingAddress(order.shippingAddress)" class="border-2 border-gray-200 rounded-md p-4">
+                      <div formGroupName="shippingAddress" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                        <input formControlName="street1" placeholder="Street" class="w-full border-2 border-gray-200 rounded-md p-2">
+                        <input formControlName="street2" placeholder="Apt/Suite" class="w-full border-2 border-gray-200 rounded-md p-2">
+                        <input formControlName="city" placeholder="City" class="w-full border-2 border-gray-200 rounded-md p-2">
+                        <input formControlName="state" placeholder="State" class="w-full border-2 border-gray-200 rounded-md p-2">
+                        <input formControlName="zip" placeholder="ZIP Code" class="w-full border-2 border-gray-200 rounded-md p-2">
+                        <input formControlName="country" placeholder="Country" class="w-full border-2 border-gray-200 rounded-md p-2">
+                      </div>
+                    </div>
+                    <div *ngIf="!order.shippingAddress || !hasShippingAddress(order.shippingAddress)" class="text-sm text-gray-500">No shipping address provided (no products to ship)</div>
 
-              <!-- Metadata -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
-                <div><label class="block font-medium">Created At</label><input value="{{ order.createdAt | date: 'medium' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-                <div><label class="block font-medium">Updated At</label><input value="{{ order.updatedAt | date: 'medium' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-                <div><label class="block font-medium">Payment ID</label><input value="{{ order.paymentId }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
-              </div>
-            </form>
-          </td>
-        </tr>
-      </ng-container>
-    </tbody>
-  </table>
-  <p *ngIf="!orders.length && !loading" class="text-gray-500 text-center mt-4">No orders found.</p>
-</div>
-</div>
+                    <!-- Money Fields -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      <div><label class="block text-sm font-medium">Shipping Rate</label><input type="number" value="{{ order.shippingRate | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                      <div><label class="block text-sm font-medium">Shipping Amount</label><input type="number" value="{{ order.shipping | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                      <div><label class="block text-sm font-medium">Tax Rate</label><input type="number" value="{{ order.taxRate | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                      <div><label class="block text-sm font-medium">Sales Tax</label><input type="number" value="{{ order.salesTax | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                      <div><label class="block text-sm font-medium">Total</label><input type="number" value="{{ order.total | number:'1.2-2' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                    </div>
+
+                    <!-- Items (Flattened Structure) -->
+                    <div class="space-y-4">
+                      <!-- Events -->
+                      <div *ngIf="order.items?.[0]?.events?.length > 0">
+                        <h3 class="text-lg font-medium">Events</h3>
+                        <div class="space-y-2">
+                          <div *ngFor="let event of order.items[0].events" class="bg-gray-50 p-4 rounded-md">
+                            <p><strong>Event ID:</strong> {{ event.eventId.id }}</p>
+                            <p><strong>Event Name:</strong> {{ event.eventId.name }}</p>
+                            <p><strong>Location:</strong> {{ event.eventId.location }}</p>
+                            <p><strong>Date:</strong> {{ event.eventId.date }}</p>
+                            <p><strong>Price Paid:</strong> {{ event.pricePaid | number:'1.2-2' }}</p>
+                            <p><strong>Enrollees:</strong></p>
+                            <ul class="list-disc pl-4">
+                              <li *ngFor="let enrollee of event.enrollees">
+                                {{ enrollee.firstName }} {{ enrollee.lastName }} ({{ enrollee.email }}, {{ enrollee.phone || 'N/A' }})
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Products -->
+                      <div *ngIf="order.items?.[0]?.products?.length > 0">
+                        <h3 class="text-lg font-medium">Products</h3>
+                        <div class="space-y-2">
+                          <div *ngFor="let product of order.items[0].products" class="bg-gray-50 p-4 rounded-md">
+                            <p><strong>Product ID:</strong> {{ product.productId.id }}</p>
+                            <p><strong>Product Name:</strong> {{ product.productId.name }}</p>
+                            <p><strong>Quantity:</strong> {{ product.quantity }}</p>
+                            <p><strong>Price Paid:</strong> {{ product.pricePaid | number:'1.2-2' }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Status, Tracking, Carrier, and Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      <div><label class="block text-sm font-medium">Status</label>
+                        <select formControlName="status" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2">
+                          <option value="pending">Pending</option>
+                          <option value="completed">Completed</option>
+                          <option value="canceled">Canceled</option>
+                        </select>
+                      </div>
+                      <div><label class="block text-sm font-medium">Tracking Number</label><input formControlName="trackingNumber" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
+                      <div><label class="block text-sm font-medium">Carrier</label><input formControlName="carrier" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2"></div>
+                    </div>
+                    <div class="flex gap-2 justify-end flex-col sm:flex-row">
+                      <button type="submit" [disabled]="orderEditForms[order._id].invalid || orderEditForms[order._id].pristine" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Save</button>
+                      <button type="button" (click)="sendTrackingEmail(order._id)" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Send Tracking Email</button>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-500">
+                      <div><label class="block font-medium">Created At</label><input value="{{ order.createdAt | date: 'medium' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                      <div><label class="block font-medium">Updated At</label><input value="{{ order.updatedAt | date: 'medium' }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                      <div><label class="block font-medium">Payment ID</label><input value="{{ order.paymentId }}" class="mt-1 w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled></div>
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+        <p *ngIf="!orders.length && !loading" class="text-gray-500 text-center mt-4">No orders found.</p>
+      </div>
+    </div>
 
     <!-- Create Product Form -->
-<div class="mb-8" *ngIf="!loading">
-  <!-- Collapsed State: Big Button -->
-  <div 
-    *ngIf="!isCreateFormExpanded" 
-    (click)="toggleCreateForm()" 
-    class="bg-green-500 text-white text-2xl font-semibold text-center py-6 px-8 rounded-lg shadow-xl border-2 border-green-600 cursor-pointer hover:bg-green-600 transition-colors"
-  >
-    Add New Product
-  </div>
-
-  <!-- Expanded State: Full Form -->
-  <div 
-    *ngIf="isCreateFormExpanded" 
-    class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6"
-  >
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-semibold">Add New Product</h2>
-      <button 
+    <div class="mb-8" *ngIf="!loading">
+      <!-- Collapsed State: Big Button -->
+      <div 
+        *ngIf="!isCreateFormExpanded" 
         (click)="toggleCreateForm()" 
-        class="text-gray-500 hover:text-gray-700 focus:outline-none"
+        class="bg-green-500 text-white text-2xl font-semibold text-center py-6 px-8 rounded-lg shadow-xl border-2 border-green-600 cursor-pointer hover:bg-green-600 transition-colors"
       >
-        <span class="text-2xl">▼</span>
-      </button>
-    </div>
-    <form [formGroup]="createForm" (ngSubmit)="createProduct()" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Product ID</label>
-          <input formControlName="id" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500" [disabled]="true">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Name</label>
-          <input formControlName="name" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Price ($)</label>
-          <input type="number" formControlName="price" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Stock</label>
-          <input type="number" formControlName="stock" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
-        </div>
+        Add New Product
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Description</label>
-        <textarea formControlName="description" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></textarea>
-      </div>
-      <div (drop)="onFileDrop($event, createForm)" (dragover)="onDragOver($event)" class="border-dashed border-2 border-gray-400 p-4 text-center bg-gray-50 rounded-md">
-        <p>Drag & Drop Images Here or</p>
-        <input type="file" multiple (change)="onFileBrowse($event, createForm)" class="hidden" id="createImages">
-        <label for="createImages" class="text-blue-500 cursor-pointer">Browse Files</label>
-        <div *ngIf="previews.length" class="mt-2 flex flex-wrap gap-2">
-          <div *ngFor="let preview of previews; let i = index" class="relative">
-            <img [src]="preview" class="w-20 h-20 object-cover rounded">
-            <button (click)="removeFile(i)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+
+      <!-- Expanded State: Full Form -->
+      <div 
+        *ngIf="isCreateFormExpanded" 
+        class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold">Add New Product</h2>
+          <button 
+            (click)="toggleCreateForm()" 
+            class="text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            <span class="text-2xl">▼</span>
+          </button>
+        </div>
+        <form [formGroup]="createForm" (ngSubmit)="createProduct()" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Product ID</label>
+              <input formControlName="id" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500" [disabled]="true">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Name</label>
+              <input formControlName="name" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Price ($)</label>
+              <input type="number" formControlName="price" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Stock</label>
+              <input type="number" formControlName="stock" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+            </div>
           </div>
-        </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea formControlName="description" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></textarea>
+          </div>
+          <div (drop)="onFileDrop($event, createForm)" (dragover)="onDragOver($event)" class="border-dashed border-2 border-gray-400 p-4 text-center bg-gray-50 rounded-md">
+            <p>Drag & Drop Images Here or</p>
+            <input type="file" multiple (change)="onFileBrowse($event, createForm)" class="hidden" id="createImages">
+            <label for="createImages" class="text-blue-500 cursor-pointer">Browse Files</label>
+            <div *ngIf="previews.length" class="mt-2 flex flex-wrap gap-2">
+              <div *ngFor="let preview of previews; let i = index" class="relative">
+                <img [src]="preview" class="w-20 h-20 object-cover rounded">
+                <button (click)="removeFile(i)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+              </div>
+            </div>
+          </div>
+          <button type="submit" [disabled]="createForm.invalid || loading" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 disabled:bg-gray-400">Create Product</button>
+        </form>
       </div>
-      <button type="submit" [disabled]="createForm.invalid || loading" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 disabled:bg-gray-400">Create Product</button>
-    </form>
-  </div>
-</div>
+    </div>
 
     <!-- Product List Table with Expandable Forms -->
     <div class="bg-white shadow-xl border-2 border-gray-300 rounded-lg p-6 mb-8" *ngIf="!loading && products.length">
       <h2 class="text-2xl font-semibold mb-4 cursor-pointer" (click)="toggleProductList()">
         Products {{ isProductListExpanded ? '▼' : '▶' }}
       </h2>
-      <div *ngIf="isProductListExpanded">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-200 border-b-2 border-gray-300">
-            <th class="text-left p-3 font-medium">Name</th>
-            <th class="text-center p-3 font-medium">Price</th>
-            <th class="text-center p-3 font-medium">Stock</th>
-            <th class="w-10 p-3"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let product of products">
-            <!-- Compact Row -->
-            <tr 
-            (click)="toggleExpand(product.id)" 
-            class="cursor-pointer hover:bg-gray-100 border-b border-gray-200"
-            [ngClass]="{'bg-blue-100': expandedProductIds.has(product.id)}"
-          >
-            <td class="p-3 truncate">{{ product.name }}</td>
-            <td class="p-3 text-center">${{ product.price | number:'1.2-2' }}</td>
-            <td class="p-3 text-center">{{ product.stock }}</td>
-            <td class="p-3 text-right">
-              <span class="text-gray-500">{{ expandedProductIds.has(product.id) ? '▼' : '▶' }}</span>
-            </td>
+      <div *ngIf="isProductListExpanded" class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg цій-gray-200 border-b-2 border-gray-300">
+              <th class="text-left p-3 font-medium">Name</th>
+              <th class="text-center p-3 font-medium">Price</th>
+              <th class="text-center p-3 font-medium">Stock</th>
+              <th class="w-10 p-3"></th>
             </tr>
-            <!-- Expanded Edit Form Row -->
-            <tr *ngIf="expandedProductIds.has(product.id)" class="bg-gray-100">
-              <td colspan="4" class="p-4 border-t-2 border-gray-400">
-                <form [formGroup]="productEditForms[product.id]" (ngSubmit)="updateProduct(product.id)" class="space-y-4">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Product ID</label>
-                      <input formControlName="id" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Name</label>
-                      <input formControlName="name" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Price ($)</label>
-                      <input type="number" formControlName="price" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Stock</label>
-                      <input type="number" formControlName="stock" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea formControlName="description" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></textarea>
-                  </div>
-                  <div (drop)="onFileDrop($event, productEditForms[product.id], product.id)" (dragover)="onDragOver($event)" class="border-dashed border-2 border-gray-400 p-4 text-center bg-gray-50 rounded-md">
-                    <p>Drag & Drop Images Here or</p>
-                    <input type="file" multiple (change)="onFileBrowse($event, productEditForms[product.id], product.id)" class="hidden" [id]="'editImages_' + product.id">
-                    <label [for]="'editImages_' + product.id" class="text-blue-500 cursor-pointer">Browse Files</label>
-
-                    <div class="mt-2 flex flex-wrap gap-2">
-                      <div *ngFor="let img of productEditForms[product.id].get('images')?.value" class="relative">
-                        <img [src]="img" class="w-20 h-20 object-cover rounded">
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let product of products">
+              <tr 
+                (click)="toggleExpand(product.id)" 
+                class="cursor-pointer hover:bg-gray-100 border-b border-gray-200"
+                [ngClass]="{'bg-blue-100': expandedProductIds.has(product.id)}"
+              >
+                <td class="p-3 truncate" title="{{ product.name }}">{{ product.name }}</td>
+                <td class="p-3 text-center">${{ product.price | number:'1.2-2' }}</td>
+                <td class="p-3 text-center">{{ product.stock }}</td>
+                <td class="p-3 text-right">
+                  <span class="text-gray-500">{{ expandedProductIds.has(product.id) ? '▼' : '▶' }}</span>
+                </td>
+              </tr>
+              <tr *ngIf="expandedProductIds.has(product.id)" class="bg-gray-100">
+                <td colspan="4" class="p-4 border-t-2 border-gray-400">
+                  <form [formGroup]="productEditForms[product.id]" (ngSubmit)="updateProduct(product.id)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700">Product ID</label>
+                        <input formControlName="id" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 bg-gray-100" disabled>
                       </div>
-
-                      <div *ngFor="let preview of editPreviews[product.id]; let i = index" class="relative">
-                        <img [src]="preview" class="w-20 h-20 object-cover rounded">
-                        <button (click)="removeFile(i, product.id)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                        <input formControlName="name" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
                       </div>
-
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700">Price ($)</label>
+                        <input type="number" formControlName="price" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700">Stock</label>
+                        <input type="number" formControlName="stock" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500">
+                      </div>
                     </div>
-                  </div>
-                  <div class="flex gap-2 justify-end">
-                    <button type="submit" [disabled]="productEditForms[product.id].invalid || loading" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">Save</button>
-                    <button type="button" (click)="deleteProduct(product.id)" [disabled]="loading" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 disabled:bg-gray-400">Delete</button>
-                  </div>
-                </form>
-              </td>
-            </tr>
-          </ng-container>
-        </tbody>
-      </table>
-      <p *ngIf="!products.length && !loading" class="text-gray-500 text-center mt-4">No products found.</p>
-    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Description</label>
+                      <textarea formControlName="description" class="mt-1 block w-full border-2 border-gray-200 rounded-md p-2 focus:border-blue-500"></textarea>
+                    </div>
+                    <div (drop)="onFileDrop($event, productEditForms[product.id], product.id)" (dragover)="onDragOver($event)" class="border-dashed border-2 border-gray-400 p-4 text-center bg-gray-50 rounded-md">
+                      <p>Drag & Drop Images Here or</p>
+                      <input type="file" multiple (change)="onFileBrowse($event, productEditForms[product.id], product.id)" class="hidden" [id]="'editImages_' + product.id">
+                      <label [for]="'editImages_' + product.id" class="text-blue-500 cursor-pointer">Browse Files</label>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <div *ngFor="let img of productEditForms[product.id].get('images')?.value; let i = index" class="relative">
+                          <img [src]="img" class="w-20 h-20 object-cover rounded">
+                          <button (click)="removeExistingImage(i, product.id)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+                        </div>
+                        <div *ngFor="let preview of editPreviews[product.id]; let i = index" class="relative">
+                          <img [src]="preview" class="w-20 h-20 object-cover rounded">
+                          <button (click)="removeFile(i, product.id)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">×</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex gap-2 justify-end flex-col sm:flex-row">
+                      <button type="submit" [disabled]="productEditForms[product.id].invalid || loading" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">Save</button>
+                      <button type="button" (click)="deleteProduct(product.id)" [disabled]="loading" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 disabled:bg-gray-400">Delete</button>
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+        <p *ngIf="!products.length && !loading" class="text-gray-500 text-center mt-4">No products found.</p>
+      </div>
     </div>
 
     <!-- Tax & Shipping Settings -->

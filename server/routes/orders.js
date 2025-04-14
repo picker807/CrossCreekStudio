@@ -9,7 +9,7 @@ const { authMiddleware } = require('../middleware/auth');
 router.get('/:orderNumber', async (req, res) => {
   try {
     const orderNumber = req.params.orderNumber;
-    console.log("orderController orderNumber: ", orderNumber);
+    //console.log("orderController orderNumber: ", orderNumber);
     const order = await Order.findOne({ orderNumber: orderNumber })
     .populate({
       path: 'items.events.eventId',
@@ -23,7 +23,7 @@ router.get('/:orderNumber', async (req, res) => {
 
     if (!order) return res.status(404).send('Order not found');
 
-    console.log('Full order:', JSON.stringify(order.toObject(), null, 2));
+    //console.log('Full order:', JSON.stringify(order.toObject(), null, 2));
     res.json(order);
   } catch (error) {
     res.status(500).send('Server error');

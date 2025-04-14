@@ -17,13 +17,13 @@ const sequenceGenerator = {
         });
         await newSequence.save();
         this.sequenceId = newSequence._id;
-        console.log('Created initial Sequence document with _id:', this.sequenceId);
+        //console.log('Created initial Sequence document with _id:', this.sequenceId);
       } else {
         this.sequenceId = sequence._id;
-        console.log('Using existing Sequence _id:', this.sequenceId);
+        //console.log('Using existing Sequence _id:', this.sequenceId);
       }
     } catch (err) {
-      console.error('Error initializing SequenceGenerator:', err);
+      //console.error('Error initializing SequenceGenerator:', err);
       throw err;
     }
   },
@@ -53,7 +53,7 @@ const sequenceGenerator = {
     }
 
     const nextId = sequenceDoc[field];
-    console.log(`Generated ${collectionType} ID: ${nextId}`);
+    //console.log(`Generated ${collectionType} ID: ${nextId}`);
     return nextId.toString();
   },
 
@@ -78,7 +78,7 @@ const sequenceGenerator = {
           { _id: this.sequenceId },
           { $set: { [field]: maxId } }
         );
-        console.log(`Synced ${collectionType} to ${maxId}`);
+        //console.log(`Synced ${collectionType} to ${maxId}`);
       }
     }
   },

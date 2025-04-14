@@ -53,7 +53,7 @@ async function loadTemplate(templateName, data) {
 
 // Middleware to ensure the template exists
 const ensureTemplateExists = async (req, res, next) => {
-  console.log("req.body: ", req.body);
+  //console.log("req.body: ", req.body);
   const templateType = req.body.templateType || req.body.emailData?.templateType;
   try {
     const filePath = path.join(__dirname, '../models/templates', `${templateType}.hbs`);
@@ -88,6 +88,25 @@ router.post('/send', ensureTemplateExists, async (req, res) => {
       };
 
       await transporter.sendMail(mailOptions);
+
+    } else if (templateType === 'order-confirmation') {
+      // For order-confirmation, send individual emails with BCC to seller
+      const sendEmailPromises = finalRecipients.map(async (recipient) => {
+        const options = {
+          ...mailOptions,
+          to: recipient,
+          bcc: [
+            EMAIL_RECEIVE1,
+            EMAIL_RECEIVE2
+          ].filter(Boolean).join(', '),
+          html
+        };
+
+        return transporter.sendMail(options);
+      });
+
+      await Promise.all(sendEmailPromises);
+
     } else {
       // For all other templates, send individual emails
       const sendEmailPromises = finalRecipients.map(async (recipient) => {

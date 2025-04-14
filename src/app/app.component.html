@@ -2,17 +2,18 @@
   <cc-message class="fixed top-30 left-0 right-0 z-[900]">test Message</cc-message>
 
   <header [ngClass]="{
-      'default-colors': !isAlternateStyle,
-      'alternate-colors': isAlternateStyle
+      'default-colors': !isAlternateStyle && !isGalleryStyle,
+      'alternate-colors': isAlternateStyle,
+      'gallery-colors': isGalleryStyle
     }" class="fixed top-0 left-0 right-0 z-[800]">
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-start">
       <div class="flex items-start">
         <a href="/" class="flex items-center">
-          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/stacked_words_CCS_green.png" alt="Cross Creek Studio Logo" class="h-20 mr-2 max-w-full" loading="lazy">
+          <img [src]="!isGalleryStyle ? 'https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/stacked_words_CCS_green.png' : 'https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/stacked_words_CCS_blue.png'" alt="Cross Creek Studio Logo" class="h-20 mr-2 max-w-full" loading="lazy">
         </a>
       </div>
       
-      <div class="flex items-center menu">
+      <div class="flex items-center menu mt-5">
         <!-- Hamburger menu button for small screens -->
         <button class="lg:hidden mr-4 hamburger7" (click)="toggleMenu()" [class.active]="isMenuOpen">
           <span></span>

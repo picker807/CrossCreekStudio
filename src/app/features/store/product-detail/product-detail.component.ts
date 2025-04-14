@@ -27,7 +27,7 @@ export class ProductDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const productId = params.get('productId');
-      console.log('Product ID from paramMap:', productId);
+      //console.log('Product ID from paramMap:', productId);
       if (productId) {
         this.loadProduct(productId);
       } else {
@@ -63,7 +63,7 @@ export class ProductDetailComponent implements OnInit {
       this.checkoutService.addProductToCart([{ productId: this.product.id, quantity: this.quantity }])
         .subscribe({
           next: () => {
-            console.log(`${this.quantity} of ${this.product?.name} added to cart`);
+            //console.log(`${this.quantity} of ${this.product?.name} added to cart`);
             // Optionally reset quantity or show a success message
           },
           error: (err) => {

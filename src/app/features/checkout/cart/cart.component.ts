@@ -66,9 +66,9 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.subscription = this.checkoutService.cartItems$.subscribe((cartList: CartItems) => {
-      console.log('Received cartList in CartComponent:', cartList);
+      //console.log('Received cartList in CartComponent:', cartList);
       this.cartItems = cartList || { events: [], products: [] };
-      console.log('Cart items updated:', this.cartItems);
+      //console.log('Cart items updated:', this.cartItems);
       this.loadRates();
       this.calculateTotalPrice();
     });
@@ -80,7 +80,7 @@ export class CartComponent implements OnInit {
     this.checkoutService.getTaxRate().subscribe({
       next: (result) => {
         this.taxRate = result.taxRate;
-        console.log('Tax Rate set to:', this.taxRate);
+        //console.log('Tax Rate set to:', this.taxRate);
         ratesLoaded++;
         if (ratesLoaded === 2) {
           this.calculateTotalPrice();
@@ -93,7 +93,7 @@ export class CartComponent implements OnInit {
     this.checkoutService.getShippingRate().subscribe({
       next: (result) => {
         this.shippingRate = result.shippingRate;
-        console.log('Shipping Rate set to:', this.shippingRate);
+        //console.log('Shipping Rate set to:', this.shippingRate);
         ratesLoaded++;
         if (ratesLoaded === 2) {
           this.calculateTotalPrice();
@@ -103,20 +103,6 @@ export class CartComponent implements OnInit {
       error: (err) => console.error('Failed to load shipping rate', err)
     });
   }
-
-  // Getters for dynamic calculation
-  /* get salesTax(): number {
-    const salesTax = this.cartTotal * this.taxRate;
-    console.log('Calculated salesTax:', salesTax); // Debug
-    return salesTax;
-  }
-
-  get shipping(): number {
-    const shipping = this.itemCount * this.shippingRate;
-    console.log('Calculated shipping:', shipping); // Debug
-    return shipping;
-  }
-} */
 
   calculateTotalPrice(): void {
     this.salesTax = 0; // Reset
@@ -144,19 +130,19 @@ export class CartComponent implements OnInit {
     this.salesTax = productTotal * this.taxRate;
     this.totalPrice = eventTotal + productTotal + this.salesTax + this.shipping;
 
-    console.log(
+    /* console.log(
       'Event total:', eventTotal,
       'Product total:', productTotal,
       'Sales tax:', this.salesTax,
       'Shipping:', this.shipping,
       'Grand total:', this.totalPrice
-    );
+    );*/
   }
 
   adjustProductQuantity(itemId: string, change: number) {
     this.checkoutService.updateProductQuantity(itemId, change).subscribe({
       next: () => {
-        console.log('Quantity updated successfully');
+        //console.log('Quantity updated successfully');
       },
       error: (error) => {
         console.error('Error adjusting quantity:', error);
@@ -166,14 +152,14 @@ export class CartComponent implements OnInit {
   }
 
   removeEnrollee(eventId: string, enrollee: { firstName: string, lastName: string, email: string }) {
-    console.log('Removing enrollee:', eventId, enrollee);
+    //console.log('Removing enrollee:', eventId, enrollee);
     this.checkoutService.removeEnrollee(eventId, enrollee).subscribe({
       next: () => {
-        console.log('Enrollee removed successfully');
+        //console.log('Enrollee removed successfully');
         // cartSubject updates cartItems$, so UI should refresh
       },
       error: (error) => {
-        console.error('Error removing enrollee:', error);
+        //console.error('Error removing enrollee:', error);
         this.messageService.showMessage({ text: 'Failed to remove enrollee', type: 'error', duration: 3000 });
       }
     });
@@ -192,12 +178,11 @@ export class CartComponent implements OnInit {
   }
 
   verifyAndCheckout(): void {
-    console.log("Starting verification and checkout...");
-    this.checkoutService.verifyCart().pipe(
-      finalize(() => console.log('verifyCart observable completed'))
-    ).subscribe({
+    //console.log("Starting verification and checkout...");
+    this.checkoutService.verifyCart()
+    .subscribe({
       next: (result: CartVerificationResult) => {
-        console.log('Verification completed:', result);
+        //console.log('Verification completed:', result);
         this.validItems = result.validItems;
         this.invalidItems = result.invalidItems.map(item => ({
           item: item.item,
@@ -240,9 +225,9 @@ export class CartComponent implements OnInit {
 
   submitMailingAddress(): void {
     if (this.mailingForm.valid) {
-      console.log("Mailing Form Data: ", this.mailingForm.value);
+      //console.log("Mailing Form Data: ", this.mailingForm.value);
       this.mailingAddress = this.mailingForm.value;
-      console.log("Captured Mailing Address: ", this.mailingAddress);
+      //console.log("Captured Mailing Address: ", this.mailingAddress);
       this.showMailingForm = false;
       this.loadPayPalScript();
       this.showPaypalButton = true;
@@ -267,7 +252,7 @@ export class CartComponent implements OnInit {
         const script = document.createElement('script');
         script.src = scriptSrc;
         script.onload = () => {
-          console.log('PayPal SDK loaded');
+          //console.log('PayPal SDK loaded');
           this.initializePayPalButton();
         };
         document.body.appendChild(script);
@@ -291,14 +276,14 @@ export class CartComponent implements OnInit {
         },
         onApprove: (data, actions) => {
           return actions.order.capture().then((details) => {
-            console.log('Transaction details:', JSON.stringify(details, null, 2));
+            //console.log('Transaction details:', JSON.stringify(details, null, 2));
             /* const addressFromPaypal = {
               street: details.payer.address?.line1 || '',
               city: details.payer.address?.city || '',
               postalCode: details.payer.address?.postal_code || '',
               country: details.payer.address?.country_code || ''
             }; */
-            console.log("mailingAddress second check: ", this.mailingAddress)
+            //console.log("mailingAddress second check: ", this.mailingAddress)
             this.checkoutService.completeCheckout(
               data.paymentID, 
               this.mailingAddress, //|| addressFromPaypal, 
@@ -360,8 +345,7 @@ export class CartComponent implements OnInit {
             'enroll-event',
             templateData
           ).subscribe({
-            next: () => console.log(`Confirmation email sent to ${enrollee.email}`),
-            error: (error) => console.error(`Failed to send confirmation email to ${enrollee.email}`, error)
+            error: (error) => console.error(error)
           });
         });
       });
@@ -382,32 +366,11 @@ export class CartComponent implements OnInit {
       'receipt',
       templateData
     ).subscribe({
-      next: () => console.log(`Receipt email sent to ${payerEmail}`),
       error: (error) => {
-        console.error(`Failed to send receipt email to ${payerEmail}`, error);
-        this.messageService.showMessage({
-          text: `Failed to send receipt email to ${payerEmail}.`,
-          type: 'error',
-          duration: 5000
-        });
+        console.error(error);
       }
     });
   }
-
-  /* private sendOrderConfirmationEmail(orderDetails: OrderDetails) {
-    const orderEmail = orderDetails.email; // From the mailing address form
-    const templateData = { orderDetails };
-  
-    this.emailService.sendEmail(
-      [orderEmail],
-      `Your Order Confirmation - ${orderDetails.orderDetails.id}`,
-      'order-confirmation',
-      templateData
-    ).subscribe({
-      next: () => console.log('Order confirmation email sent'),
-      error: (error) => console.error('Failed to send order confirmation email:', error)
-    });
-  } */
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();

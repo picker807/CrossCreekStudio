@@ -16,7 +16,7 @@ async function syncSequences() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('Connected to MongoDB');
+    //console.log('Connected to MongoDB');
 
     await sequenceGenerator.syncWithCollection('users', User);
     await sequenceGenerator.syncWithCollection('events', Event); 
@@ -25,7 +25,7 @@ async function syncSequences() {
     await sequenceGenerator.syncWithCollection('admin', Admin); 
     await sequenceGenerator.syncWithCollection('products', Product); 
 
-    console.log('All sequences synced successfully');
+    //console.log('All sequences synced successfully');
   } catch (err) {
     console.error('Error syncing sequences:', err.stack);
   } finally {

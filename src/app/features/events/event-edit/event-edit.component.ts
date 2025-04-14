@@ -192,7 +192,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
   async submitEdit(): Promise<void> {
     this.checkFormValidity();
     
-      console.log('Form Data:', this.editForm.value);
+      //console.log('Form Data:', this.editForm.value);
       const value = this.editForm.value;
 
       const combinedDateTime = this.processDateTime(value.date, value.time);
@@ -213,7 +213,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
         newEvent.id = this.originalEvent.id;
         this.eventService.updateEvent(newEvent).subscribe({
           next: (updatedEvent) => {
-            console.log("Event updated successfully: ", updatedEvent);
+            //console.log("Event updated successfully: ", updatedEvent);
             this.messageService.showMessage({
               text: 'Event updated successfully',
               type: 'success',
@@ -362,11 +362,11 @@ export class EventEditComponent implements OnInit, OnDestroy {
   }
 
   checkFormValidity() {
-    console.log('Form valid:', this.editForm.valid);
-    console.log('Form errors:', this.editForm.errors);
+    //console.log('Form valid:', this.editForm.valid);
+    //console.log('Form errors:', this.editForm.errors);
     Object.keys(this.editForm.controls).forEach(key => {
       const control = this.editForm.get(key);
-      console.log(`${key} valid:`, control.valid, 'errors:', control.errors);
+      //console.log(`${key} valid:`, control.valid, 'errors:', control.errors);
     });
   }
 
@@ -406,7 +406,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
 
   updateShowModifyEvent(): void {
     setTimeout(() => {
-    console.log("running updateShowModifyEvent");
+    //console.log("running updateShowModifyEvent");
     const dateValue = this.editForm.get('date').value;
     const timeValue = this.editForm.get('time').value;
   
@@ -417,9 +417,9 @@ export class EventEditComponent implements OnInit, OnDestroy {
       (eventDateTime.toDateString() === now.toDateString() && 
         eventDateTime.getTime() >= now.getTime());
   
-      console.log('Event DateTime:', eventDateTime);
-      console.log('Current DateTime:', now);
-      console.log('Show Modify Event:', this.showModifyEvent);
+      //console.log('Event DateTime:', eventDateTime);
+      //console.log('Current DateTime:', now);
+      //console.log('Show Modify Event:', this.showModifyEvent);
     }, 0);
   }
  

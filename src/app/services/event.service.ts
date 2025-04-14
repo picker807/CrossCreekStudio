@@ -17,7 +17,7 @@ export class EventService {
   //url: string = 'mongo uri here';
 
   constructor( private http: HttpClient ) {
-    console.log("Initializing Event Service")
+    //console.log("Initializing Event Service")
     this.loadEvents();
 
   }
@@ -25,13 +25,13 @@ export class EventService {
   private loadEvents(): void {
     if (this.eventsSubject.getValue().length > 0) return;
     this.http.get<Event[]>(this.apiUrl).subscribe(events => {
-      console.log('Loading events:', events);
+      //console.log('Loading events:', events);
       const eventsWithDates = events.map(event => ({
         ...event,
         date: new Date(event.date)
       }));
       this.sortAndSend(eventsWithDates);
-      console.log('Events loaded into BehaviorSubject');
+      //console.log('Events loaded into BehaviorSubject');
     });
   }
 
@@ -58,11 +58,11 @@ export class EventService {
   createEvent(event: Event): Observable<Event> {
     event.id = '';
     return this.http.post<Event>(this.apiUrl, event).pipe(
-      tap(newEvent => console.log('New event from server:', newEvent)),
+      //tap(newEvent => console.log('New event from server:', newEvent)),
       tap(newEvent => {
         const currentEvents = this.eventsSubject.getValue();
         const updatedEvents = [...currentEvents, newEvent];
-        console.log('Updated events before sort:', updatedEvents);
+        //console.log('Updated events before sort:', updatedEvents);
         this.sortAndSend(updatedEvents);
       }),
       catchError(error => {
@@ -78,10 +78,10 @@ export class EventService {
       images: event.images.map(image => image.id)
     };
 
-    console.log('Updating event:', eventToSend); 
+    //console.log('Updating event:', eventToSend); 
     return this.http.put<Event>(`${this.apiUrl}/${event.id}`, eventToSend).pipe(
       tap(updatedEvent => {
-        console.log("server response: ", updatedEvent);
+        //console.log("server response: ", updatedEvent);
         const currentEvents = this.eventsSubject.getValue();
         const eventIndex = currentEvents.findIndex(e => e.id === event.id);
         if (eventIndex !== -1) {
@@ -96,7 +96,7 @@ export class EventService {
         }
       }),
       catchError(error => {
-        console.error('Error updating event:', error);
+        //console.error('Error updating event:', error);
         return throwError(() => ({
           message: 'Error updating event',
           details: error.message,
@@ -112,7 +112,7 @@ export class EventService {
       const bDate = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
       return aDate - bDate;
     });
-    console.log('Sorted events before emitting:', sortedEvents);
+    //console.log('Sorted events before emitting:', sortedEvents);
     this.eventsSubject.next(sortedEvents);
   }
 
@@ -144,13 +144,13 @@ export class EventService {
       take(1), // Ensure we only take the latest value once
       switchMap(event => {
         if (event) {
-          console.log('Current attendees:', event.attendees);
+          //console.log('Current attendees:', event.attendees);
           //console.log("Event in addUsertoEvent: ", event);
           const existingUserIndex = event.attendees.findIndex(u => u.compositeKey === user.compositeKey);
           if (existingUserIndex === -1) {
             // User doesn't exist, add them
             event.attendees.push(user);
-            console.log('Updated attendees:', event.attendees);
+            //console.log('Updated attendees:', event.attendees);
             return this.updateEvent(event).pipe(
               map(() => true),
               catchError(error => {

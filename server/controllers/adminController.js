@@ -26,7 +26,7 @@ exports.getAdminById = async (req, res) => {
 };
 
 exports.getCurrentAdmin = async (req, res) => {
-  console.log("start admin controller");
+  //console.log("start admin controller");
   try {
 
     const { id, role } = req.admin;
@@ -101,7 +101,7 @@ exports.updateAdmin = async (req, res) => {
     );
 
     if (!updatedAdmin) {
-      console.log('Admin not found');
+      //console.log('Admin not found');
       return res.status(404).json({ message: 'Admin not found' });
     }
 

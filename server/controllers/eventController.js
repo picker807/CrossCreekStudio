@@ -114,7 +114,7 @@ exports.updateEvent = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    console.log('Existing attendees:', existingEvent.attendees);
+    //console.log('Existing attendees:', existingEvent.attendees);
 
     // Process new attendees
     if (req.body.attendees && Array.isArray(req.body.attendees)) {
@@ -159,7 +159,7 @@ exports.updateEvent = async (req, res) => {
       .populate('images')
       .exec();
 
-    console.log('Saved and populated event:', populatedEvent);
+    //console.log('Saved and populated event:', populatedEvent);
     res.json(populatedEvent);
   } catch (err) {
     console.error('Error updating event:', err);

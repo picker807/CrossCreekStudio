@@ -24,7 +24,7 @@ export class ProductService {
 
   getProductsAdmin(): Observable<Product[]> { // For admin page
     const headers = this.getAuthHeaders();
-    console.log('Fetching from:', `${this.apiUrl}/admin`);
+    //console.log('Fetching from:', `${this.apiUrl}/admin`);
     return this.http.get<Product[]>(`${this.apiUrl}/admin`, { headers });
   }
 
@@ -67,7 +67,7 @@ export class ProductService {
     formData.append('file', file, file.name);
     formData.append('key', key);
     const url = '/api/galleries/upload';
-    console.log('Uploading to:', url);
+    //console.log('Uploading to:', url);
     return this.http.post<{ imageUrl: string }>(url, formData, { headers });
   }
 }

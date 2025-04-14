@@ -33,18 +33,11 @@ exports.authMiddleware = async (req, res, next) => {
       query: req.query,
       body: req.body
     };
-    //console.log('Simplified Request Object:', safeStringify(simplifiedReq));
     next();
 
   } catch (error) {
     console.error('Invalid token', error);
 
-    // Handle specific token expiration error
-    /* if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
-    } */
-
-    // Handle other token verification errors
     return res.status(400).json({ message: 'Invalid token' });
   }
 };

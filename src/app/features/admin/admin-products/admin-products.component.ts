@@ -78,7 +78,7 @@ export class AdminProductsComponent implements OnInit {
     this.loading = true;
     this.productService.getProductsAdmin().subscribe({
       next: (products) => {
-        console.log('Products received:', products); 
+        //console.log('Products received:', products); 
         this.products = products;
         this.products.forEach(p => {
           this.initProductEditForm(p);
@@ -110,10 +110,10 @@ export class AdminProductsComponent implements OnInit {
     this.orderService.getOrders().subscribe({
       next: (orders) => {
         this.orders = orders;
-        console.log("Raw Orders from Backend: ", JSON.stringify(orders, null, 2));
+        //console.log("Raw Orders from Backend: ", JSON.stringify(orders, null, 2));
         this.orders.forEach((order) => {
           this.initOrderEditForm(order); 
-          console.log(`Form Created for ${order._id}: `, this.orderEditForms[order._id]?.value);
+          //console.log(`Form Created for ${order._id}: `, this.orderEditForms[order._id]?.value);
           //this.orderEditForms[order.orderNumber].patchValue(order);
         });
       },
@@ -240,6 +240,15 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  removeExistingImage(index: number, productId: string) {
+    const imagesControl = this.productEditForms[productId].get('images');
+    if (imagesControl) {
+      const currentImages = imagesControl.value as string[];
+      const updatedImages = currentImages.filter((_, i) => i !== index);
+      imagesControl.setValue(updatedImages);
+    }
+  }
+
   removeFile(index: number, productId?: string): void {
     if (productId) {
       this.editSelectedFiles[productId].splice(index, 1);
@@ -312,7 +321,7 @@ export class AdminProductsComponent implements OnInit {
 
   toggleExpand(productId: string): void {
     this.expandedProductIds.has(productId) ? this.expandedProductIds.delete(productId) :   this.expandedProductIds.add(productId);
-    console.log('Expanded IDs:', Array.from(this.expandedProductIds)); // Debug
+    //console.log('Expanded IDs:', Array.from(this.expandedProductIds)); // Debug
     this.cdr.detectChanges();
   }
 
@@ -409,7 +418,7 @@ export class AdminProductsComponent implements OnInit {
         templateData
       ).subscribe({
         next: () => {
-          console.log(`Tracking email sent to ${email}`);
+          //console.log(`Tracking email sent to ${email}`);
           this.messageService.showMessage({
             text: `Tracking email sent`,
             type: 'success',

@@ -12,14 +12,12 @@ import { Gallery } from '../models/gallery.model';
 export class CheckoutService {
   private cartIdKey = 'cartId'; // Store UUID locally
   private cartSubject = new BehaviorSubject<CartItems>({ events: [], products: [] });
-  cartItems$: Observable<CartItems> = this.cartSubject.asObservable().pipe(
-    tap(cartList => console.log('cartItems$ emitted at checkoutService: ', cartList))
-  );
+  cartItems$: Observable<CartItems> = this.cartSubject.asObservable();
 
   private orderIdSubject = new BehaviorSubject<string | null>(null);
 
   constructor(private http: HttpClient, private eventService: EventService) {
-    console.log('CheckoutService instance:', this);
+    //console.log('CheckoutService instance:', this);
     this.initializeCart();
   }
 
@@ -51,16 +49,16 @@ export class CheckoutService {
   initializeCart(): void {
     this.getCart().subscribe(cart => {
       const cartItems = Array.isArray(cart.items) ? cart.items[0] : cart.items || { events: [], products: [] };
-      console.log('Initial cart data transformed:', cartItems);
+      //console.log('Initial cart data transformed:', cartItems);
       this.cartSubject.next(cartItems);
     });
   }
 
   getCart(): Observable<any> {
-    console.log("getCart called by Checkout Service")
+    //console.log("getCart called by Checkout Service")
     return this.http.get<any>('/api/cart', { headers: this.getHeaders() }).pipe(
       tap(response => {
-        console.log('getCart response:', response);
+        //console.log('getCart response:', response);
         this.setCartId(response.cartId)
       }),
       catchError(err => {
@@ -73,7 +71,7 @@ export class CheckoutService {
   addEventToCart(event: { eventId: string; enrollees: { firstName: string; lastName: string; email: string; phone: string }[] }): Observable<CartResponse> {
     return this.http.post<CartResponse>('/api/cart/add', { events: [event] }, { headers: this.getHeaders() }).pipe(
       tap(response => {
-        console.log('addEventToCart response:', response);
+        //console.log('addEventToCart response:', response);
         this.setCartId(response.cartId);
         this.cartSubject.next(response.items || { events: [], products: [] });
       }),
@@ -88,7 +86,7 @@ export class CheckoutService {
   addProductToCart(products: { productId: string; quantity: number }[]): Observable<CartResponse> {
     return this.http.post<any>('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
       tap(response => {
-        console.log('addProductToCart response:', response);
+        //console.log('addProductToCart response:', response);
         this.setCartId(response.cartId);
         const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
           this.cartSubject.next(cartItems);
@@ -103,8 +101,8 @@ export class CheckoutService {
 
   private refreshCart(): void {
     this.getCart().subscribe(cart => {
-      console.log('Refreshed cart:', cart);
-      console.log('Emitting to cartSubject:', cart.items || [{ events: [], products: [] }]);
+      //console.log('Refreshed cart:', cart);
+      //console.log('Emitting to cartSubject:', cart.items || [{ events: [], products: [] }]);
       this.cartSubject.next(cart.items || { events: [], products: [] });
     });
   }
@@ -131,13 +129,13 @@ export class CheckoutService {
             };
           })
         }));
-        console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
+        //console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
         return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
       }),
       concatMap(() => this.getCart()),
       tap(response => {
         const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
-        console.log('updateProductQuantity updating cartSubject with:', cartItems);
+        //console.log('updateProductQuantity updating cartSubject with:', cartItems);
         this.cartSubject.next(cartItems);
       })
     );
@@ -148,7 +146,7 @@ export class CheckoutService {
       concatMap(cart => {
         const updatedItems = cart.items.map(item => ({
           events: item.events.map(event => {
-            console.log("Event ID comparison: event.eventId - ", event._id, "::: eventId - ", eventId);
+            //console.log("Event ID comparison: event.eventId - ", event._id, "::: eventId - ", eventId);
             if (event._id === eventId) {
               const updatedEnrollees = event.enrollees.filter(e =>
                 !(e.firstName === enrollee.firstName &&
@@ -170,13 +168,13 @@ export class CheckoutService {
             quantity: product.quantity
           }))
         })).filter(item => item.events.length > 0 || item.products.length > 0);
-        console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
+        //console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
         return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
       }),
       concatMap(() => this.getCart()),
     tap(response => {
       const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
-      console.log('removeEnrollee updating cartSubject with:', cartItems);
+      //console.log('removeEnrollee updating cartSubject with:', cartItems);
       this.cartSubject.next(cartItems);
     })
   );
@@ -187,24 +185,11 @@ export class CheckoutService {
       concatMap(() => this.getCart()),
       tap(response => {
         const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
-        console.log('removeFromCart updating cartSubject with:', cartItems);
+        //console.log('removeFromCart updating cartSubject with:', cartItems);
         this.cartSubject.next(cartItems);
       })
     );
   }
-
-  /* removeFromCart(itemId: string): Observable<any> {
-    return this.getCart().pipe(
-      concatMap(cart => {
-        const updatedItems = cart.items.map(item => ({
-          events: item.events?.filter(e => e.eventId !== itemId) || [],
-          products: item.products?.filter(p => p.productId !== itemId) || []
-        })).filter(item => item.events.length > 0 || item.products.length > 0); // Remove empty items
-        return this.http.post('/api/cart/update', { items: updatedItems }, { headers: this.getHeaders() });
-      }),
-      tap(response => this.cartSubject.next(response.items))
-    );
-  } */
 
   clearCart(): Observable<any> {
     return this.http.delete('/api/cart', { headers: this.getHeaders() }).pipe(
@@ -234,15 +219,6 @@ export class CheckoutService {
   getOrderId(): Observable<string | null> {
     return this.orderIdSubject.asObservable();
   }
-
-  /* storeOrderDetails(order: any) {
-    this.orderDetailsSubject.next({
-      orderDetails: order.orderDetails, // PayPal details
-      items: order.items, // Backend order.items
-      email: order.email,
-      shippingAddress: order.shippingAddress
-    });
-  } */
 
   getOrderDetails(orderNumber: string): Observable<any> {
     return this.http.get(`/api/orders/${orderNumber}`);

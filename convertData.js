@@ -45,9 +45,9 @@ async function convertData() {
     const eventsResult = await db.collection('events').insertMany(events);
 
     // Log the results to verify insertion
-    console.log('Events inserted:', eventsResult.insertedCount);
+    //console.log('Events inserted:', eventsResult.insertedCount);
 
-    console.log('Data conversion and insertion complete.');
+    //console.log('Data conversion and insertion complete.');
   } catch (err) {
     console.error('Error converting data:', err);
   } finally {

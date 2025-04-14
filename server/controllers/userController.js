@@ -44,11 +44,11 @@ exports.createUser = async (req, res, next) => {
 };
 
 exports.updateUser = (req, res, next) => {
-  console.log('PUT request received');
-  console.log(req.body);
+  //console.log('PUT request received');
+  //console.log(req.body);
   User.findOne({ id: req.params.id })
     .then(user => {
-      console.log("user fetched in user route: ", user);
+      //console.log("user fetched in user route: ", user);
       if (!user) {
         return res.status(404).json({
           message: 'User not found'
@@ -58,7 +58,7 @@ exports.updateUser = (req, res, next) => {
       Object.assign(user, req.body);
 
       return user.save().then(updatedUser => {
-        console.log("user saved", updatedUser)
+        //console.log("user saved", updatedUser)
         res.status(200).json(updatedUser);
       });
     })
