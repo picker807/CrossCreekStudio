@@ -23,15 +23,10 @@ export class AdminService {
     });
   }
 
- /*  login(credentials: AdminCredentials): Observable<{ token: string }> {
-    console.log(`API URL: ${this.apiUrl}/login`);
-    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        tap(response => {
-          localStorage.setItem('token', response.token);
-        })
-      );
-  } */
+  private isLoggedIn(): boolean {
+    const token = localStorage.getItem('token');
+    return !!token;
+  }
 
   getAllAdmins(): void {
     this.http.get<Admin[]>(this.apiUrl, {
@@ -40,11 +35,10 @@ export class AdminService {
   }
 
   getCurrentAdmin(): Observable<any> {
-    console.log("Starting current admin in admin service");
+    //console.log("Starting current admin in admin service");
     return this.http.get<any>(`${this.apiUrl}/current`, {
       headers: this.getAuthHeaders()
     }).pipe(
-      tap(response => console.log("Response in admin service:", JSON.stringify(response, null, 2))),
       catchError(error => {
         console.error("Error in admin service:", error);
         return throwError(() => new Error('Failed to get current admin'));
@@ -60,12 +54,12 @@ export class AdminService {
 
   //Change the info for another admin - super admin privilege.
   updateAdmin(adminId: string, updatedData: Partial<Admin>): Observable<Admin> {
-    console.log("Updated Data in the Admin Service: ", updatedData);
+    //console.log("Updated Data in the Admin Service: ", updatedData);
     return this.http.patch<Admin>(`${this.apiUrl}/${adminId}`, updatedData, {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(updatedAdmin => {
-        console.log("Updated Admin sent back from serveer: ", updatedAdmin);
+        //console.log("Updated Admin sent back from serveer: ", updatedAdmin);
         const currentAdmins = this.adminsSubject.value;
         const index = currentAdmins.findIndex(admin => admin.id === adminId);
         if (index !== -1) {

@@ -1,0 +1,61 @@
+{{> header}}
+
+<h2>Order Confirmation</h2>
+<p>Dear {{shippingAddress.fullName}},</p>
+
+<p>Your order is confirmed! Here are the details:</p>
+
+<h3>Order Details:</h3>
+<ul style="list-style-type: none;">
+    <li><strong>Order Number:</strong> {{orderNumber}}</li>
+    <li><strong>Date:</strong> {{dateFormat date "MMMM D, YYYY, h:mm A"}}</li>
+    {{#if shippingAddress}}
+        <li>
+            <strong>Shipping Address:</strong>
+            <br>{{shippingAddress.fullName}}
+            <br>{{shippingAddress.street1}}
+            {{#if shippingAddress.street2}}
+                <br>{{shippingAddress.street2}}
+            {{/if}}
+            <br>{{shippingAddress.city}}, {{shippingAddress.state}} {{shippingAddress.zip}}
+            <br>{{shippingAddress.country}}
+        </li>
+    {{/if}}
+    <li><strong>Contact Email:</strong> {{email}}</li>
+</ul>
+
+<h3>Items Purchased:</h3>
+<ul style="list-style-type: none;">
+  {{#each items}}
+    {{#each events}}
+      <li>
+        <img src="{{this.eventId.images.0.imageUrl}}" style="max-width: 100px" alt="Event Image">
+        <br>{{this.eventId.name}} - {{this.enrollees.length}} enrollee(s) at ${{this.pricePaid}} each (Subtotal: ${{multiply this.pricePaid this.enrollees.length}})
+      </li>
+    {{/each}}
+    {{#each products}}
+      <li>
+        <img src="{{getFirst this.productId.images}}" style="max-width: 100px" alt="Product Image">
+        <br>{{this.productId.name}} - {{this.quantity}} x ${{this.pricePaid}} (Subtotal: ${{multiply this.pricePaid this.quantity}})
+      </li>
+    {{/each}}
+  {{/each}}
+</ul>
+
+<h3>Order Summary:</h3>
+<ul style="list-style-type: none;">
+    <li><strong>Subtotal:</strong> ${{subtotal}}</li>
+    {{#if salesTax}}
+    <li><strong>Sales Tax ({{taxRatePercent}}%):</strong> ${{salesTax}}</li>
+    {{/if}}
+    {{#if shipping}}
+    <li><strong>Shipping ({{shippingRate}}/item):</strong> ${{shipping}}</li>
+    {{/if}}
+    <li><strong>Total Amount:</strong> ${{formatNumber total}}</li>
+</ul>
+
+<p>We’ll notify you when your order is processed. Questions? Contact us!</p>
+
+<p>Best,<br>Cross Creek Studio</p>
+
+{{> footer}}

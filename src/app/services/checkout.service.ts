@@ -1,142 +1,264 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, concatMap, defaultIfEmpty, finalize, forkJoin, from, map, mergeMap, of, reduce, take, takeWhile, tap, throwError, toArray } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, concatMap, debounceTime, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
 import { EventService } from './event.service';
-import { Enrollee, OrderDetails, CartItem } from '../models/interfaces';
+import { Enrollee, OrderDetails, CartItems, CartVerificationResult, CartResponse } from '../models/interfaces';
 import { Event } from '../models/event.model';
-
-
+import { Gallery } from '../models/gallery.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckoutService {
-  private cartKey = 'cart';
-  private cartSubject = new BehaviorSubject<any[]>([]);
-  cartItems$ = this.cartSubject.asObservable();
+  private cartIdKey = 'cartId'; // Store UUID locally
+  private cartSubject = new BehaviorSubject<CartItems>({ events: [], products: [] });
+  cartItems$: Observable<CartItems> = this.cartSubject.asObservable();
 
-  private orderDetailsSubject = new BehaviorSubject<OrderDetails | null>(null);
-  orderDetails$ = this.orderDetailsSubject.asObservable();
+  private orderIdSubject = new BehaviorSubject<string | null>(null);
 
   constructor(private http: HttpClient, private eventService: EventService) {
+    //console.log('CheckoutService instance:', this);
     this.initializeCart();
   }
 
+  private getHeaders(): HttpHeaders {
+    const cartId = this.getCartId();
+    return new HttpHeaders({ 'X-Cart-ID': cartId });
+  }
+
+  private getCartId(): string {
+    return typeof window !== 'undefined' && window.localStorage
+      ? localStorage.getItem(this.cartIdKey) || ''
+      : '';
+  }
+
+  private setCartId(cartId: string): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.cartIdKey, cartId);
+    }
+  }
+
+  getTaxRate(): Observable<{ taxRate: number }> {
+    return this.http.get<{ taxRate: number }>('/api/checkout/tax-rate');
+  }
+
+  getShippingRate(): Observable<{ shippingRate: number }> {
+    return this.http.get<{ shippingRate: number }>('/api/checkout/shipping-rate');
+  }
+
   initializeCart(): void {
-    this.cartSubject.next(this.getCart());
+    this.getCart().subscribe(cart => {
+      const cartItems = Array.isArray(cart.items) ? cart.items[0] : cart.items || { events: [], products: [] };
+      //console.log('Initial cart data transformed:', cartItems);
+      this.cartSubject.next(cartItems);
+    });
   }
 
-  getCart() {
-    if (typeof window !== 'undefined' && window.localStorage){
-    return JSON.parse(window.localStorage.getItem(this.cartKey) || '[]');
-    }
-  }
-
-  addToCart(event: Event, enrollees: Enrollee[]) {
-
-    const simplifiedEvent = {
-      id: event.id,
-      name: event.name,
-      date: event.date,
-      price: event.price,
-      location: event.location
-    };
-
-    const cart = this.getCart();
-    cart.push({ event: simplifiedEvent, enrollees: enrollees });
-    if (typeof window !== 'undefined' && window.localStorage){
-      window.localStorage.setItem(this.cartKey, JSON.stringify(cart));
-    }
-    this.cartSubject.next(cart);
-  }
-
-  removeFromCart(eventId: string) {
-    let cart = this.getCart();
-    cart = cart.filter((item: any) => item.event.id !== eventId);
-    if (typeof window !== 'undefined' && window.localStorage){
-      window.localStorage.setItem(this.cartKey, JSON.stringify(cart));
-    }
-    this.cartSubject.next(cart);
-  }
-
-  clearCart() {
-    if (typeof window !== 'undefined' && window.localStorage){
-      window.localStorage.removeItem(this.cartKey);
-      this.cartSubject.next([]);
-    }
-  }
-
-  verifyCart(): Observable<{
-    validItems: CartItem[],
-    invalidItems: { item: CartItem, reason: string }[]
-  }> {
-    console.log("Starting verifyCart");
-    const cartItems = this.getCart();
-    console.log("Cart items:", cartItems);
-  
-    return from(cartItems).pipe(
-      concatMap((item: CartItem, index) => {
-        console.log(`Starting verification for item ${index + 1}/${cartItems.length}: ${item.event.id}`);
-        return this.eventService.getEventById(item.event.id).pipe(
-          map(event => {
-            console.log(`Fetched event for item ${index + 1}: ${item.event.id}`);
-            const result = this.verifyCartItem(item, event);
-            console.log(`Verification result for item ${index + 1}: ${item.event.id}`, result);
-            return result;
-          }),
-          catchError(error => {
-            console.error(`Error processing item ${index + 1}: ${item.event.id}`, error);
-            return of({ isValid: false, item: item, reason: 'Error processing item' });
-          }),
-          tap(() => console.log(`Finished processing item ${index + 1}: ${item.event.id}`))
-        );
+  getCart(): Observable<any> {
+    //console.log("getCart called by Checkout Service")
+    return this.http.get<any>('/api/cart', { headers: this.getHeaders() }).pipe(
+      tap(response => {
+        //console.log('getCart response:', response);
+        this.setCartId(response.cartId)
       }),
-      toArray(),
-      map(results => {
-        const validItems = results.filter(r => r.isValid).map(r => r.item);
-        const invalidItems = results.filter(r => !r.isValid).map(r => ({item: r.item, reason: r.reason || 'Unknown reason'}));
-        return {validItems, invalidItems};
+      catchError(err => {
+        console.error('Error fetching cart:', err);
+        return of({ cartId: this.getCartId(), items: [] });
+      })
+    );
+  }
+
+  addEventToCart(event: { eventId: string; enrollees: { firstName: string; lastName: string; email: string; phone: string }[] }): Observable<CartResponse> {
+    return this.http.post<CartResponse>('/api/cart/add', { events: [event] }, { headers: this.getHeaders() }).pipe(
+      tap(response => {
+        //console.log('addEventToCart response:', response);
+        this.setCartId(response.cartId);
+        this.cartSubject.next(response.items || { events: [], products: [] });
       }),
-      tap(result => console.log("Final verification result:", result))
+      catchError(err => {
+        console.error('Error adding event to cart:', err);
+        this.refreshCart();
+        return of({ cartId: this.getCartId(), items: this.cartSubject.getValue() });
+      })
     );
   }
   
-  private verifyCartItem(cartItem: any, event: any): { isValid: boolean, item: any, reason?: string } {
-    console.log("Verifying cart item:", cartItem, "with event:", event);
-    if (!event) {
-      console.log("event invalid: not found");
-      return { isValid: false, item: cartItem, reason: 'Event no longer exists' };
-    }
-    const eventDate = new Date(event.date).valueOf();
-    const cartItemDate = new Date(cartItem.event.date).valueOf();
-    const currentDate = new Date().valueOf();
-
-    if (eventDate < currentDate || eventDate !== cartItemDate) {
-      console.log("Event invalid: in the past or time has changed");
-      return { isValid: false, item: cartItem, reason: 'Event date has passed or time has changed' };
-    }
-    if (event.location !== cartItem.event.location){
-      console.log("Event invalid: Event location changed");
-      return { isValid: false, item: cartItem, reason: "Event location has changed"}
-    }
-    if (event.price !== cartItem.event.price) {
-      console.log("evnt invalid: price changed");
-      return { isValid: false, item: cartItem, reason: 'Event price has changed' };
-    }
-    console.log("event is valid");
-    return { isValid: true, item: cartItem };
+  addProductToCart(products: { productId: string; quantity: number }[]): Observable<CartResponse> {
+    return this.http.post<any>('/api/cart/add', { products }, { headers: this.getHeaders() }).pipe(
+      tap(response => {
+        //console.log('addProductToCart response:', response);
+        this.setCartId(response.cartId);
+        const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+          this.cartSubject.next(cartItems);
+      }),
+      catchError(err => {
+        console.error('Error adding product to cart:', err);
+        this.refreshCart();
+        return of({ cartId: this.getCartId(), items: this.cartSubject.getValue() || [{ events: [], products: [] }] });
+      })
+    );
   }
 
-  storeOrderDetails(details: OrderDetails): void {
-    this.orderDetailsSubject.next(details);
+  private refreshCart(): void {
+    this.getCart().subscribe(cart => {
+      //console.log('Refreshed cart:', cart);
+      //console.log('Emitting to cartSubject:', cart.items || [{ events: [], products: [] }]);
+      this.cartSubject.next(cart.items || { events: [], products: [] });
+    });
   }
 
-  getOrderDetails(): Observable<OrderDetails | null> {
-    return this.orderDetails$;
+  updateProductQuantity(productId: string, change: number): Observable<any> {
+    return this.getCart().pipe(
+      concatMap(cart => {
+        const updatedItems = cart.items.map(item => ({
+          events: item.events.map(event => ({
+            eventId: event._id,
+            enrollees: event.enrollees
+          })),
+          products: item.products.map(product => {
+            if (product._id === productId) {
+              const newQuantity = (product.quantity || 1) + change;
+              return {
+                productId: product._id,
+                quantity: newQuantity > 0 ? newQuantity : 1
+              };
+            }
+            return {
+              productId: product._id,
+              quantity: product.quantity
+            };
+          })
+        }));
+        //console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
+        return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
+      }),
+      concatMap(() => this.getCart()),
+      tap(response => {
+        const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+        //console.log('updateProductQuantity updating cartSubject with:', cartItems);
+        this.cartSubject.next(cartItems);
+      })
+    );
   }
 
-  clearOrderDetails(): void {
-    this.orderDetailsSubject.next(null);
+  removeEnrollee(eventId: string, enrollee: { firstName: string, lastName: string, email: string }): Observable<any> {
+    return this.getCart().pipe(
+      concatMap(cart => {
+        const updatedItems = cart.items.map(item => ({
+          events: item.events.map(event => {
+            //console.log("Event ID comparison: event.eventId - ", event._id, "::: eventId - ", eventId);
+            if (event._id === eventId) {
+              const updatedEnrollees = event.enrollees.filter(e =>
+                !(e.firstName === enrollee.firstName &&
+                  e.lastName === enrollee.lastName &&
+                  e.email === enrollee.email)
+              );
+              return {
+                eventId: event._id,
+                enrollees: updatedEnrollees
+              };
+            }
+            return {
+              eventId: event._id,
+              enrollees: event.enrollees
+            };
+          }),
+          products: item.products.map(product => ({
+            productId: product._id,
+            quantity: product.quantity
+          }))
+        })).filter(item => item.events.length > 0 || item.products.length > 0);
+        //console.log('Sending to /api/cart/update:', JSON.stringify({ cartId: this.getCartId(), items: updatedItems }, null, 2));
+        return this.http.post('/api/cart/update', { cartId: this.getCartId(), items: updatedItems }, { headers: this.getHeaders() });
+      }),
+      concatMap(() => this.getCart()),
+    tap(response => {
+      const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+      //console.log('removeEnrollee updating cartSubject with:', cartItems);
+      this.cartSubject.next(cartItems);
+    })
+  );
+}
+
+  removeFromCart(itemId: string, type: 'event' | 'product'): Observable<any> {
+    return this.http.post('/api/cart/remove', { cartId: this.getCartId(), itemId, type }, { headers: this.getHeaders() }).pipe(
+      concatMap(() => this.getCart()),
+      tap(response => {
+        const cartItems = Array.isArray(response.items) ? response.items[0] : response.items || { events: [], products: [] };
+        //console.log('removeFromCart updating cartSubject with:', cartItems);
+        this.cartSubject.next(cartItems);
+      })
+    );
   }
 
+  clearCart(): Observable<any> {
+    return this.http.delete('/api/cart', { headers: this.getHeaders() }).pipe(
+      tap(() => {
+        localStorage.removeItem(this.cartIdKey);
+        this.cartSubject.next({ events: [], products: [] });
+      })
+    );
+  }
+
+  verifyCart(): Observable<CartVerificationResult> {
+    return this.http.post<CartVerificationResult>('/api/cart/checkout', {}, { headers: this.getHeaders() });
+  }
+
+  getEventDetails(eventId: string): Observable<any> {
+    return this.http.get(`/api/events/${eventId}`);
+  }
+
+  getProductDetails(productId: string): Observable<any> {
+    return this.http.get(`/api/products/${productId}`);
+  }
+
+  storeOrderId(orderNumber: string) {
+    this.orderIdSubject.next(orderNumber);
+  }
+
+  getOrderId(): Observable<string | null> {
+    return this.orderIdSubject.asObservable();
+  }
+
+  getOrderDetails(orderNumber: string): Observable<any> {
+    return this.http.get(`/api/orders/${orderNumber}`);
+  }
+
+  clearOrderId(): void {
+    this.orderIdSubject.next(null);
+  }
+
+  completeCheckout(
+    paymentId: string, 
+    shippingAddress: any, 
+    paypalDetails: any, 
+    cartItems: CartItems, 
+    salesTax: number, 
+    shipping: number, 
+    taxRate: number, 
+    shippingRate: number): Observable<any> {
+    const body = {
+      cartId: this.getCartId(),
+      paymentId,
+      shippingAddress: shippingAddress ? {
+        fullName: shippingAddress.fullName,
+        street1: shippingAddress.street1,
+        street2: shippingAddress.street2,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zip: shippingAddress.zip,
+        country: shippingAddress.country,
+        contactEmail: shippingAddress.contactEmail
+      } : null,
+      paypalDetails,
+      cartItems,
+      salesTax,
+      shipping,
+      taxRate,
+      shippingRate
+    };
+    return this.http.post<{ orderNumber: string, events: any }>('/api/checkout/complete', body);
+  }
+
+  
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
@@ -27,6 +27,8 @@ export class RegistrationComponent {
   previewEnrollees: any[] = [];
   validationErrors: string[] = [];
   showPreview: boolean = false;
+
+  @ViewChild('previewSection') previewSection!: ElementRef; 
 
   constructor(
     private fb: FormBuilder,
@@ -178,6 +180,9 @@ export class RegistrationComponent {
       };
     });
     this.validateEnrollees();
+    setTimeout(() => {
+      this.previewSection.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
   
 
@@ -240,15 +245,44 @@ export class RegistrationComponent {
 
   addToCart() {
     if (this.previewEnrollees.length > 0) {
-      this.checkoutService.addToCart(this.event, this.previewEnrollees);
-      this.previewEnrollees = [];
-      this.registrationForm.reset();
-      this.messageService.showMessage({
-        text: 'Added to cart successfully.',
-        type: 'success',
-        duration: 3000
+      const eventForCart = {
+        eventId: this.event.id,
+        enrollees: this.previewEnrollees.map(attendee => ({
+          firstName: attendee.firstName,
+          lastName: attendee.lastName,
+          email: attendee.email,
+          phone: attendee.phone
+        }))
+      };
+  
+      //console.log('Sending to cart:', eventForCart); // Debug log
+  
+      this.checkoutService.addEventToCart(eventForCart).subscribe({
+        next: (response) => {
+          //console.log('Event added:', response);
+          this.previewEnrollees = [];
+          this.registrationForm.reset();
+          this.numAttendeesControl.setValue(1);
+          this.updateAttendees(1);
+          this.showPreview = false;
+          this.registrationForm.enable();
+          this.numAttendeesControl.enable();
+          this.messageService.showMessage({
+            text: 'Added to cart successfully.',
+            type: 'success',
+            duration: 3000
+          });
+          this.router.navigate(['/cart']);
+        },
+        error: (err) => {
+          console.error('Cart error:', err);
+          this.messageService.showMessage({
+            text: 'Failed to add to cart: ' + err.message,
+            type: 'error',
+            duration: 5000
+          });
+        }
       });
-      this.router.navigate(['/cart']);
     } else {
       this.messageService.showMessage({
         text: 'No enrollees to add to cart.',

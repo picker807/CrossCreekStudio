@@ -1,6 +1,25 @@
 .active {
-  color: #fbbf24; /* Example color for active link */
-  border-bottom: 2px solid #fbbf24; /* Optional: underline the active link */
+  color: #fbbf24; 
+  border-bottom: 2px solid #fbbf24; 
+}
+
+.alternate-colors {
+  background-color: #f9e8d9;
+  color: #58c2c0
+}
+
+.gallery-colors {
+  background-color: #000000;
+  color: #5891c3
+}
+
+.default-colors {
+  background-color: #342c25;
+  color: #f9e8d9;
+}
+
+.footer-link {
+  color: #5891c3;
 }
 
 @keyframes slideDown {

@@ -1,0 +1,10 @@
+/* Tailwind handles most styling via classes in HTML */
+.grid {
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4;
+}
+
+.parallax-section {
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+}

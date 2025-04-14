@@ -8,10 +8,20 @@ const path = require('path');
 require('dotenv').config();
 const moment = require('moment-timezone');
 
+// Register Handlebars helpers
 handlebars.registerHelper('formatDateWithTimeZone', function(date, format, timeZone) {
   return moment(date).tz(timeZone).format(format);
 });
 handlebars.registerHelper('dateFormat', dateFormat);
+handlebars.registerHelper('multiply', function(a, b) { 
+  return Number(a) * Number(b);
+});
+handlebars.registerHelper('formatNumber', function(number) {
+  return Number(number).toFixed(2); // Always 2 decimal places
+});
+handlebars.registerHelper('getFirst', function(array) {
+  return array && array.length ? array[0] : '';
+});
 
 const { EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVE1, EMAIL_RECEIVE2 } = process.env;
 
@@ -43,7 +53,7 @@ async function loadTemplate(templateName, data) {
 
 // Middleware to ensure the template exists
 const ensureTemplateExists = async (req, res, next) => {
-  console.log("req.body: ", req.body);
+  //console.log("req.body: ", req.body);
   const templateType = req.body.templateType || req.body.emailData?.templateType;
   try {
     const filePath = path.join(__dirname, '../models/templates', `${templateType}.hbs`);
@@ -57,7 +67,6 @@ const ensureTemplateExists = async (req, res, next) => {
 // Endpoint for sending emails
 router.post('/send', ensureTemplateExists, async (req, res) => {
   const { recipients, subject, templateType, templateData } = req.body; // Accessing from emailData
-  //console.log('Send Data:', { recipients, subject, templateType, templateData });
 
   let finalRecipients = recipients;
   let mailOptions = {
@@ -79,6 +88,25 @@ router.post('/send', ensureTemplateExists, async (req, res) => {
       };
 
       await transporter.sendMail(mailOptions);
+
+    } else if (templateType === 'order-confirmation') {
+      // For order-confirmation, send individual emails with BCC to seller
+      const sendEmailPromises = finalRecipients.map(async (recipient) => {
+        const options = {
+          ...mailOptions,
+          to: recipient,
+          bcc: [
+            EMAIL_RECEIVE1,
+            EMAIL_RECEIVE2
+          ].filter(Boolean).join(', '),
+          html
+        };
+
+        return transporter.sendMail(options);
+      });
+
+      await Promise.all(sendEmailPromises);
+
     } else {
       // For all other templates, send individual emails
       const sendEmailPromises = finalRecipients.map(async (recipient) => {

@@ -41,7 +41,7 @@ exports.createEvent = async (req, res) => {
     if (req.body.attendees) {
       const userIds = await Promise.all(
         req.body.attendees.map(async user => {
-          const foundUser = await User.findOne({ id: user.id });
+          const foundUser = await User.findOne({ _id: user._id });
           return foundUser ? foundUser._id : null;
         })
       );
@@ -84,7 +84,6 @@ exports.addUserToEvent = async (req, res) => {
     if (!user) {
       // Create a new user
       user = new User({
-        id: req.body.id,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
@@ -115,7 +114,7 @@ exports.updateEvent = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    console.log('Existing attendees:', existingEvent.attendees);
+    //console.log('Existing attendees:', existingEvent.attendees);
 
     // Process new attendees
     if (req.body.attendees && Array.isArray(req.body.attendees)) {
@@ -160,7 +159,7 @@ exports.updateEvent = async (req, res) => {
       .populate('images')
       .exec();
 
-    console.log('Saved and populated event:', populatedEvent);
+    //console.log('Saved and populated event:', populatedEvent);
     res.json(populatedEvent);
   } catch (err) {
     console.error('Error updating event:', err);

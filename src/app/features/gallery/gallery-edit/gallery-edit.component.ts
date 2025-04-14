@@ -48,7 +48,7 @@ export class GalleryEditComponent implements OnInit {
 
     this.subscriptions.add(this.route.params.subscribe(params => {
       const id = params['id'];
-      console.log(id);
+      //console.log(id);
       if (id) {
         this.subscriptions.add(this.galleryService.galleryList$.subscribe(list => {
           this.originalItem = list.find(item => item.id === id);
@@ -106,7 +106,7 @@ export class GalleryEditComponent implements OnInit {
         // Upload the file and wait for the response
         this.galleryService.uploadFile(this.selectedFile, key).subscribe({
           next: (response) => {
-            console.log("response from uploadFile: ", response);
+            //console.log("response from uploadFile: ", response);
             // Update the image URL in the form with the new URL from the response
             this.currentImageUrl = response.imageUrl;
             newItem.imageUrl = response.imageUrl;

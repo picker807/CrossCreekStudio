@@ -1,35 +1,20 @@
 {{> header}}
 
-<h2>Order Receipt</h2>
-<p>Dear {{orderDetails.orderDetails.payer.name.given_name}},</p> <!-- Using given_name from PayPal details -->
+<h2>Purchase Receipt</h2>
+<p>Dear {{payerName}},</p>
 
-<p>Thank you for your purchase. Here's a summary of your order:</p>
+<p>Thank you for your payment. Here’s your receipt:</p>
 
-<h3>Order Details:</h3>
+<h3>Payment Details:</h3>
 <ul>
-    <li><strong>Order ID:</strong> {{orderDetails.orderDetails.id}}</li>
-    <li><strong>Date:</strong> {{dateFormat orderDetails.orderDetails.create_time "MMMM D, YYYY, h:mm A"}}</li>
-    <li><strong>Total Amount:</strong> ${{orderDetails.orderDetails.purchase_units.[0].amount.value}}</li>
+    <li><strong>Order Number:</strong> {{orderNumber}}</li>
+    <li><strong>Date:</strong> {{dateFormat date "MMMM D, YYYY, h:mm A"}}</li>
+    <li><strong>Total Amount:</strong> ${{total}}</li>
+    <li><strong>Payment Method:</strong> PayPal</li>
 </ul>
 
-<h3>Items Purchased:</h3>
-<table style="width: 100%; border-collapse: collapse;">
-    <tr>
-        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Item</th>
-        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Quantity</th>
-        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Price</th>
-    </tr>
-    {{#each orderDetails.cartContents}}
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px;">{{this.event.name}} on {{dateFormat this.event.date "MMMM D, YYYY"}} at {{formatDateWithTimeZone this.event.date "h:mm A z" "America/New_York"}}</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">{{this.enrollees.length}}</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">${{this.event.price}}</td>
-    </tr>
-    {{/each}}
-</table>
+<p>For order details, check your confirmation email or contact us.</p>
 
-<p>If you have any questions about your order, please don't hesitate to contact us.</p>
-
-<p>Thank you for your business!</p>
+<p>Thank you!</p>
 
 {{> footer}}

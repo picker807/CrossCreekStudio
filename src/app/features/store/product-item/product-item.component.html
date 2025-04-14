@@ -1,0 +1,15 @@
+<div class="border-2 border-black rounded-lg p-4 shadow hover:shadow-lg transition bg-white bg-opacity-70">
+  <img [src]="product.images?.[0] || ''" alt="{{ product.name }}" class="w-full h-48 object-cover border-2 border-black rounded mb-2">
+  <h3 class="text-lg font-semibold">{{ product.name }}</h3>
+  <p class="text-gray-600">${{ product.price | number:'1.2-2'  }}</p>
+  <div class="mt-2 flex space-x-2">
+    <button
+      (click)="onAddToCart()"
+      style="background-color: #5891c3;" class="text-black px-4 py-2 rounded hover:bg-blue-600"
+    >Add to Cart</button>
+    <button
+      (click)="onViewDetails()"
+      style="background-color: #f9e8d9;" class="text-black px-4 py-2 rounded hover:bg-gray-400"
+    >Details</button>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+[{
+  "_id": {
+    "$oid": "67bf8939070a8aa212fd0e1a"
+  },
+  "id": "1",
+  "name": "Paint Kit",
+  "price": 15.99,
+  "stock": 10,
+  "images": [
+    "../../../../assets/images/cart.png",
+    "../../../../assets/images/mexiduck.png"
+  ],
+  "createdAt": {
+    "$date": "2025-02-26T21:35:53.820Z"
+  },
+  "__v": 0,
+  "description": "This is a fine paint kit."
+},
+{
+  "_id": {
+    "$oid": "67bf8939070a8aa212fd0e1b"
+  },
+  "id": "2",
+  "name": "Brush Set",
+  "price": 9.99,
+  "stock": 20,
+  "images": [
+    "../../../../assets/images/cart.png",
+    "../../../../assets/images/mexiduck.png"
+  ],
+  "createdAt": {
+    "$date": "2025-02-26T21:35:53.822Z"
+  },
+  "__v": 0,
+  "description": "This is a fine brush set."
+},
+{
+  "_id": {
+    "$oid": "67d89ff88cdbd362cb8016dc"
+  },
+  "id": "6",
+  "name": "sdfhsdfh",
+  "price": 80,
+  "stock": 0,
+  "description": "dfhsdfhsdfh",
+  "images": [
+    "https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/1742249975560_u2puknpep5p_images.jpeg"
+  ],
+  "createdAt": {
+    "$date": "2025-03-17T22:19:36.107Z"
+  },
+  "__v": 0
+}]

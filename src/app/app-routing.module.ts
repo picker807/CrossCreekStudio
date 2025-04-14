@@ -6,6 +6,7 @@ import { ConfirmationComponent } from './features/checkout/confirmation/confirma
 import { PageNotFoundComponent } from './features/page-not-found/page-not-found.component';
 import { ContactComponent } from './features/contact/contact.component';
 
+
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'events', loadChildren: () => import('./features/events/events.module').then(m => m.EventsModule) },
@@ -15,11 +16,12 @@ const routes: Routes = [
   { path: 'cart', component: CartComponent },
   { path: 'confirmation', component: ConfirmationComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'store', loadChildren: () => import('./features/store/product-store.module').then(m => m.ProductStoreModule) },
   { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' })],
+  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload', scrollPositionRestoration: 'top' })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

@@ -1,0 +1,112 @@
+[{
+  "_id": {
+    "$oid": "66f5bf9a70cddbb3557fb8cb"
+  },
+  "id": "34",
+  "name": "Magic Pumpkin",
+  "date": {
+    "$date": "2025-03-08T00:00:00.000Z"
+  },
+  "location": "Sidney Community Cultural Center, 1 Bridge St, Sidney, NY",
+  "description": "Join us for an evening of creativity and fun!",
+  "price": 35,
+  "attendees": [],
+  "images": [
+    {
+      "$oid": "66f5bf1770cddbb3557fb8bd"
+    }
+  ],
+  "isPrivate": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66f5cf33da9634124494f1a1"
+  },
+  "id": "35",
+  "name": "Twilight Raven",
+  "date": {
+    "$date": "2025-03-23T23:00:00.000Z"
+  },
+  "location": "Sidney Community Cultural Center, 1 Bridge St, Sidney, NY",
+  "description": "Nevermore!",
+  "price": 35,
+  "attendees": [
+    {
+      "$oid": "67d095e40758c79b3ce586a2"
+    },
+    {
+      "$oid": "67d0c24091fa43d3e7dbf399"
+    },
+    {
+      "$oid": "669c81183315f05abd5c4289"
+    },
+    {
+      "$oid": "67d205beba61491be9bc9615"
+    },
+    {
+      "$oid": "67d205beba61491be9bc9615"
+    },
+    {
+      "$oid": "67d34b7955bfcb5194798264"
+    },
+    {
+      "$oid": "67d34defd9878a0abce963a3"
+    },
+    {
+      "$oid": "67d3501910d4b2a144438a5e"
+    },
+    {
+      "$oid": "67d366380be7a7541c9a2006"
+    },
+    {
+      "$oid": "67d367e00be7a7541c9a204f"
+    },
+    {
+      "$oid": "67d36c036d5ce4016428ba74"
+    },
+    {
+      "$oid": "67d37281171cb3a8a3251c56"
+    },
+    {
+      "$oid": "67d379f2dba228e7ae719b63"
+    },
+    {
+      "$oid": "67d511257e51c8c6be02fe9f"
+    },
+    {
+      "$oid": "67d511267e51c8c6be02fea3"
+    },
+    {
+      "$oid": "67d57a6a7e1a4bc2d3c14c7e"
+    }
+  ],
+  "images": [
+    {
+      "$oid": "66f5cee5da9634124494f19a"
+    }
+  ],
+  "isPrivate": false,
+  "__v": 18
+},
+{
+  "_id": {
+    "$oid": "67d89d4490c4ad414bb97dd7"
+  },
+  "id": "38",
+  "name": "test event to check id generator",
+  "date": {
+    "$date": "2025-03-21T04:55:00.000Z"
+  },
+  "location": "Central Park Zoo",
+  "description": "yep this is good",
+  "price": 54,
+  "attendees": [],
+  "images": [
+    {
+      "$oid": "665fad1c628746384424e2b0"
+    }
+  ],
+  "isPrivate": false,
+  "__v": 0
+}]

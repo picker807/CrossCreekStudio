@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CheckoutService } from '../../../services/checkout.service';
+import { EmailService } from '../../../services/email.service';
 import { Subscription } from 'rxjs';
+import { OrderDetails } from '../../../models/interfaces';
 
 @Component({
   selector: 'cc-confirmation',
@@ -9,27 +11,62 @@ import { Subscription } from 'rxjs';
 })
 export class ConfirmationComponent implements OnInit, OnDestroy {
   orderDetails: any;
+  showShippingAddress: boolean = false;
   private orderSubscription: Subscription;
 
-  constructor(private checkoutService: CheckoutService) {}
+  constructor(private checkoutService: CheckoutService,
+    private emailService: EmailService
+  ) {}
 
   ngOnInit() {
-    this.orderSubscription = this.checkoutService.getOrderDetails().subscribe(
-      details => {
-        if (details) {
-          this.orderDetails = details;
+    this.orderSubscription = this.checkoutService.getOrderId().subscribe((orderNumber)=> {
+        if (orderNumber) {
+          this.checkoutService.getOrderDetails(orderNumber).subscribe({
+            next: (order) => {
+              this.orderDetails = order;
+              this.showShippingAddress = this.orderDetails.shippingAddress && 
+                this.orderDetails.items.some(item => item.products && item.products.length > 0);
+                //console.log("******** Images in Order: ", JSON.stringify(order.items));
+              this.sendOrderConfirmationEmail(order);
+            },
+            error: (error) => {
+              console.error('Failed to fetch order details:', error);
+            },
+          });
         } else {
-          // Handle case where order details are not available
-          // Maybe redirect to home page or show an error
+          console.error('No order ID found');
         }
-      }
-    );
+      });
+    }
+  
+  private sendOrderConfirmationEmail(order: any) {
+    const orderEmail = order.email;
+    const templateData = {
+      orderNumber: order.orderNumber,
+      items: order.items,
+      shippingAddress: order.shippingAddress, 
+      total: order.total,
+      date: order.date,
+      email: order.email,
+      subtotal: (parseFloat(order.total) - (order.salesTax || 0) - (order.shipping || 0)).toFixed(2),
+      salesTax: order.salesTax?.toFixed(2),
+      shipping: order.shipping?.toFixed(2),
+      taxRatePercent: (order.taxRate * 100).toFixed(2),
+      shippingRate: order.shippingRate?.toFixed(2)
+    };
+
+    this.emailService.sendEmail(
+      [orderEmail],
+      `Your Order Confirmation - ${order.orderNumber}`,
+      'order-confirmation',
+      templateData
+    ).subscribe();
   }
 
   ngOnDestroy() {
     if (this.orderSubscription) {
       this.orderSubscription.unsubscribe();
     }
-    this.checkoutService.clearOrderDetails();
+    this.checkoutService.clearOrderId();
   }
 }

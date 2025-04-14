@@ -1,0 +1,52 @@
+[{
+  "_id": {
+    "$oid": "67d5d5372463213ab1315ddc"
+  },
+  "cartId": "75a99051-335f-43ab-88b1-455869d4cf0a",
+  "items": [
+    {
+      "events": [
+        {
+          "eventId": {
+            "$oid": "66f5cf33da9634124494f1a1"
+          },
+          "enrollees": [
+            {
+              "firstName": "Lola",
+              "lastName": "Barnes",
+              "email": "this@this.org",
+              "phone": "(333) 333-3333"
+            },
+            {
+              "firstName": "happy",
+              "lastName": "gilmore",
+              "email": "happ@happ.ong",
+              "phone": "(222) 222-2222"
+            }
+          ]
+        }
+      ],
+      "products": [
+        {
+          "productId": {
+            "$oid": "67bf8939070a8aa212fd0e1b"
+          },
+          "quantity": 2
+        },
+        {
+          "productId": {
+            "$oid": "67bf8939070a8aa212fd0e1a"
+          },
+          "quantity": 2
+        },
+        {
+          "productId": {
+            "$oid": "67d89ff88cdbd362cb8016dc"
+          },
+          "quantity": 2
+        }
+      ]
+    }
+  ],
+  "__v": 4
+}]

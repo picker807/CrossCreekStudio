@@ -117,13 +117,13 @@ export class AdminDashboardComponent implements OnInit {
   loadCurrentAdmin(): void {
     this.adminService.getCurrentAdmin().subscribe({
       next: (admin) => {
-        console.log("Admin returned to dashboard: ", admin);
+        //console.log("Admin returned to dashboard: ", admin);
         this.currentAdmin = admin;
         
         if (this.currentAdmin.role === "superadmin") {
           this.adminService.admins$.subscribe(admins => {
             this.admins = admins.filter(a => a.id !== this.currentAdmin.id);
-            console.log("admins after finding current admin: ", this.admins);
+            //console.log("admins after finding current admin: ", this.admins);
             this.loadAdmins();
           });
         }
@@ -157,7 +157,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadAdmins(): void {
-    console.log('Loading admins:', this.admins);
+    //console.log('Loading admins:', this.admins);
     this.admins.forEach(admin => {
       if (!this.resetForms[admin.id]) {
         this.resetForms[admin.id] = this.fb.group({
@@ -220,10 +220,10 @@ export class AdminDashboardComponent implements OnInit {
     if (this.notificationForm.valid) {
       const { subject, message } = this.notificationForm.value;
       const selectedUserEmails = this.selectedEventUsers
-        .filter(user => this.selectedUsers.includes(user.id))
+        .filter(user => this.selectedUsers.includes(user._id))
         .map(user => user.email);
   
-      console.log('Preview Email Data:', { selectedUserEmails, subject, message, eventDetails: this.eventDetails });
+      //console.log('Preview Email Data:', { selectedUserEmails, subject, message, eventDetails: this.eventDetails });
   
       // Prepare the data for the email template
       const templateData = {
@@ -306,13 +306,13 @@ export class AdminDashboardComponent implements OnInit {
       if (!updatedData.newPassword) {
         delete updatedData.newPassword;
       }
-      console.log("Updated Admin Data: ", updatedData);
+      //console.log("Updated Admin Data: ", updatedData);
 
       this.adminService.updateAdmin(adminId, updatedData).subscribe({
         next: updatedAdmin => {
-          console.log("updated admin returned to admin dashboard: ", updatedAdmin);
+          //console.log("updated admin returned to admin dashboard: ", updatedAdmin);
           //const index = this.admins.findIndex(admin => admin.id == adminId);
-          console.log("admin id: ", adminId);
+          //console.log("admin id: ", adminId);
          
           this.messageService.showMessage({
             text: 'Admin updated successfully',
@@ -369,10 +369,10 @@ export class AdminDashboardComponent implements OnInit {
     if (this.notificationForm.valid && this.selectedUsers.length > 0) {
       const { subject, message } = this.notificationForm.value;
       const selectedUsers = this.selectedEventUsers
-        .filter(user => this.selectedUsers.includes(user.id))
+        .filter(user => this.selectedUsers.includes(user._id))
         .map(user => ({ firstName: user.firstName, email: user.email }));
   
-      console.log("Selected users sent to email: ", selectedUsers);
+      //console.log("Selected users sent to email: ", selectedUsers);
   
       const eventDetails = this.selectedEvent ? {
         name: this.selectedEvent.name,
@@ -400,7 +400,7 @@ export class AdminDashboardComponent implements OnInit {
           true // notifications require authentication
         ).subscribe({
           next: () => {
-            console.log(`Email sent successfully to ${user.email}`);
+            //console.log(`Email sent successfully to ${user.email}`);
           },
           error: (err) => {
             console.error(`Failed to send email to ${user.email}`, err);
@@ -441,7 +441,7 @@ export class AdminDashboardComponent implements OnInit {
 
   toggleSelectAll(event: any): void {
     const isChecked = event.target.checked;
-    this.selectedUsers = isChecked ? this.selectedEventUsers.map(user => user.id) : [];
+    this.selectedUsers = isChecked ? this.selectedEventUsers.map(user => user._id) : [];
   }
 
   toggleUserSelection(userId: string): void {
@@ -454,7 +454,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   deleteAdmin(id: string): void {
-    console.log("111111");
+    //console.log("111111");
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '300px',
       data: {
@@ -462,7 +462,7 @@ export class AdminDashboardComponent implements OnInit {
         message: 'Are you sure you want to delete this Admin?'
       }
     });
-    console.log("222222");
+    //console.log("222222");
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

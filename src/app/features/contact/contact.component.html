@@ -1,40 +1,42 @@
 
-<form [formGroup]="contactForm" (ngSubmit)="sendContactMessage()" class="max-w-lg mx-auto bg-white p-8 shadow-md rounded-lg mt-8">
+<div class="fixed top-0 left-0 w-screen h-screen bg-[url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/canvas_background.jpg')] bg-cover bg-center z-[-1]"></div>
+
+<form [formGroup]="contactForm" (ngSubmit)="sendContactMessage()" class="max-w-lg mx-auto bg-white p-8 shadow-md rounded-lg mt-[150px] md:text-xl">
   <h2 class="text-2xl font-bold mb-4 text-blue-600">Contact Us</h2>
   <p class="mb-6 text-gray-600">Use this form to book a paint party event, ask a question, or report any problems with our site. We're here to help!</p>
   
   <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Name</label>
+      <label class="block font-medium text-gray-700">Name</label>
       <input formControlName="name" type="text" maxLength="50" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:ring-blue-500">
       <p *ngIf="contactForm.get('name').invalid && contactForm.get('name').touched" class="text-red-500 text-sm">Name is required.</p>
   </div>
   
   <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Email</label>
+      <label class="block font-medium text-gray-700">Email</label>
       <input formControlName="email" type="email" maxLength="100" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:ring-blue-500">
       <p *ngIf="contactForm.get('email').invalid && contactForm.get('email').touched" class="text-red-500 text-sm">Valid email is required.</p>
   </div>
   
   <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Phone</label>
+      <label class="block font-medium text-gray-700">Phone</label>
       <input formControlName="phone" type="tel" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:ring-blue-500">
       <p *ngIf="contactForm.get('phone').invalid && contactForm.get('phone').touched" class="text-red-500 text-sm">Phone number is required.</p>
   </div>
   
   <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Subject</label>
+      <label class="block font-medium text-gray-700">Subject</label>
       <input formControlName="subject" type="text" maxLength="100" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:ring-blue-500">
       <p *ngIf="contactForm.get('subject').invalid && contactForm.get('subject').touched" class="text-red-500 text-sm">Subject is required.</p>
   </div>
   
   <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Message</label>
+      <label class="block font-medium text-gray-700">Message</label>
       <textarea formControlName="message" rows="4" maxLength="5000" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:ring-blue-500"></textarea>
       <p *ngIf="contactForm.get('message').invalid && contactForm.get('message').touched" class="text-red-500 text-sm">Message is required.</p>
   </div>
   
   <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Preferred Contact Method</label>
+      <label class="block font-medium text-gray-700">Preferred Contact Method</label>
       <select formControlName="contactMethod" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:ring-blue-500">
           <option value="">Select an option</option>
           <option value="email">Email</option>

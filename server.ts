@@ -57,25 +57,18 @@ app.use(cors({
 // Handle preflight requests
 app.options('*', cors());
 
-
-
 // Register the routes with the Express application
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
-
+app.use('/api/cart', require('./server/routes/cart'));
+app.use('/api/products', require('./server/routes/products'));
+app.use('/api/config', require('./server/routes/config'));
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/users', userRoutes);
-app.get('/api/paypal-client-id', (req, res) => {
-  try {
-    console.log("PayPal ID requested");
-    res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 app.use('/api/email', emailRoutes);
+app.use('/api/checkout', require('./server/routes/checkout'));
+app.use('/api/orders', require('./server/routes/orders'));
 
 // Tell express to use the specified directory as the
 // root directory for your web site
@@ -87,8 +80,37 @@ app.get('*', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Global error handler:', err);
+  console.error('Global error handler:', err.stack);
   res.status(500).json({ message: 'Internal server error' });
+});
+
+
+app.get('*', async (req, res) => {
+  try {
+    const { renderModule } = await import('@angular/platform-server');
+    const { AppServerModule } = await import('./dist/cross-creek-creates/server/main');
+    const document = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Cross Creek Studio</title>
+          <base href="/">
+        </head>
+        <body>
+          <app-root></app-root>
+        </body>
+      </html>
+    `;
+    const html = await renderModule(AppServerModule, {
+      url: req.url,
+      document: document,
+    });
+    res.send(html);
+  } catch (error) {
+    console.error('SSR Error:', error);
+    res.sendFile(path.join(__dirname, 'dist/cross-creek-creates/browser/index.html'));
+  }
 });
 
 // Establish a connection to the MongoDB database

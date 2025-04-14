@@ -89,7 +89,7 @@ export class GalleryListComponent implements OnInit, OnDestroy{
           
           //console.log("Items Sorted? ", items);
           this.categoryItems[category] = items;
-          console.log("Category items in component loadCategoryItmes: ", this.categoryItems);
+          //console.log("Category items in component loadCategoryItmes: ", this.categoryItems);
         },
         error: (error) => {
           this.messageService.showMessage({

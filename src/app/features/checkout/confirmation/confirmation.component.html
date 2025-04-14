@@ -1,5 +1,6 @@
-<div class="bg-gray-100 min-h-screen">
-  <div class="max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+<div class="w-full min-h-[calc(100vh-95px)] parallax-section" style="background-image: url('https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/white_brick_background.jpg');">
+  <div class="container mx-auto w-full p-4 mt-[85px]">
+  <div class="max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8 mt-[85px]">
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h1 class="text-3xl font-bold leading-6 text-gray-900">Order Confirmation</h1>
@@ -8,89 +9,148 @@
 
       <div class="px-4 py-5 sm:p-6">
         <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Order Details</h2>
-        
         <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
           <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Order ID</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderDetails.id }}</dd>
+            <dt class="text-sm font-medium text-gray-500">Order Number</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderNumber }}</dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Total</dt>
+            <dd class="mt-1 text-sm text-gray-900">${{ (orderDetails.total || 0) | number:'1.2-2' }}</dd>
           </div>
           <div class="sm:col-span-1">
             <dt class="text-sm font-medium text-gray-500">Date</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.orderDetails.create_time | date:'medium' }}</dd>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.date | date:'medium' }}</dd>
           </div>
           <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Total Amount</dt>
-            <dd class="mt-1 text-sm text-gray-900">
-              ${{ orderDetails.orderDetails.purchase_units[0].amount.value }}
-            </dd>
-          </div>
-          <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500">Payment Status</dt>
+            <dt class="text-sm font-medium text-gray-500">Order Status</dt>
             <dd class="mt-1 text-sm text-gray-900">
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                {{ orderDetails.orderDetails.status }}
+                {{ orderDetails.status }}
               </span>
             </dd>
           </div>
+          <div class="sm:col-span-2" *ngIf="showShippingAddress">
+            <dt class="text-sm font-medium text-gray-500">Shipping Address</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                {{ orderDetails.shippingAddress.fullName }}<br>
+                {{ orderDetails.shippingAddress.street1 }}<br>
+                <span *ngIf="orderDetails.shippingAddress.street2">
+                  {{ orderDetails.shippingAddress.street2 }}<br>
+                </span>
+                {{ orderDetails.shippingAddress.city }}, {{ orderDetails.shippingAddress.state }} {{ orderDetails.shippingAddress.zip }}<br>
+                {{ orderDetails.shippingAddress.country }}
+              </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Contact Email</dt>
+            <dd class="mt-1 text-sm text-gray-900">{{ orderDetails.email }}</dd>
+          </div>
         </dl>
       </div>
-      
+
       <div class="px-4 py-5 sm:px-6 border-t border-gray-200">
         <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Purchased Items</h2>
-        
         <div class="flow-root">
           <ul role="list" class="-my-6 divide-y divide-gray-200">
-            <li *ngFor="let item of orderDetails.cartContents" class="py-6 flex">
-              <div class="flex-1 ml-4">
-                <h3 class="text-sm font-medium text-gray-900">{{ item.event.name }}</h3>
-                <dl class="mt-1 text-sm text-gray-500">
-                  <div>
-                    <dt class="inline">Date: </dt>
-                    <dd class="inline">{{ item.event.date | date:'mediumDate' }}</dd>
+           
+            <ng-container *ngFor="let item of orderDetails.items">
+               <!-- Events -->
+              <ng-container *ngIf="item.events?.length">
+                <li *ngFor="let event of item.events" class="py-6 flex">
+                  <div class="flex-1 ml-4">
+                    <img style="max-width: 100px" [src]="event?.eventId.images[0]?.imageUrl" alt="Event Image">
+                    <h3 class="text-sm font-medium text-gray-900">{{ event.eventId.name || 'Event' }}</h3>
+                    <dl class="mt-1 text-sm text-gray-500">
+                      <div>
+                        <dt class="inline">Date: </dt>
+                        <dd class="inline">{{ event.eventId.date | date:'mediumDate' || 'N/A' }}</dd>
+                      </div>
+                      <div>
+                        <dt class="inline">Location: </dt>
+                        <dd class="inline">{{ event.eventId.location || 'N/A' }}</dd>
+                      </div>
+                      <div>
+                        <dt class="inline">Price: </dt>
+                        <dd class="inline">${{ event.eventId.price | number:'1.2-2' }}</dd>
+                      </div>
+                      <div>
+                        <dt class="inline">Enrollees: </dt>
+                        <dd class="inline">{{ event.enrollees.length }}</dd>
+                      </div>
+                    </dl>
+                    <div class="mt-2">
+                      <h4 class="text-sm font-medium text-gray-900">Enrollees:</h4>
+                      <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
+                        <li *ngFor="let enrollee of event.enrollees">
+                          {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                  <div>
-                    <dt class="inline">Location: </dt>
-                    <dd class="inline">{{ item.event.location }}</dd>
+                  <div class="flex-shrink-0 ml-4">
+                    <p class="text-sm font-medium text-gray-900">${{ (event.pricePaid || 0) * event.enrollees.length }}</p>
                   </div>
-                  <div>
-                    <dt class="inline">Price: </dt>
-                    <dd class="inline">${{ item.event.price }}</dd>
-                  </div>
-                  <div>
-                    <dt class="inline">Enrollees: </dt>
-                    <dd class="inline">{{ item.enrollees.length }}</dd>
-                  </div>
-                </dl>
-                <div class="mt-2">
-                  <h4 class="text-sm font-medium text-gray-900">Enrollees:</h4>
-                  <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
-                    <li *ngFor="let enrollee of item.enrollees">
-                      {{ enrollee.firstName }} {{ enrollee.lastName }} - {{ enrollee.email }} - {{ enrollee.phone }}
-                    </li>
-                  </ul>
+                </li>
+              </ng-container>
+              <!-- Products -->
+              <ng-container *ngIf="item.products?.length">
+              <li *ngFor="let product of item.products" class="py-6 flex">
+                <div class="flex-1 ml-4">
+                  <img style="max-width: 100px" [src]="product?.productId.images[0]" alt="Product Image">
+                  <h3 class="text-sm font-medium text-gray-900">{{ product.productId.name || 'Product' }}</h3>
+                  <dl class="mt-1 text-sm text-gray-500">
+                    <div>
+                      <dt class="inline">Price: </dt>
+                      <dd class="inline">${{ product.pricePaid | number:'1.2-2' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="inline">Quantity: </dt>
+                      <dd class="inline">{{ product.quantity }}</dd>
+                    </div>
+                  </dl>
                 </div>
-              </div>
-              <div class="flex-shrink-0 ml-4">
-                <p class="text-sm font-medium text-gray-900">${{ item.event.price * item.enrollees.length }}</p>
-              </div>
-            </li>
+                <div class="flex-shrink-0 ml-4">
+                  <p class="text-sm font-medium text-gray-900">${{ (product.pricePaid * product.quantity) | number:'1.2-2' }}</p>
+                </div>
+              </li>
+            </ng-container>
+          </ng-container>
           </ul>
         </div>
       </div>
-      
+
+      <!-- Total Price Breakdown -->
       <div class="px-4 py-5 sm:px-6 border-t border-gray-200">
-        <div class="flex justify-between items-center">
-          <h2 class="text-lg leading-6 font-medium text-gray-900">Total</h2>
-          <p class="text-2xl font-bold text-gray-900">
-            ${{ orderDetails.orderDetails.purchase_units[0].amount.value }}
-          </p>
-        </div>
+        <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Order Total</h2>
+        <dl class="space-y-2">
+          <div class="flex justify-between">
+            <dt class="text-gray-600">Subtotal</dt>
+            <dd class="text-gray-900">${{ (orderDetails.total - (orderDetails.salesTax || 0) - (orderDetails.shipping || 0)) | number:'1.2-2' }}</dd>
+          </div>
+          <div class="flex justify-between" *ngIf="orderDetails.salesTax > 0">
+            <dt class="text-gray-600">Sales Tax ({{ (orderDetails.taxRate * 100) | number:'1.0-2' }}%)</dt>
+            <dd class="text-gray-900">${{ orderDetails.salesTax | number:'1.2-2' }}</dd>
+          </div>
+          <div class="flex justify-between" *ngIf="orderDetails.shipping > 0">
+            <dt class="text-gray-600">Shipping ({{ orderDetails.shippingRate | number:'1.2-2' }}/item)</dt>
+            <dd class="text-gray-900">${{ orderDetails.shipping | number:'1.2-2' }}</dd>
+          </div>
+          <div class="flex justify-between border-t pt-2">
+            <dt class="text-lg font-semibold text-gray-900">Total</dt>
+            <dd class="text-lg font-semibold text-gray-900">${{ orderDetails.total | number:'1.2-2' }}</dd>
+          </div>
+        </dl>
       </div>
     </div>
-    
+
+    <!-- Nav Buttons -->
     <div class="mt-8 text-center">
-      <a href="/events" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <a href="/events" class="inline-flex items-center px-4 py-2 mx-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         Browse More Events
+      </a>
+      <a href="/store" class="inline-flex items-center px-4 py-2 mx-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Browse More Products
       </a>
     </div>
   </div>

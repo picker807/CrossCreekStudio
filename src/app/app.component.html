@@ -1,16 +1,19 @@
 <div class="app-container flex flex-col min-h-screen">
   <cc-message class="fixed top-30 left-0 right-0 z-[900]">test Message</cc-message>
 
-  <header class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-[800]">
+  <header [ngClass]="{
+      'default-colors': !isAlternateStyle && !isGalleryStyle,
+      'alternate-colors': isAlternateStyle,
+      'gallery-colors': isGalleryStyle
+    }" class="fixed top-0 left-0 right-0 z-[800]">
     <nav class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-start">
       <div class="flex items-start">
         <a href="/" class="flex items-center">
-          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_logo_image.PNG" alt="Cross Creek Studio Logo" class="h-20 mr-2">
-          <span class="text-xl font-bold">Cross Creek Studio</span>
+          <img [src]="!isGalleryStyle ? 'https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/stacked_words_CCS_green.png' : 'https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/stacked_words_CCS_blue.png'" alt="Cross Creek Studio Logo" class="h-20 mr-2 max-w-full" loading="lazy">
         </a>
       </div>
       
-      <div class="flex items-center menu">
+      <div class="flex items-center menu mt-5">
         <!-- Hamburger menu button for small screens -->
         <button class="lg:hidden mr-4 hamburger7" (click)="toggleMenu()" [class.active]="isMenuOpen">
           <span></span>
@@ -21,6 +24,7 @@
         <!-- Menu items -->
         <ul class="hidden lg:flex justify-end items-center" [ngClass]="{'hidden': !isMenuOpen, 'flex flex-col absolute top-full left-0 right-0 bg-gray-800 p-6 lg:flex-row lg:static lg:bg-transparent lg:p-0 lg:space-y-0': isMenuOpen}">
           <li><a routerLink="/home" [class.active]="isActive('/home')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Home</a></li>
+          <li><a routerLink="/store" [class.active]="isActive('/store')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Store</a></li>
           <li><a routerLink="/events" [class.active]="isActive('/events')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Events</a></li>
           <li><a routerLink="/gallery" [class.active]="isActive('/gallery')" class="hover:text-gray-300 py-1 lg:py-0 lg:px-4">Gallery</a></li>
           <li *ngIf="isAdmin"><a (click)="logout()" class="hover:text-gray-300 cursor-pointer py-1 lg:py-0 lg:px-4">Logout</a></li>
@@ -29,7 +33,7 @@
         <!-- Cart icon -->
         <div class="relative ml-4">
           <a routerLink="/cart" [class.active]="isActive('cart')" class="hover:text-gray-300 block">
-            <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/cart1.png" alt="Cart" class="size-12 sm:size-10 md:size-12 lg:size-14 xl:size-16">
+            <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/cart_green.png" alt="Cart" class="size-12 sm:size-10 md:size-12 lg:size-10">
             <span *ngIf="cartItemCount > 0" class="absolute top-3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               {{cartItemCount}}
             </span>
@@ -39,54 +43,36 @@
     </nav>
   </header>
   
-  <main class="flex-grow mx-auto w-[95%] px-4 sm:px-6 py-4 mt-[95px]">
+  <main class="w-full min-h-[calc(100vh-95px)] flex-grow">
     <router-outlet></router-outlet>
   </main>
   
-  <!-- <footer class="bg-gray-700 text-white text-center py-6">
-    <div class="container mx-auto">
+  
+  <footer class="text-white bg-ccs-brown text-center py-6 relative w-full mx-0 left-0 right-0">
+    <div class="w-full">
       <div class="flex justify-center space-x-4 mb-4">
-        <a href="/home" class="hover:underline">Home</a>
-        <a href="/events" class="hover:underline">Events</a>
-        <a href="/gallery" class="hover:underline">Gallery</a>
-        <a href="/cart" class="hover:underline">Cart</a>
-      </div>
-      <div class="flex justify-center space-x-4 mb-4">
-        <a href="https://www.facebook.com" target="_blank" class="hover:text-blue-500">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-        <a href="https://www.x.com" target="_blank" class="hover:text-blue-300">
-          <i class="fa-brands fa-x-twitter"></i>
-        </a>
-        <a href="https://www.instagram.com" target="_blank" class="hover:text-pink-500">
-          <i class="fab fa-instagram"></i>
-        </a>
-      </div>
-      <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
-      <p>© 2024 Cross Creek Studio</p>
-    </div>
-  </footer> -->
-  <footer class="bg-gray-700 text-white text-center py-6 relative">
-    <div class="container mx-auto">
-      <div class="flex justify-center space-x-4 mb-4">
-        <a href="/home" class="hover:underline">Home</a>
-        <a href="/events" class="hover:underline">Events</a>
-        <a href="/gallery" class="hover:underline">Gallery</a>
-        <a href="/cart" class="hover:underline">Cart</a>
+        <a href="/home" class="hover:underline footer-link">Home</a>
+        <a href="/store" class="hover:underline footer-link">Store</a>
+        <a href="/events" class="hover:underline footer-link">Events</a>
+        <a href="/gallery" class="hover:underline footer-link">Gallery</a>
+        <a href="/cart" class="hover:underline footer-link">Cart</a>
       </div>
       <div class="flex justify-center space-x-4 mb-4">
         <a href="https://www.facebook.com/profile.php?id=61558600351978" target="_blank" class="hover:text-blue-500">
-          <i class="fab fa-facebook-f"></i>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/socials/1.png" alt="Facebook" class="w-6 h-6">
         </a>
         <a href="https://www.x.com/CrossCreekAcres" target="_blank" class="hover:text-blue-300">
-          <i class="fa-brands fa-x-twitter"></i>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/socials/2.png" alt="X" class="w-6 h-6">
         </a>
         <a href="https://www.instagram.com/cross_creek_acres_ny/" target="_blank" class="hover:text-pink-500">
-          <i class="fab fa-instagram"></i>
+          <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/socials/3.png" alt="Instagram" class="w-6 h-6">
         </a>
       </div>
       <p class="mb-2"><a href="/contact" class="hover:underline">Contact Us</a></p>
-      <p>© 2024 Cross Creek Studio</p>
+      <div class="flex justify-center">
+      <img src="https://pub-6630fcbc41224102b416e06d4e3f914b.r2.dev/CCS_Images/inbetween_CCS_blue_(9_4.25in).png" alt="Cross Creek Studio Logo" class=" h-20 max-w-full" loading="lazy">
+      </div>
+      <p>© 2025 Cross Creek Studio</p>
     </div>
     
     <!-- Hidden Admin Button -->

@@ -1,0 +1,48 @@
+.torn-paper {
+  position: relative; /* Required for pseudo-element positioning */
+  overflow: hidden; /* Prevents pseudo-elements from overflowing */
+}
+
+.torn-paper::before,
+.torn-paper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px; /* Width of the torn edge */
+  background: url('https://www.transparenttextures.com/patterns/torn-edges.png') repeat-y;
+  background-size: cover;
+  z-index: 10; /* Above the bg-ccs-blue */
+}
+
+.torn-paper::before {
+  left: 0;
+  transform: translateX(-50%); /* Slightly overlaps the left edge */
+}
+
+.torn-paper::after {
+  right: 0;
+  transform: translateX(50%); /* Slightly overlaps the right edge */
+}
+
+/* Top Edge */
+.torn-paper::after + ::before {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: url('https://www.transparenttextures.com/patterns/torn-edges.png') repeat-x;
+  background-size: cover;
+  transform: translateY(-50%);
+}
+
+/* Bottom Edge */
+.torn-paper::after + ::after {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: url('https://www.transparenttextures.com/patterns/torn-edges.png') repeat-x;
+  background-size: cover;
+  transform: translateY(50%);
+}
