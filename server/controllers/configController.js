@@ -1,4 +1,4 @@
-const Config = require('../models/Config');
+const Config = require('../models/config');
 
 exports.getConfig = async (req, res) => {
   try {
