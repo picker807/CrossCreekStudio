@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:22-slim
 
 WORKDIR /app
 
@@ -9,6 +9,7 @@ RUN npm install -g @angular/cli typescript
 COPY . .
 
 RUN ng build --configuration=production
+RUN ng run CrossCreekCreates:server:production
 RUN tsc server.ts
 
 CMD ["node", "server.js"]
