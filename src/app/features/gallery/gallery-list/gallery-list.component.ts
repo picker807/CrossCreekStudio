@@ -41,7 +41,7 @@ export class GalleryListComponent implements OnInit, OnDestroy{
     this.selectedTabIndex = this.galleryService.getSelectedCategoryIndex();
     this.selectedCategory = this.categories[this.selectedTabIndex];
     this.loadCategoryItems(this.selectedCategory);
-    //console.log("loaded category items: ", this.categoryItems);
+    console.log("loaded category items: ", this.categoryItems);
     
 
     this.subscription = this.galleryService.galleryList$.subscribe({
@@ -84,12 +84,13 @@ export class GalleryListComponent implements OnInit, OnDestroy{
 
   private loadCategoryItems(category: string): void {
     if (!this.categoryItems[category]) {
+      console.log("loadingCategory: ", category);
       this.galleryService.getGalleryItemsByCategory(category).subscribe({
         next: (items) => {
           
           //console.log("Items Sorted? ", items);
           this.categoryItems[category] = items;
-          //console.log("Category items in component loadCategoryItmes: ", this.categoryItems);
+          console.log("Category items in component loadCategoryItmes: ", this.categoryItems);
         },
         error: (error) => {
           this.messageService.showMessage({

@@ -27,22 +27,23 @@
   </div>
 
    <!-- Cloudflare Upload Button -->
-   <input type="file" accept="image/*" (change)="onFileSelected($event)" class="mb-4">
+   <input type="file" accept="image/*" (change)="onFileSelected($event)" formControlName="file" class="mb-4">
 
    <!-- Buttons -->
    <div class="flex justify-between mt-auto pt-4">
+
     <button 
-  mat-raised-button 
-  type="submit"
-  [disabled]="!galleryForm.valid"
-  [ngClass]="{
-    'mat-primary': galleryForm.valid,
-    'mat-button-disabled': !galleryForm.valid
-  }"
-  class="transition duration-300 ease-in-out hover:cursor-pointer"
->
-  Save
-</button>
+   
+      type="submit"
+      [disabled]="!galleryForm.valid"
+      class="save-button"
+      [ngClass]="{
+            'bg-blue-600 text-white font-bold py-2 pl-20 pr-20 rounded shadow-md hover:bg-blue-700 transition duration-300 ease-in-out cursor-pointer': galleryForm.valid,
+            'bg-gray-400 text-gray-700 font-bold py-2 px-20 rounded opacity-50 cursor-not-allowed': !galleryForm.valid
+          }"
+          >
+      Save
+    </button>
     <button 
       type="button" 
       (click)="cancelEdit()" 
@@ -50,7 +51,9 @@
     >
       Cancel
     </button>
+    
   </div>
+  
   <!-- <pre>{{ galleryForm.valid | json }}</pre>
 <pre>{{ galleryForm.value | json }}</pre> -->
 </form>

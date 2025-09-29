@@ -35,7 +35,7 @@ exports.getAllGalleryItems = async (req, res, next) => {
     } else {
       galleries = await Gallery.find();
     }
-
+    //console.log("Gallery returned in server: ", galleries);
     res.json({ galleries });
   } catch (err) {
     res.status(500).json({ message: err.message });

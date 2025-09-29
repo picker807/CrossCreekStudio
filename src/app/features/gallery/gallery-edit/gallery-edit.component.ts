@@ -64,10 +64,20 @@ export class GalleryEditComponent implements OnInit {
     }));
   }
 
+ verifySubmit(): void {
+  console.log('GalleryEdit - verifySubmit called');
+  try {
+    console.log('GalleryEdit - Form valid:', this.galleryForm?.valid, 'Form errors:', this.galleryForm?.errors);
+  } catch (error) {
+    console.error('GalleryEdit - verifySubmit error:', error);
+  }
+}
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
+      console.log('onFileSelected - File: ', this.selectedFile);
 
       // Create a FileReader to read the file and show a preview
       const reader = new FileReader();
@@ -93,20 +103,22 @@ export class GalleryEditComponent implements OnInit {
   }
 
   submitEdit(): void {
+    console.log("submit edit method called");
     if (this.galleryForm.valid) {
       const value = this.galleryForm.value;
       const newItem: Gallery = {
         ...value,
       };
   
+      console.log("Selected File: ", this.selectedFile);
       // Check if a file is selected for upload
       if (this.selectedFile) {
         const key = this.generateUniqueKey(this.selectedFile.name);
-  
+        console.log('GalleryEdit - Calling uploadFile with file:', this.selectedFile?.name, 'key:', key);
         // Upload the file and wait for the response
         this.galleryService.uploadFile(this.selectedFile, key).subscribe({
           next: (response) => {
-            //console.log("response from uploadFile: ", response);
+            console.log("response from uploadFile: ", response);
             // Update the image URL in the form with the new URL from the response
             this.currentImageUrl = response.imageUrl;
             newItem.imageUrl = response.imageUrl;

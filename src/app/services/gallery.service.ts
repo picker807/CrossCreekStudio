@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { Gallery } from '../models/gallery.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -108,12 +108,20 @@ export class GalleryService {
     );
   }
 
-  uploadFile(file: File, key: string): Observable<{ imageUrl: string }> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('key', key);
-    return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/upload`, formData);
+ uploadFile(file: File, key: string): Observable<{ imageUrl: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('key', key);
+  console.log("Form Data in Gallery uploadFile: ", formData);
+  const token = localStorage.getItem('token');
+  console.log('UploadFile - Token:', token || 'No token');
+  if (!token) {
+    console.error('UploadFile - No token found in localStorage');
   }
+  const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+  console.log('UploadFile - Headers:', headers);
+  return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/upload`, formData, { headers });
+}
 
   getSelectedCategoryIndex(): number {
     return this.selectedCategoryIndex;

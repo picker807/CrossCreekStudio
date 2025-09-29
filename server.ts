@@ -75,17 +75,17 @@ app.use('/api/orders', require('./server/routes/orders'));
 app.use(express.static(path.join(__dirname, 'dist/cross-creek-creates/browser')));
 
 // Tell express to map all other non-defined routes back to the index page
-app.get('*', (req, res) => {
+app.get('*', (req: any, res: { sendFile: (arg0: any) => void; }) => {
   res.sendFile(path.join(__dirname, 'dist/cross-creek-creates/browser/index.html'));
 });
 
-app.use((err, req, res, next) => {
+app.use((err: { stack: any; }, req: any, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): void; new(): any; }; }; }, next: any) => {
   console.error('Global error handler:', err.stack);
   res.status(500).json({ message: 'Internal server error' });
 });
 
 
-app.get('*', async (req, res) => {
+app.get('*', async (req: { url: any; }, res: { send: (arg0: string) => void; sendFile: (arg0: any) => void; }) => {
   try {
     const { renderModule } = await import('@angular/platform-server');
     const { AppServerModule } = await import('./dist/cross-creek-creates/server/main');
@@ -117,11 +117,11 @@ app.get('*', async (req, res) => {
 //console.log(mongoUri);
 mongoose.connect(mongoUri)
   .then(() => console.log('Connected to database!'))
-  .catch(err => console.error('Connection failed:', err));
+  .catch((err: any) => console.error('Connection failed:', err));
 
 // Handle connection events
 const db = mongoose.connection;
-db.on('error', (err) => {
+db.on('error', (err: any) => {
   console.error('Mongoose connection error:', err);
 });
 db.once('open', () => {
